@@ -18,9 +18,9 @@ import math
 import random
 
 from cwdc import theater as T
-from cwdc.engine import rng
-from cwdc.model import (AirframeStatus, Campaign, Formation, Objective, Pos, Posture, Sector,
-                        Side)
+from cwdc.engine import airbases, rng
+from cwdc.model import (AirframeStatus, Campaign, Formation, Objective, ObjectiveKind, Pos, Posture,
+                        Sector, Side)
 
 K_ATTRITION = 0.03           # share of the opposing force's power lost per 6 h of fighting
 DEFENDER_BONUS = 1.3         # prepared defence multiplier (on top of sector terrain)
@@ -236,8 +236,8 @@ def check_overruns(c: Campaign) -> list[str]:
             c.add_news(msg)
             lines.append("  " + msg)
     for o in c.objectives.values():
-        if o.sector_id or o.destroyed:
-            continue                       # formation elements move with the front
+        if o.sector_id or o.destroyed or o.kind is ObjectiveKind.AIRBASE:
+            continue                       # formation elements move with the front; airfields change hands
         if T.side_at_pos(c.front_line, o.pos) is not o.side:
             for u in o.units:
                 u.alive = False
@@ -270,6 +270,7 @@ def _overrun_airbase(c: Campaign, ab, owner: Side) -> list[str]:
             lines.append(f"  {sq.name} has nowhere to go and is lost.")
         c.add_news(lines[-1].strip())
     ab.side = owner
+    airbases.overrun(c, ab, owner)
     return lines
 
 
@@ -278,6 +279,7 @@ def _overrun_airbase(c: Campaign, ab, owner: Side) -> list[str]:
 def destroy_from_air(c: Campaign, o: Objective, idx: int) -> None:
     """A visible vehicle was destroyed by air power: the parent formation pays for it."""
     from cwdc.engine import logistics
+    airbases.on_unit_destroyed(c, o, idx)
     if o.formation_id and o.formation_id in c.formations:
         f = c.formations[o.formation_id]
         f.strength = max(0.0, f.strength - unit_points(o.units[idx].type) * AIR_KILL_SCALE)

@@ -368,8 +368,36 @@ Testing is by `cwdc autorun N` (abstract turns in seconds) plus occasional `cwdc
   - The Fulda front ends at 11–40 km.
   - One seed produces a NATO counter-offensive 36 km into the GDR at Göttingen.
 - **Still to do:**
-  - OCA against airbases arrives with step 6 (airbase damage).
+  - OCA against airbases arrived with step 6 (below).
   - Doctrine weights will be tuned in step 9.
+
+**Progress (2026-11-24): step 6 done** (`engine/airbases.py`)
+- **Airfield objectives:** every airbase has one (`ab_<id>`):
+  - four parked aircraft of the resident squadron's type, as DCS plane statics on the base's outermost parking slots, so they never block the runway;
+  - two AAA guns (Vulcan / ZSU-23-4) just outside them.
+- **Damage:** destroying a parked aircraft, flown or simulated, is one event:
+  - the base takes 15% damage;
+  - one ready aircraft of a squadron based there is destroyed on the ground.
+- **Effects:**
+  - Damage cuts the sortie rate (`round(sorties × (1 − damage))`). At 70% the base is closed and flies nothing.
+  - Repair takes 10% a turn, except in a turn the base was hit. Parked aircraft and guns return as it recovers, so it can be hit again.
+- **Overruns:** an overrun base changes hands wrecked (closed) and its squadrons evacuate as before.
+- **Planning:**
+  - **OCA** needs target enemy airfields that host squadrons: score `(2 + 1.5 × squadrons) × (1 − damage) × doctrine`, with NATO at 0.8 and the Warsaw Pact at 1.3.
+  - They're flown as Strike packages with escort and SEAD like any other.
+  - Empty bases (Hahn) and closed bases aren't targeted.
+- **Mission builder:**
+  - Plane statics are supported.
+  - AI `Bombing` aims at the centroid of the structures rather than the objective reference point, which also helps rail yards.
+  - The player's ramp slots avoid parking slots holding statics.
+  - `status` lists damaged airfields (`--all`: every airfield).
+- **Balance read** (4 seeds, 10 days):
+  - The Warsaw Pact flies 12–20 OCA raids. Rhein-Main and Spangdahlem peak at 30–50% damage, losing 11–23 aircraft on the ground.
+  - NATO flies none: its six sorties a turn go to CAS and interdiction, which score higher. That's left to step 9's doctrine tuning.
+- **Known gaps:**
+  - Runway craters from bombs that miss everything produce no event, so a flown OCA only counts what it destroys.
+  - Static aircraft death detection (exists / life ≤ 0) is unverified in DCS.
+  - A player squadron whose base is closed sits the turn out (relocating on a long closure is a later refinement).
 
 What's deliberately left for later phases: the web UI (Phase 3), the crisis phase, the MAGIC controller and kneeboards (Phase 4), and the immersion lockdown (Phase 5).
 

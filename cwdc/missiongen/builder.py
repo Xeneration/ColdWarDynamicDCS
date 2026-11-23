@@ -231,6 +231,7 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
     obj_groups: dict[str, object] = {}
     tracked_statics: list[str] = []
     static_targets: dict[str, Pos] = {}
+    blocked: list[Pos] = []                   # statics on parking slots: keep the player's slots clear
     groups: dict[str, object] = {}
     spawn_at: dict[str, Pos] = {}
 
@@ -266,15 +267,17 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
                 manifest[unit.name] = {"kind": "objective", "objective": o.id, "unit": idx}
             obj_groups[o.id] = g
             tracked.append(gname)
-        for i, u in structures:              # rail yards, depots: one static per structure
+        for i, u in structures:              # rail yards, depots, parked aircraft: one static each
             key = f"{o.id}#{i}"
-            sg = m.static_group(country, key, static_type(u.type),
-                                T.to_point(Pos(x=o.pos.x + u.dx, z=o.pos.z + u.dz)))
+            where = Pos(x=o.pos.x + u.dx, z=o.pos.z + u.dz)
+            sg = m.static_group(country, key, static_type(u.type), T.to_point(where))
+            blocked.append(where)
             sg.units[0].name = key
             manifest[key] = {"kind": "objective", "objective": o.id, "unit": i, "static": True}
             tracked_statics.append(key)
-        if structures:
-            static_targets[o.id] = o.pos
+        if structures:                       # aim at the structures, not the reference point
+            static_targets[o.id] = Pos(x=sum(o.pos.x + u.dx for _, u in structures) / len(structures),
+                                       z=sum(o.pos.z + u.dz for _, u in structures) / len(structures))
 
     # --- flights
     for k, f in enumerate(plan.flights):
@@ -293,7 +296,7 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
         n = len(f.airframe_ids)
 
         if is_player and start in START_TYPES:
-            slots = _adjacent_slots(airport, type_cls, n) if start == "ramp" else None
+            slots = _adjacent_slots(airport, type_cls, n, blocked) if start == "ramp" else None
             g = m.flight_group_from_airport(country, gname, type_cls, airport, maintask=dcs_task,
                                             start_type=START_TYPES[start], group_size=n,
                                             parking_slots=slots)
@@ -425,9 +428,9 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
 
 def static_type(type_id: str):
     """pydcs class for a static object type id (fortifications, warehouses, ...)."""
-    from dcs import statics
+    from dcs import planes, statics
     for table in (statics.fortification_map, statics.warehouse_map, statics.groundobject_map,
-                  statics.cargo_map):
+                  statics.cargo_map, planes.plane_map):
         if type_id in table:
             return table[type_id]
     raise KeyError(f"unknown unit or static type {type_id!r}")
@@ -442,9 +445,10 @@ def mission_filename(c: Campaign, f: Flight, bot: bool = False) -> str:
     return re.sub(r'[<>:"/\\|?*]', "", raw) + ".miz"
 
 
-def _adjacent_slots(airport, type_cls, n: int):
+def _adjacent_slots(airport, type_cls, n: int, blocked: list[Pos] = ()):
     """Parking slots close together, so an AI wingman does not taxi across the base."""
-    free = airport.free_parking_slots(type_cls)
+    free = [s for s in airport.free_parking_slots(type_cls)
+            if all(math.hypot(s.position.x - b.x, s.position.y - b.z) > 40 for b in blocked)]
     if len(free) < n:
         return None
     best, best_d = None, math.inf

@@ -105,7 +105,8 @@ class Airbase(BaseModel):
     dcs_name: str
     side: Side
     pos: Pos
-    runway_damage: float = 0.0   # 0 = fully usable
+    damage: float = 0.0          # 0 = fully usable; cuts the sortie rate, closed at engine.airbases.CLOSED
+    hit_turn: int = -1           # last turn it was hit (no repair that turn)
 
 
 class ObjectiveKind(str, Enum):
@@ -118,6 +119,7 @@ class ObjectiveKind(str, Enum):
     CONVOY = "convoy"
     RAIL = "rail"            # rail yard / junction: interdiction target on a supply link
     COMMAND = "command"
+    AIRBASE = "airbase"      # OCA target: parked aircraft + airfield defences
 
 
 class ObjUnit(BaseModel):
@@ -142,6 +144,7 @@ class Objective(BaseModel):
     formation_id: Optional[str] = None   # visible element of this ground formation
     sector_id: Optional[str] = None      # moves with this sector's front
     base_pos: Optional[Pos] = None       # position when the front offset is 0
+    airbase_id: Optional[str] = None     # OCA target: hits damage this airbase
 
     @property
     def alive_units(self) -> list[ObjUnit]:

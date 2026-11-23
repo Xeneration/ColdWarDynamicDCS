@@ -79,6 +79,12 @@ def cmd_status(args) -> None:
         if coming:
             print("  Expected NATO reinforcements: " + ", ".join(
                 f"{f.name} (turn {f.arrival_turn})" for f in coming))
+    from cwdc.engine import airbases
+    damaged = [ab for ab in c.airbases.values() if ab.damage > 0]
+    if damaged or args.all:
+        print("\nAirfields:")
+        for ab in (c.airbases.values() if args.all else damaged):
+            print("  " + airbases.describe(ab))
     print("\nObjectives:")
     for o in c.objectives.values():
         state = "DESTROYED" if o.destroyed else f"{len(o.alive_units)}/{len(o.units)} units"

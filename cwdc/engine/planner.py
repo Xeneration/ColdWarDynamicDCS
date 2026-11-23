@@ -9,15 +9,17 @@ Phase 2 step 5, "air commanders take 2". Each side:
      **packages**: the main flight plus a SEAD flight if the target sits under an
      enemy SAM umbrella, and an escort if enemy fighters can reach it.
 
-Sortie rate is limited by each squadron's `sorties`, its ready aircraft and crews,
-and the period (night: CAP only).
+Step 6 adds OCA: strikes on enemy airfields that host squadrons (engine.airbases).
+Sortie rate is limited by each squadron's `sorties`, its ready aircraft and crews, its
+airbase's damage (a closed base flies nothing) and the period (night: CAP only).
 """
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Optional
 
 from cwdc import theater as T
-from cwdc.engine import rng
+from cwdc.engine import airbases, rng
 from cwdc.model import (Campaign, Flight, FlightStatus, Objective, ObjectiveKind, Package,
                         PilotStatus, Pos, Side, Squadron, Task)
 
@@ -25,11 +27,13 @@ FLIGHT_SIZE = 2
 SORTIES = {"player": 3, "default": 2}
 STATION_NAMES = ["Alpha", "Bravo", "Charlie", "Delta"]
 ENEMY_FIGHTER_REACH = 120_000     # enemy CAP stations this close to a target justify an escort
+OCA_BASE, OCA_PER_SQUADRON = 2.0, 1.5
 
 # Kept for callers that ask which objective kinds a task can attack.
 TARGET_KINDS = {
     Task.STRIKE: {ObjectiveKind.DEPOT, ObjectiveKind.ARTILLERY, ObjectiveKind.ARMOR,
-                  ObjectiveKind.COMMAND, ObjectiveKind.EWR, ObjectiveKind.RAIL},
+                  ObjectiveKind.COMMAND, ObjectiveKind.EWR, ObjectiveKind.RAIL,
+                  ObjectiveKind.AIRBASE},
     Task.INTERDICTION: {ObjectiveKind.RAIL, ObjectiveKind.CONVOY, ObjectiveKind.DEPOT},
     Task.CAS: {ObjectiveKind.ARMOR, ObjectiveKind.ARTILLERY},
     Task.BAI: {ObjectiveKind.ARMOR, ObjectiveKind.ARTILLERY, ObjectiveKind.DEPOT,
@@ -48,10 +52,11 @@ CAN_FLY = {
 
 DOCTRINE = {
     # NATO: one barrier CAP (the Hawk belt does the rest), escorts and SEAD for packages
-    Side.BLUE: {"cap_stations": 1, "cas": 1.0, "bai": 1.0, "interdiction": 1.0, "strike": 1.0,
+    Side.BLUE: {"cap_stations": 1, "cas": 1.0, "bai": 1.0, "interdiction": 1.0, "strike": 1.0, "oca": 0.8,
                 "escort": True, "sead_support": True},
-    # Warsaw Pact: GCI-directed fighters on CAP, mass on the battlefield, few escorts
-    Side.RED: {"cap_stations": 2, "cas": 1.2, "bai": 1.0, "interdiction": 0.8, "strike": 0.8,
+    # Warsaw Pact: GCI-directed fighters on CAP, mass on the battlefield, few escorts,
+    # and a doctrine of hitting NATO airfields to win the air battle on the ground
+    Side.RED: {"cap_stations": 2, "cas": 1.2, "bai": 1.0, "interdiction": 0.8, "strike": 0.8, "oca": 1.3,
                "escort": False, "sead_support": True},
 }
 
@@ -61,6 +66,7 @@ class Need:
     task: Task
     target: Objective
     score: float
+    label: Optional[str] = None        # e.g. "OCA" for a strike on an airfield
 
 
 # ----------------------------------------------------------------------------- helpers
@@ -130,6 +136,12 @@ def needs(c: Campaign, side: Side) -> list[Need]:
             out.append(Need(Task.SEAD, o, (1.5 + 0.3 * o.value) * frac))
         elif o.kind in (ObjectiveKind.EWR, ObjectiveKind.COMMAND):
             out.append(Need(Task.STRIKE, o, (1 + 0.3 * o.value) * frac * doc["strike"]))
+        elif o.kind is ObjectiveKind.AIRBASE and o.airbase_id:
+            ab = c.airbases[o.airbase_id]
+            based = sum(1 for sq in c.squadrons.values() if sq.base_id == ab.id and sq.side is enemy)
+            if based and ab.damage < airbases.CLOSED:            # nothing to gain on an empty / shut base
+                s = (OCA_BASE + OCA_PER_SQUADRON * based) * (1 - ab.damage) * doc["oca"]
+                out.append(Need(Task.STRIKE, o, s, label="OCA"))
     return sorted(out, key=lambda n: -n.score)
 
 
@@ -149,6 +161,7 @@ class _Pool:
             pls = sorted((p for p in c.squadron_pilots(sq.id) if not p.is_player), key=lambda p: -p.sorties)
             self.airframes[sq.id], self.pilots[sq.id] = afs, pls
             n = sq.sorties or (SORTIES["player"] if sq.player_squadron else SORTIES["default"])
+            n = airbases.sorties(c, sq.base_id, n)                # a damaged base launches less
             self.left[sq.id] = min(n, len(afs) // FLIGHT_SIZE, len(pls) // FLIGHT_SIZE)
 
     def pick(self, tasks: list[Task], near: Pos | None = None, exclude: set[str] = frozenset()):
@@ -206,7 +219,8 @@ def plan_turn(c: Campaign) -> None:
             if sq is None:
                 continue
             taken.add(need.target.id)
-            pkg = _package(c, side, task, f"{task.value} - {need.target.name}", target=need.target)
+            pkg = _package(c, side, task, f"{need.label or task.value} - {need.target.name}",
+                           target=need.target)
             main = _flight(c, pool, sq, task, pkg, target=need.target)
             if task is Task.SEAD:
                 continue
