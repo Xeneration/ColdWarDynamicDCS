@@ -230,8 +230,20 @@ local function snapshot_groups()
   return out
 end
 
+local function snapshot_statics()
+  local out = {}
+  for _, name in ipairs(CWDC.config.tracked_statics or {}) do
+    local s = StaticObject and StaticObject.getByName(name)
+    local exists = s ~= nil and safe(function() return s:isExist() end) == true
+    out[#out + 1] = { name = name, exists = exists,
+                      life = exists and (safe(function() return s:getLife() end) or 0) or 0 }
+  end
+  return out
+end
+
 function CWDC.snapshot()
-  return { model_time = timer.getTime(), abs_time = timer.getAbsTime(), groups = snapshot_groups() }
+  return { model_time = timer.getTime(), abs_time = timer.getAbsTime(), groups = snapshot_groups(),
+           statics = snapshot_statics() }
 end
 
 function CWDC.finish()

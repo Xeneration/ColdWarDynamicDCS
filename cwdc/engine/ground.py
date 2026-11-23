@@ -80,7 +80,8 @@ def resolve_ground(c: Campaign) -> list[str]:
                 f.sector_id = _commit_sector(c, f.side)
             c.add_news(f"{f.name} has arrived at the front ({c.sectors[f.sector_id].name}).")
             lines.append(f"  Reinforcement: {f.name} arrives in {c.sectors[f.sector_id].name}")
-    _supply_proxy(c)
+    if not (c.supply_links and all(l.id for l in c.supply_links)):
+        _supply_proxy(c)                 # old campaigns without a logistics network
 
     for sec in c.sectors.values():
         reds = [f for f in c.formations.values() if f.side is Side.RED and f.sector_id == sec.id and active(c, f)]
@@ -230,7 +231,7 @@ def check_overruns(c: Campaign) -> list[str]:
     for node in c.supply_nodes.values():
         owner = T.side_at_pos(c.front_line, node.pos)
         if owner is not node.side:
-            node.side, node.stock = owner, 0.0
+            node.side, node.stock, node.production = owner, 0.0, 0.0
             msg = f"{node.name} has been overrun."
             c.add_news(msg)
             lines.append("  " + msg)
@@ -276,9 +277,11 @@ def _overrun_airbase(c: Campaign, ab, owner: Side) -> list[str]:
 
 def destroy_from_air(c: Campaign, o: Objective, idx: int) -> None:
     """A visible vehicle was destroyed by air power: the parent formation pays for it."""
+    from cwdc.engine import logistics
     if o.formation_id and o.formation_id in c.formations:
         f = c.formations[o.formation_id]
         f.strength = max(0.0, f.strength - unit_points(o.units[idx].type) * AIR_KILL_SCALE)
+    logistics.on_unit_destroyed(c, o)
 
 
 def sync_visible(c: Campaign) -> None:

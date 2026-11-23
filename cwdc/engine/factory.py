@@ -41,11 +41,7 @@ def new_campaign(name: str, seed: int = 1976, theater: str = "fulda_1976",
     for o in th["objectives"]:
         c.objectives[o["id"]] = _objective(o)
 
-    for n in th.get("supply_nodes", []):
-        c.supply_nodes[n["id"]] = SupplyNode(id=n["id"], name=n["name"], side=Side(n["side"]),
-                                             pos=T.latlon_to_pos(*n["latlon"]),
-                                             stock=n.get("stock", 100), capacity=n.get("capacity", 100))
-    c.supply_links = [SupplyLink(**l) for l in th.get("supply_links", [])]
+    _load_network(c, th)
 
     _add_ground_war(c, th, oob)
 
@@ -55,7 +51,7 @@ def new_campaign(name: str, seed: int = 1976, theater: str = "fulda_1976",
         s = Squadron(id=sq["id"], name=sq["name"], side=side, country=sq["country"],
                      aircraft_type=sq["aircraft_type"], base_id=sq["base"], callsign=sq["callsign"],
                      tasks=[Task(t) for t in sq["tasks"]],
-                     player_squadron=sq.get("player_squadron", False),
+                     player_squadron=sq.get("player_squadron", False), sorties=sq.get("sorties", 0),
                      establishment_airframes=sq["airframes"], establishment_pilots=sq["pilots"])
         c.squadrons[s.id] = s
         tails = r.sample(range(100, 999), sq["airframes"])
@@ -89,6 +85,7 @@ def _objective(o: dict) -> Objective:
         id=o["id"], name=o["name"], kind=ObjectiveKind(o["kind"]), side=Side(o["side"]),
         country=o["country"], pos=pos, value=o.get("value", 1),
         threat_range_m=o.get("threat_range_km", 0) * 1000, supply_node=o.get("supply_node"),
+        supply_link=o.get("supply_link"),
         formation_id=o.get("formation"), sector_id=o.get("sector"),
         base_pos=pos if o.get("sector") else None,
         units=[ObjUnit(**u) for u in o["units"]])
@@ -100,8 +97,11 @@ def _add_ground_war(c: Campaign, th: dict, oob: dict) -> list[str]:
     for s in th.get("sectors", []):
         if s["id"] not in c.sectors:
             c.sectors[s["id"]] = Sector(id=s["id"], name=s["name"], front_points=s["front_points"],
-                                        terrain=s.get("terrain", 1.0))
+                                        terrain=s.get("terrain", 1.0),
+                                        depots={Side(k): v for k, v in s.get("depots", {}).items()})
             added.append(s["name"])
+        elif not c.sectors[s["id"]].depots and s.get("depots"):
+            c.sectors[s["id"]].depots = {Side(k): v for k, v in s["depots"].items()}
     for f in oob.get("formations", []):
         if f["id"] not in c.formations:
             c.formations[f["id"]] = Formation(
@@ -110,6 +110,16 @@ def _add_ground_war(c: Campaign, th: dict, oob: dict) -> list[str]:
                 max_strength=f["strength"], arrival_turn=f.get("arrival_turn", 1))
             added.append(f["name"])
     return added
+
+
+def _load_network(c: Campaign, th: dict) -> None:
+    c.supply_nodes = {}
+    for n in th.get("supply_nodes", []):
+        c.supply_nodes[n["id"]] = SupplyNode(id=n["id"], name=n["name"], side=Side(n["side"]),
+                                             pos=T.latlon_to_pos(*n["latlon"]),
+                                             stock=n.get("stock", 100), capacity=n.get("capacity", 100),
+                                             production=n.get("production", 0))
+    c.supply_links = [SupplyLink(**l) for l in th.get("supply_links", [])]
 
 
 def sync_theater(c: Campaign) -> list[str]:
@@ -122,6 +132,9 @@ def sync_theater(c: Campaign) -> list[str]:
     added = []
     if not c.base_front_line:
         c.base_front_line = [tuple(p) for p in th["front_line"]]
+    if not c.supply_links or not all(l.id for l in c.supply_links):
+        _load_network(c, th)                    # Phase 1 network was storage-only: replace it
+        added.append("logistics network")
     added += _add_ground_war(c, th, oob)
     for o in th["objectives"]:
         if o["id"] not in c.objectives:
@@ -132,6 +145,8 @@ def sync_theater(c: Campaign) -> list[str]:
             if o.get("formation") and not obj.formation_id:
                 obj.formation_id, obj.sector_id = o["formation"], o.get("sector")
                 obj.base_pos = obj.base_pos or obj.pos
+            if o.get("supply_link") and not obj.supply_link:
+                obj.supply_link = o["supply_link"]
     return added
 
 

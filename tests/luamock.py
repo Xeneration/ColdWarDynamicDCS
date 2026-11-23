@@ -89,6 +89,17 @@ function mkgroup(name, units)
 end
 Group = { getByName = function(n) return GROUPS[n] end }
 
+STATICS = {}
+function mkstatic(name, life)
+  local s = { _life = life or 10 }
+  function s:isExist() return true end
+  function s:getLife() return self._life end
+  function s:getName() return name end
+  STATICS[name] = s
+  return s
+end
+StaticObject = { getByName = function(n) return STATICS[n] end }
+
 function mkweapon(typ) return { getTypeName = function() return typ end } end
 """
 

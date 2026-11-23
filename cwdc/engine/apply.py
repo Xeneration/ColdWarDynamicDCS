@@ -16,8 +16,8 @@ def destroy_unit(c: Campaign, uid: str) -> None:
     obj = c.objectives[oid]
     was_destroyed = obj.destroyed
     if obj.units[int(idx)].alive:
+        obj.units[int(idx)].alive = False
         destroy_from_air(c, obj, int(idx))
-    obj.units[int(idx)].alive = False
     if obj.destroyed and not was_destroyed:
         c.add_news(f"{obj.name} has been destroyed.")
 

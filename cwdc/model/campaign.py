@@ -93,6 +93,7 @@ class Squadron(BaseModel):
     callsign: str
     tasks: list[Task]
     player_squadron: bool = False
+    sorties: int = 0                     # flights planned per turn (0 = planner default)
     establishment_airframes: int = 0     # authorised strength, for replacements
     establishment_pilots: int = 0
 
@@ -115,6 +116,7 @@ class ObjectiveKind(str, Enum):
     ARTILLERY = "artillery"
     DEPOT = "depot"
     CONVOY = "convoy"
+    RAIL = "rail"            # rail yard / junction: interdiction target on a supply link
     COMMAND = "command"
 
 
@@ -136,6 +138,7 @@ class Objective(BaseModel):
     value: int = 1           # planning priority
     threat_range_m: float = 0.0  # air defence engagement radius
     supply_node: Optional[str] = None
+    supply_link: Optional[str] = None    # interdiction target: damage cuts this link
     formation_id: Optional[str] = None   # visible element of this ground formation
     sector_id: Optional[str] = None      # moves with this sector's front
     base_pos: Optional[Pos] = None       # position when the front offset is 0
@@ -157,14 +160,18 @@ class SupplyNode(BaseModel):
     pos: Pos
     stock: float = 100.0
     capacity: float = 100.0
+    production: float = 0.0      # supply arriving per turn (rail heads fed from the rear)
 
 
 class SupplyLink(BaseModel):
+    """Directed: supply flows from a (upstream) to b."""
+    id: str = ""
     a: str
     b: str
     mode: str = "road"       # road | rail | air
-    capacity: float = 20.0
-    damaged: float = 0.0
+    capacity: float = 20.0   # per turn when undamaged
+    damaged: float = 0.0     # 0..1
+    flow: float = 0.0        # moved last turn (for reports)
 
 
 # ----------------------------------------------------------------------------- ground war
@@ -183,6 +190,7 @@ class Sector(BaseModel):
     terrain: float = 1.0             # defender multiplier (hills, forest, rivers)
     offset_km: float = 0.0
     attacker: Optional[Side] = None  # who attacked this turn (for reports)
+    depots: dict[Side, str] = {}     # supply node feeding each side's formations here
 
 
 class Formation(BaseModel):

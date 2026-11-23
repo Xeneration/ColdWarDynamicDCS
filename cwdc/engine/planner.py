@@ -12,12 +12,26 @@ STATION_NAMES = ["Alpha", "Bravo", "Charlie", "Delta"]
 
 TARGET_KINDS = {
     Task.STRIKE: {ObjectiveKind.DEPOT, ObjectiveKind.ARTILLERY, ObjectiveKind.ARMOR,
-                  ObjectiveKind.COMMAND, ObjectiveKind.EWR},
+                  ObjectiveKind.COMMAND, ObjectiveKind.EWR, ObjectiveKind.RAIL},
+    Task.INTERDICTION: {ObjectiveKind.RAIL, ObjectiveKind.CONVOY, ObjectiveKind.DEPOT},
     Task.CAS: {ObjectiveKind.ARMOR, ObjectiveKind.ARTILLERY},
     Task.BAI: {ObjectiveKind.ARMOR, ObjectiveKind.ARTILLERY, ObjectiveKind.DEPOT,
                ObjectiveKind.CONVOY},
     Task.SEAD: {ObjectiveKind.SAM},
 }
+
+
+def _feeds_attack(c: Campaign, o: Objective) -> bool:
+    """Does this logistics target supply a sector where its side is attacking?"""
+    nodes = set()
+    if o.supply_node:
+        nodes.add(o.supply_node)
+    if o.supply_link:
+        lk = next((l for l in c.supply_links if l.id == o.supply_link), None)
+        if lk:
+            nodes.add(lk.b)
+    return any(sec.attacker is o.side and sec.depots.get(o.side) in nodes
+               for sec in c.sectors.values())
 
 
 def period(c: Campaign) -> str:
@@ -45,6 +59,8 @@ def _pick_target(c: Campaign, side: Side, task: Task, taken: set[str],
 
     def score(o: Objective) -> float:
         s = o.value * len(o.alive_units) / len(o.units)
+        if task is Task.INTERDICTION and _feeds_attack(c, o):
+            s += 3                      # cut the supply of an enemy offensive first
         if task is Task.SEAD and prefer_near:
             # SAMs covering targets we are already hitting come first
             if any(o.pos.dist(t.pos) <= o.threat_range_m for t in prefer_near):
@@ -75,7 +91,7 @@ def plan_turn(c: Campaign) -> None:
             tasks = [Task.CAP] if night else [t for t in sq.tasks if t in TARGET_KINDS or t is Task.CAP]
             if night and Task.CAP not in sq.tasks:
                 continue
-            n = SORTIES["player"] if sq.player_squadron else SORTIES["default"]
+            n = sq.sorties or (SORTIES["player"] if sq.player_squadron else SORTIES["default"])
             for k in range(n):
                 task = tasks[k % len(tasks)]
                 if task is Task.SEAD:

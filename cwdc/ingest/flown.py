@@ -80,9 +80,16 @@ def results_from_dcs(c: Campaign, rec: MissionRecord, data: dict) -> tuple[list[
     for g in snap.get("groups", []):
         for u in g.get("units", []):
             present[u["name"]] = u
+    statics = {s["name"]: s for s in snap.get("statics", [])}
     if snap:
         for uname, entry in man.items():
-            if entry["kind"] == "objective" and uname not in present:
+            if entry["kind"] != "objective":
+                continue
+            if entry.get("static"):
+                st = statics.get(uname)
+                if "statics" in snap and (st is None or not st.get("exists") or st.get("life", 1) <= 0):
+                    obj_dead.add(uname)
+            elif uname not in present:
                 obj_dead.add(uname)
 
     # airframe losses, damage and pilot fates

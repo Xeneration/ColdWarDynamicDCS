@@ -319,6 +319,31 @@ Testing is by `cwdc autorun N` (abstract turns in seconds) plus occasional `cwdc
   - The full balance pass is step 9. Simulated air losses currently favour the Warsaw Pact, roughly 2:1.
 - **Tooling:** `status` shows the ground war, and `autorun` shows ground power and front position per turn. Older campaigns pick up the ground war automatically through `sync_theater`.
 
+**Progress (2026-11-23): step 4 done** (`engine/logistics.py`)
+- **Network:** 12 nodes and 10 links.
+  - NATO: the Frankfurt rail head feeds depots at Kassel, Bad Hersfeld, Schweinfurt and Bayreuth, plus a second-line depot at Alsfeld.
+  - Warsaw Pact: the Leipzig rail head and the Erfurt hub feed Nordhausen, Eisenach, Meiningen and Plauen.
+- **Each turn:**
+  - Production arrives at the rail heads.
+  - Flow moves downstream in BFS order. Each link carries at most capacity × (1 − damage), limited by space at the far end, and a node shares its stock between outgoing links by capacity.
+  - Formations draw from their sector depot: 0.15 per strength point, ×1.5 when attacking. What they get, times a depot-distance factor, smooths into `Formation.supply`, which the ground war uses. This replaces the supply-by-depth stand-in.
+  - Engineers repair 15% of link damage per turn.
+- **Interdiction:**
+  - Each link has one target: a rail yard (station, warehouses and fuel tank as DCS **statics**, with an AAA vehicle) or a halted road column.
+  - The fraction of the target destroyed becomes link damage, and the target rebuilds as the link is repaired.
+  - Hitting a depot burns stock.
+  - If a depot is overrun, the sector draws from the nearest friendly node.
+- **Planning:** the planner flies **Interdiction** (23rd TFS and the MiG-27s), preferring targets that feed an enemy offensive.
+- **DCS side:**
+  - Statics spawn one per structure, named `<objective>#<i>`.
+  - AI flights get a `Bombing` task on structure sites.
+  - The runtime snapshots `tracked_statics`, and ingest counts a missing or dead static as destroyed.
+  - This is still unverified in DCS: a bot mission would confirm it.
+- **Bug found by the new tests:** the AI focus flight of a `--bot` mission had no attack task, because it was treated as the player's flight. Fixed.
+- **Balance read** (4 seeds, 10 days):
+  - Outcomes now vary with interdiction. In some seeds Fulda stalls at about 7 km and Rhön breaks to about 16 km; in others Fulda reaches 36–42 km.
+  - Every seed reaches a stalemate after about day 7, with no NATO counter-offensive yet. That's for step 9.
+
 What's deliberately left for later phases: the web UI (Phase 3), the crisis phase, the MAGIC controller and kneeboards (Phase 4), and the immersion lockdown (Phase 5).
 
 **Phase 3: Web UI**

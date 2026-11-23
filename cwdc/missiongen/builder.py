@@ -221,6 +221,8 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
     manifest: dict[str, dict] = {}
     tracked: list[str] = []
     obj_groups: dict[str, object] = {}
+    tracked_statics: list[str] = []
+    static_targets: dict[str, Pos] = {}
 
     # time for the player to reach the destination: AI strikes are synchronised to it
     pspec = T.airframe_catalogue().get(c.squadrons[player.squadron_id].aircraft_type, {})
@@ -236,19 +238,31 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
             continue
         country = m.country(o.country)
         gname = f"{o.id} {o.name}"
-        i0, u0 = alive[0]
-        g = m.vehicle_group(country, gname, vehicle_map[u0.type],
-                            T.to_point(Pos(x=o.pos.x + u0.dx, z=o.pos.z + u0.dz)), heading=0)
-        g.units[0].name = f"{o.id}#{i0}"
-        for i, u in alive[1:]:
-            v = m.vehicle(f"{o.id}#{i}", vehicle_map[u.type])
-            v.position = T.to_point(Pos(x=o.pos.x + u.dx, z=o.pos.z + u.dz))
-            g.add_unit(v)
-        for unit in g.units:
-            idx = int(unit.name.split("#")[1])
-            manifest[unit.name] = {"kind": "objective", "objective": o.id, "unit": idx}
-        obj_groups[o.id] = g
-        tracked.append(gname)
+        vehicles = [(i, u) for i, u in alive if u.type in vehicle_map]
+        structures = [(i, u) for i, u in alive if u.type not in vehicle_map]
+        if vehicles:
+            i0, u0 = vehicles[0]
+            g = m.vehicle_group(country, gname, vehicle_map[u0.type],
+                                T.to_point(Pos(x=o.pos.x + u0.dx, z=o.pos.z + u0.dz)), heading=0)
+            g.units[0].name = f"{o.id}#{i0}"
+            for i, u in vehicles[1:]:
+                v = m.vehicle(f"{o.id}#{i}", vehicle_map[u.type])
+                v.position = T.to_point(Pos(x=o.pos.x + u.dx, z=o.pos.z + u.dz))
+                g.add_unit(v)
+            for unit in g.units:
+                idx = int(unit.name.split("#")[1])
+                manifest[unit.name] = {"kind": "objective", "objective": o.id, "unit": idx}
+            obj_groups[o.id] = g
+            tracked.append(gname)
+        for i, u in structures:              # rail yards, depots: one static per structure
+            key = f"{o.id}#{i}"
+            sg = m.static_group(country, key, static_type(u.type),
+                                T.to_point(Pos(x=o.pos.x + u.dx, z=o.pos.z + u.dz)))
+            sg.units[0].name = key
+            manifest[key] = {"kind": "objective", "objective": o.id, "unit": i, "static": True}
+            tracked_statics.append(key)
+        if structures:
+            static_targets[o.id] = o.pos
 
     # --- flights
     for k, f in enumerate(plan.flights):
@@ -299,9 +313,10 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
                 unit.skill = Skill.Good if sq.side is Side.BLUE else Skill.Average
         if is_player and not bot:
             g.units[0].set_player()
+        ai_flown = bot or not is_player      # in a bot mission the focus flight is AI as well
 
         # AI bombers stay on task: no jettison, attack only their assigned target, evade threats
-        if not is_player and f.target_id:
+        if ai_flown and f.target_id:
             opts = g.points[0].tasks
             # assigned target first, but free to shoot back at fighters (they keep their bombs)
             opts.append(dtask.OptROE(dtask.OptROE.Values.OpenFireWeaponFree))
@@ -329,7 +344,10 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
             twp = g.add_waypoint(T.to_point(dest), low, speed, name="TGT")
             for wp in (ipwp, twp):
                 wp.alt_type = "RADIO"      # low level means height above ground, not sea level
-            if not is_player and f.target_id in obj_groups:
+            if ai_flown and f.target_id in static_targets:
+                # structures (rail yard, depot): bomb the site
+                twp.tasks.append(dtask.Bombing(T.to_point(static_targets[f.target_id]), group_attack=True))
+            elif ai_flown and f.target_id in obj_groups:
                 twp.tasks.append(dtask.AttackGroup(obj_groups[f.target_id].id))
             g.add_waypoint(T.to_point(ip), alt, speed, name="EGRESS")
         if not (f.task is Task.CAP and not is_player):
@@ -365,13 +383,23 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
     m.set_description_bluetask_text(c.packages[player.package_id].description)
 
     end_when = {"groups": [f"{player.id} {player.callsign}"], "time_limit": BOT_TIME_LIMIT}         if bot else None
-    inject_runtime(m, mission_id, tracked, end_when=end_when)
+    inject_runtime(m, mission_id, tracked, end_when=end_when, tracked_statics=tracked_statics)
     out_dir.mkdir(parents=True, exist_ok=True)
     path = out_dir / mission_filename(c, player, bot)
     m.save(str(path))
     return MissionRecord(mission_id=mission_id, turn=c.turn, player_flight_id=player.id,
                          miz_path=str(path), generated_at=time.time(), manifest=manifest,
                          spawned_flights=[f.id for f in plan.flights], bot=bot)
+
+
+def static_type(type_id: str):
+    """pydcs class for a static object type id (fortifications, warehouses, ...)."""
+    from dcs import statics
+    for table in (statics.fortification_map, statics.warehouse_map, statics.groundobject_map,
+                  statics.cargo_map):
+        if type_id in table:
+            return table[type_id]
+    raise KeyError(f"unknown unit or static type {type_id!r}")
 
 
 def mission_filename(c: Campaign, f: Flight, bot: bool = False) -> str:

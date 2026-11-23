@@ -18,6 +18,7 @@ F-4E-45MC:
     CAS: CAS_ROCKEYE
     BAI: BAI_MAVERICK
     SEAD: SEAD_SHRIKE
+    Interdiction: STRIKE_MK82
 
 MiG-21Bis:
   air_rating: 0.85      # abstract air-combat strength (F-4E = 1.0)
@@ -44,4 +45,4 @@ MiG-27K:
   cruise_kmh: 800
   cruise_alt_m: 3000
   low_alt_m: 200
-  loadouts: {Strike: default}
+  loadouts: {Strike: default, Interdiction: default}

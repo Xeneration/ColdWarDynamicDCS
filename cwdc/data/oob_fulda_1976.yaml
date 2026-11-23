@@ -29,7 +29,8 @@ squadrons:
     aircraft_type: F-4E-45MC
     base: spangdahlem
     callsign: Ford
-    tasks: [Strike, SEAD, CAP]
+    tasks: [Strike, Interdiction, SEAD]
+    sorties: 3
     airframes: 18
     pilots: 20
     tail_prefix: "SP 69-"
@@ -62,7 +63,7 @@ squadrons:
     aircraft_type: MiG-27K
     base: allstedt
     callsign: Grach
-    tasks: [Strike]
+    tasks: [Strike, Interdiction]
     airframes: 18
     pilots: 20
     tail_prefix: "Red 7"

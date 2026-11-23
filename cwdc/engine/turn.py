@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from datetime import timedelta
 
-from cwdc.engine import apply, factory, ground, planner, resolver
+from cwdc.engine import apply, factory, ground, logistics, planner, resolver
 from cwdc.model import (Airframe, AirframeStatus, Campaign, FlightStatus, Pilot, PilotStatus,
                         SortieResult)
 from cwdc.engine import rng
@@ -27,6 +27,9 @@ def end_turn(c: Campaign, dcs_results: list[SortieResult] | None = None,
                  if f.id not in flown and f.status is not FlightStatus.DONE]
     sim = resolver.resolve(c, remaining)
     debrief += ["-- Rest of the air war --", *apply.apply_results(c, sim)]
+    supply_lines = logistics.logistics_turn(c)
+    if supply_lines:
+        debrief += ["-- Logistics --", *supply_lines]
     ground_lines = ground.ground_turn(c)
     if ground_lines:
         debrief += ["-- Ground war --", *ground_lines]

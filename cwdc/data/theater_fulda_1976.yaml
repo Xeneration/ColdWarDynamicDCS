@@ -41,10 +41,14 @@ front_line:
 # Front sectors: stretches of the border above (indices into front_line, 0 = north).
 # terrain = defender multiplier. The ground war moves each sector's front independently.
 sectors:
-  - {id: goettingen, name: "Goettingen corridor", front_points: [11, 12, 13], terrain: 1.2}
-  - {id: fulda, name: "Fulda Gap", front_points: [14, 15, 16, 17], terrain: 1.1}
-  - {id: rhoen, name: "Rhoen / Meiningen", front_points: [18, 19, 20], terrain: 1.3}
-  - {id: hof, name: "Hof corridor", front_points: [21, 22, 23], terrain: 1.2}
+  - {id: goettingen, name: "Goettingen corridor", front_points: [11, 12, 13], terrain: 1.2,
+     depots: {blue: bn_kassel, red: rn_nordhausen}}
+  - {id: fulda, name: "Fulda Gap", front_points: [14, 15, 16, 17], terrain: 1.1,
+     depots: {blue: bn_hersfeld, red: rn_eisenach}}
+  - {id: rhoen, name: "Rhoen / Meiningen", front_points: [18, 19, 20], terrain: 1.3,
+     depots: {blue: bn_schweinfurt, red: rn_meiningen}}
+  - {id: hof, name: "Hof corridor", front_points: [21, 22, 23], terrain: 1.2,
+     depots: {blue: bn_bayreuth, red: rn_plauen}}
 
 # Barrier CAP stations, ~25-40 km behind the front.
 cap_stations:
@@ -214,6 +218,82 @@ objectives:
       - {type: BMP-1, dx: -60, dz: -40}
       - {type: BMP-1, dx: 60, dz: -40}
       - {type: ZSU-23-4 Shilka, dx: 0, dz: -80}
+  # rail yards on the Warsaw Pact supply lines (interdiction targets)
+  - id: r_yard_weimar
+    name: "Weimar rail yard"
+    kind: rail
+    side: red
+    country: GDR
+    latlon: [50.98, 11.33]
+    value: 3
+    threat_range_km: 2.5
+    supply_link: l_lei_erf
+    units:
+      - {type: Railway station}
+      - {type: Warehouse, dx: 80, dz: 40}
+      - {type: Warehouse, dx: 80, dz: -40}
+      - {type: Fuel tank, dx: -80, dz: 60}
+      - {type: ZSU-23-4 Shilka, dx: 150, dz: 0}
+  - id: r_yard_gotha
+    name: "Gotha rail yard"
+    kind: rail
+    side: red
+    country: GDR
+    latlon: [50.94, 10.74]
+    value: 3
+    threat_range_km: 2.5
+    supply_link: l_erf_eis
+    units:
+      - {type: Railway station}
+      - {type: Warehouse, dx: 80, dz: 40}
+      - {type: Warehouse, dx: 80, dz: -40}
+      - {type: Fuel tank, dx: -80, dz: 60}
+      - {type: ZSU-23-4 Shilka, dx: 150, dz: 0}
+  - id: r_yard_sondershausen
+    name: "Sondershausen rail junction"
+    kind: rail
+    side: red
+    country: GDR
+    latlon: [51.37, 10.87]
+    value: 3
+    threat_range_km: 2.5
+    supply_link: l_erf_nor
+    units:
+      - {type: Railway station}
+      - {type: Warehouse, dx: 80, dz: 40}
+      - {type: Warehouse, dx: 80, dz: -40}
+      - {type: Fuel tank, dx: -80, dz: 60}
+      - {type: ZSU-23-4 Shilka, dx: 150, dz: 0}
+  - id: r_yard_suhl
+    name: "Suhl rail yard"
+    kind: rail
+    side: red
+    country: GDR
+    latlon: [50.61, 10.69]
+    value: 3
+    threat_range_km: 2.5
+    supply_link: l_erf_mei
+    units:
+      - {type: Railway station}
+      - {type: Warehouse, dx: 80, dz: 40}
+      - {type: Warehouse, dx: 80, dz: -40}
+      - {type: Fuel tank, dx: -80, dz: 60}
+      - {type: ZSU-23-4 Shilka, dx: 150, dz: 0}
+  - id: r_yard_gera
+    name: "Gera rail yard"
+    kind: rail
+    side: red
+    country: GDR
+    latlon: [50.88, 12.08]
+    value: 3
+    threat_range_km: 2.5
+    supply_link: l_lei_pla
+    units:
+      - {type: Railway station}
+      - {type: Warehouse, dx: 80, dz: 40}
+      - {type: Warehouse, dx: 80, dz: -40}
+      - {type: Fuel tank, dx: -80, dz: 60}
+      - {type: ZSU-23-4 Shilka, dx: 150, dz: 0}
   # ---------------------------------------------------------------- NATO
   - id: b_pzgr4_fwd
     name: "Panzergrenadierbrigade 4 battle group"
@@ -311,13 +391,111 @@ objectives:
       - {type: M 818, dx: 50}
       - {type: M 818, dx: 75}
       - {type: M48 Chaparral, dx: 40, dz: 60}
+  # rail yards and road columns on the NATO supply lines
+  - id: b_yard_giessen
+    name: "Giessen rail yard"
+    kind: rail
+    side: blue
+    country: Germany
+    latlon: [50.58, 8.67]
+    value: 3
+    threat_range_km: 2.5
+    supply_link: l_fra_kas
+    units:
+      - {type: Railway station}
+      - {type: Warehouse, dx: 80, dz: 40}
+      - {type: Warehouse, dx: 80, dz: -40}
+      - {type: Fuel tank, dx: -80, dz: 60}
+      - {type: Vulcan, dx: 150, dz: 0}
+  - id: b_yard_schluechtern
+    name: "Schluechtern rail junction"
+    kind: rail
+    side: blue
+    country: Germany
+    latlon: [50.35, 9.53]
+    value: 3
+    threat_range_km: 2.5
+    supply_link: l_fra_her
+    units:
+      - {type: Railway station}
+      - {type: Warehouse, dx: 80, dz: 40}
+      - {type: Warehouse, dx: 80, dz: -40}
+      - {type: Fuel tank, dx: -80, dz: 60}
+      - {type: Vulcan, dx: 150, dz: 0}
+  - id: b_yard_wuerzburg
+    name: "Wuerzburg rail yard"
+    kind: rail
+    side: blue
+    country: Germany
+    latlon: [49.79, 9.93]
+    value: 3
+    threat_range_km: 2.5
+    supply_link: l_fra_swf
+    units:
+      - {type: Railway station}
+      - {type: Warehouse, dx: 80, dz: 40}
+      - {type: Warehouse, dx: 80, dz: -40}
+      - {type: Fuel tank, dx: -80, dz: 60}
+      - {type: Vulcan, dx: 150, dz: 0}
+  - id: b_column_alsfeld
+    name: "Supply column near Alsfeld"
+    kind: convoy
+    side: blue
+    country: USA
+    latlon: [50.60, 9.05]
+    value: 2
+    threat_range_km: 2
+    supply_link: l_fra_als
+    units:
+      - {type: M 818}
+      - {type: M 818, dx: 30}
+      - {type: M 818, dx: 60}
+      - {type: M 818, dx: 90}
+      - {type: Vulcan, dx: 45, dz: 40}
+  - id: b_column_bamberg
+    name: "Supply column on the Bamberg road"
+    kind: convoy
+    side: blue
+    country: USA
+    latlon: [49.89, 10.89]
+    value: 2
+    threat_range_km: 2
+    supply_link: l_swf_bay
+    units:
+      - {type: M 818}
+      - {type: M 818, dx: 30}
+      - {type: M 818, dx: 60}
+      - {type: M 818, dx: 90}
+      - {type: M 818, dx: 120}
+      - {type: Vulcan, dx: 60, dz: 40}
 
-# Logistics network (Phase 1: stored only; Phase 2 simulates flow)
+# Logistics network (Phase 2): rail heads produce supply, links carry it (capacity per
+# 6 h turn), sector depots feed the formations. Every link has an interdiction target
+# (rail yard or halted supply column, below in `objectives`) whose damage cuts capacity.
 supply_nodes:
-  - {id: bn_frankfurt, name: "Frankfurt rail head", side: blue, latlon: [50.11, 8.68], stock: 500, capacity: 1000}
-  - {id: bn_hersfeld, name: "Bad Hersfeld supply point", side: blue, latlon: [50.87, 9.71], stock: 100, capacity: 200}
-  - {id: rn_erfurt, name: "Erfurt rail yard", side: red, latlon: [50.98, 11.03], stock: 500, capacity: 1000}
-  - {id: rn_meiningen, name: "Meiningen depot", side: red, latlon: [50.57, 10.42], stock: 100, capacity: 200}
+  # NATO
+  - {id: bn_frankfurt, name: "Frankfurt rail head", side: blue, latlon: [50.11, 8.68], stock: 400, capacity: 1000, production: 230}
+  - {id: bn_kassel, name: "Kassel depot", side: blue, latlon: [51.31, 9.49], stock: 150, capacity: 300}
+  - {id: bn_hersfeld, name: "Bad Hersfeld supply point", side: blue, latlon: [50.87, 9.71], stock: 150, capacity: 300}
+  - {id: bn_schweinfurt, name: "Schweinfurt depot", side: blue, latlon: [50.05, 10.23], stock: 150, capacity: 300}
+  - {id: bn_bayreuth, name: "Bayreuth depot", side: blue, latlon: [49.95, 11.58], stock: 150, capacity: 300}
+  # second-line depot: takes over a sector whose forward depot is lost (nearest friendly node)
+  - {id: bn_alsfeld, name: "Alsfeld depot", side: blue, latlon: [50.75, 9.27], stock: 150, capacity: 300}
+  # Warsaw Pact
+  - {id: rn_leipzig, name: "Leipzig rail head", side: red, latlon: [51.34, 12.37], stock: 500, capacity: 1200, production: 330}
+  - {id: rn_erfurt, name: "Erfurt rail hub", side: red, latlon: [50.98, 11.03], stock: 300, capacity: 600}
+  - {id: rn_nordhausen, name: "Nordhausen depot", side: red, latlon: [51.50, 10.79], stock: 150, capacity: 300}
+  - {id: rn_eisenach, name: "Eisenach depot", side: red, latlon: [50.98, 10.32], stock: 150, capacity: 300}
+  - {id: rn_meiningen, name: "Meiningen depot", side: red, latlon: [50.57, 10.42], stock: 150, capacity: 300}
+  - {id: rn_plauen, name: "Plauen depot", side: red, latlon: [50.50, 12.13], stock: 150, capacity: 300}
 supply_links:
-  - {a: bn_frankfurt, b: bn_hersfeld, mode: rail, capacity: 60}
-  - {a: rn_erfurt, b: rn_meiningen, mode: rail, capacity: 60}
+  - {id: l_fra_kas, a: bn_frankfurt, b: bn_kassel, mode: rail, capacity: 55}
+  - {id: l_fra_her, a: bn_frankfurt, b: bn_hersfeld, mode: rail, capacity: 70}
+  - {id: l_fra_als, a: bn_frankfurt, b: bn_alsfeld, mode: road, capacity: 50}
+  - {id: l_fra_swf, a: bn_frankfurt, b: bn_schweinfurt, mode: rail, capacity: 75}
+  - {id: l_swf_bay, a: bn_schweinfurt, b: bn_bayreuth, mode: road, capacity: 40}
+  - {id: l_lei_erf, a: rn_leipzig, b: rn_erfurt, mode: rail, capacity: 250}
+  - {id: l_erf_nor, a: rn_erfurt, b: rn_nordhausen, mode: rail, capacity: 55}
+  - {id: l_erf_eis, a: rn_erfurt, b: rn_eisenach, mode: rail, capacity: 90}
+  - {id: l_erf_mei, a: rn_erfurt, b: rn_meiningen, mode: rail, capacity: 60}
+  - {id: l_lei_pla, a: rn_leipzig, b: rn_plauen, mode: rail, capacity: 55}

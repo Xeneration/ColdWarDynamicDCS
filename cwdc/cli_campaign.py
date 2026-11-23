@@ -68,6 +68,12 @@ def cmd_status(args) -> None:
                 if f.sector_id == sec.id and active(c, f) and (args.all or f.side is Side.BLUE):
                     print(f"      [{f.side.value:4}] {f.name:<50} {f.strength:>4.0f}/{f.max_strength:<4.0f}"
                           f" {f.posture.value}")
+        from cwdc.engine import logistics
+        supply = logistics.report(c)
+        if supply:
+            print("\nSupply (depot stock, formation supply level):")
+            for line in supply:
+                print(line)
         coming = sorted((f for f in c.formations.values()
                          if f.arrival_turn > c.turn and f.side is Side.BLUE), key=lambda f: f.arrival_turn)
         if coming:
