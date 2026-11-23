@@ -166,7 +166,7 @@ DCS has no built-in dynamic campaign, and none of the existing ones cover the Co
   - Ground objectives are never reinforced or rebuilt, so the target list runs dry after ~2 days.
   - No ground war or front movement.
   - Supply is stored but not simulated.
-  - One crew member per F-4E (no WSO).
+  - One crew member per F-4E (no WSO). Fixed in Phase 2 step 7.
   - Simple abstract combat odds that need balancing.
 
 ### First live Phase 1 flight (2026-11-23): findings and fixes
@@ -398,6 +398,30 @@ Testing is by `cwdc autorun N` (abstract turns in seconds) plus occasional `cwdc
   - Runway craters from bombs that miss everything produce no event, so a flown OCA only counts what it destroys.
   - Static aircraft death detection (exists / life ≤ 0) is unverified in DCS.
   - A player squadron whose base is closed sits the turn out (relocating on a long closure is a later refinement).
+
+**Progress (2026-11-24): step 7 done** (`engine/crews.py`)
+- **Two-seat crews:**
+  - Types with `crew: 2` in `airframes.yaml` (the F-4E) fly with a pilot and a **WSO**, each a persistent person with their own sorties, kills, fatigue and fate.
+  - Flights carry `wso_ids` alongside `pilot_ids`.
+  - Each F-4E squadron gets as many WSOs as pilots, plus WSO replacements. Older campaigns get theirs on load.
+  - Pilots and WSOs settle into regular pairs because both are scheduled freshest-first.
+- **Fatigue:**
+  - Each sortie adds 30%. A turn on the ground takes off 15%, or 30% at night.
+  - Crews at 80% or more aren't scheduled, which works out to about two sorties a day sustained, with a third possible on a fresh day. A day never exceeds three.
+  - Tired crews fight worse, down to −25% air and strike effectiveness at full fatigue.
+  - The player isn't auto-scheduled; `fly` warns when the player is tired.
+- **Fates:**
+  - The resolver ejects a lost aircraft's crew together, or not at all. Each person then has their own luck (recovered/WIA, or POW/MIA).
+  - DCS ingest maps the F-4E's `F-4E_Parachute_Pilot` and `F-4E_Parachute_WSO` landings to each seat, so a WSO who drifts across the front is captured while the pilot is recovered. These names are confirmed from the live flights' logs.
+- **Kills** are shared by the crew (USAF practice).
+- **Display:**
+  - The mission manifest records each aircraft's WSO.
+  - The briefing lists the crews.
+  - `roster` shows pilots and WSOs with fatigue.
+  - `status` shows WSO counts.
+- **Balance read** (3 seeds, 10 days):
+  - Aircraft losses are unchanged from step 6 (NATO 39–57).
+  - NATO aircrew losses rose to 46–74, because a Phantom now costs two people.
 
 What's deliberately left for later phases: the web UI (Phase 3), the crisis phase, the MAGIC controller and kneeboards (Phase 4), and the immersion lockdown (Phase 5).
 

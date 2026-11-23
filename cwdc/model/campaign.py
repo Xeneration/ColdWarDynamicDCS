@@ -53,7 +53,13 @@ class PilotStatus(str, Enum):
     POW = "pow"
 
 
+class CrewRole(str, Enum):
+    PILOT = "pilot"
+    WSO = "wso"              # weapon systems officer: the F-4E back seat
+
+
 class Pilot(BaseModel):
+    """An aircrew member (front or back seat) - a persistent person."""
     id: str
     name: str
     rank: str
@@ -65,6 +71,8 @@ class Pilot(BaseModel):
     air_kills: int = 0
     ground_kills: int = 0
     recovery_turns: int = 0
+    role: CrewRole = CrewRole.PILOT
+    fatigue: float = 0.0     # 0 = rested; grounded at engine.crews.GROUNDED
 
 
 class AirframeStatus(str, Enum):
@@ -96,6 +104,7 @@ class Squadron(BaseModel):
     sorties: int = 0                     # flights planned per turn (0 = planner default)
     establishment_airframes: int = 0     # authorised strength, for replacements
     establishment_pilots: int = 0
+    establishment_wsos: int = 0          # two-seat types: back-seaters
 
 
 # ----------------------------------------------------------------------------- places & things
@@ -233,6 +242,7 @@ class Flight(BaseModel):
     callsign: str
     airframe_ids: list[str]
     pilot_ids: list[str]
+    wso_ids: list[str] = []            # back seat of each airframe (two-seat types), same order
     loadout: Optional[str] = None      # catalogue loadout name; None = AI default for task
     target_id: Optional[str] = None    # objective id (strike/SEAD/CAS)
     area: Optional[Pos] = None         # CAP / patrol centre
@@ -351,6 +361,9 @@ class Campaign(BaseModel):
         return [a for a in self.airframes.values()
                 if a.squadron_id == sq_id and (status is None or a.status == status)]
 
-    def squadron_pilots(self, sq_id: str, status: PilotStatus | None = PilotStatus.ACTIVE):
+    def squadron_pilots(self, sq_id: str, status: PilotStatus | None = PilotStatus.ACTIVE,
+                        role: CrewRole | None = CrewRole.PILOT):
+        """Aircrew of a squadron (front-seat pilots by default; role=None for everyone)."""
         return [p for p in self.pilots.values()
-                if p.squadron_id == sq_id and (status is None or p.status == status)]
+                if p.squadron_id == sq_id and (status is None or p.status == status)
+                and (role is None or p.role is role)]

@@ -3,7 +3,8 @@ from __future__ import annotations
 
 from typing import Iterable
 
-from cwdc.model import (AirframeStatus, Campaign, FlightStatus, PilotStatus, SortieResult)
+from cwdc.engine import crews
+from cwdc.model import (AirframeStatus, Campaign, CrewRole, FlightStatus, PilotStatus, SortieResult)
 
 REPAIR_TURNS = 2
 WIA_RECOVERY_TURNS = 4
@@ -29,8 +30,9 @@ def apply_results(c: Campaign, results: Iterable[SortieResult],
         f = c.flights[r.flight_id]
         for aid in f.airframe_ids:
             c.airframes[aid].sorties += 1
-        for pid in f.pilot_ids:
+        for pid in crews.crew_of(f):
             c.pilots[pid].sorties += 1
+        crews.flew(c, f)
         lines.append(f"[{f.side.value.upper()}] {r.summary}" + (" (flown in DCS)" if r.source == "dcs" else ""))
         for aid in r.airframes_lost:
             af = c.airframes[aid]
@@ -47,15 +49,17 @@ def apply_results(c: Campaign, results: Iterable[SortieResult],
             if fate.status is PilotStatus.WIA:
                 p.recovery_turns = WIA_RECOVERY_TURNS
             if fate.status is not PilotStatus.ACTIVE or p.is_player:
-                lines.append(f"  {p.rank} {p.name} ({c.squadrons[p.squadron_id].name}): "
+                seat = " (WSO)" if p.role is CrewRole.WSO else ""
+                lines.append(f"  {p.rank} {p.name}{seat} ({c.squadrons[p.squadron_id].name}): "
                              f"{fate.status.value.upper()} - {fate.note}")
         for k in r.kills:
-            if k.pilot_id:
-                p = c.pilots[k.pilot_id]
-                if k.air:
-                    p.air_kills += 1
-                else:
-                    p.ground_kills += 1
+            if k.pilot_id:                     # the crew shares the credit (USAF practice)
+                for pid in filter(None, (k.pilot_id, crews.wso_for(f, k.pilot_id))):
+                    p = c.pilots[pid]
+                    if k.air:
+                        p.air_kills += 1
+                    else:
+                        p.ground_kills += 1
         for uid in r.objective_units_destroyed:
             destroy_unit(c, uid)
         f.status = FlightStatus.DONE

@@ -6,7 +6,7 @@ import secrets
 from datetime import datetime
 
 from cwdc import theater as T
-from cwdc.engine import airbases, planner, rng
+from cwdc.engine import airbases, crews, planner, rng
 from cwdc.model import (Airbase, Airframe, Campaign, Formation, ObjUnit, Objective, ObjectiveKind,
                         Pilot, Pos, Sector, Side, Squadron, SupplyLink, SupplyNode, Task)
 
@@ -71,6 +71,7 @@ def new_campaign(name: str, seed: int = 1976, theater: str = "fulda_1976",
                                   squadron_id=s.id)
 
     airbases.ensure_objectives(c)          # after the squadrons: parked aircraft match the residents
+    crews.ensure_wsos(c)                   # back-seaters for two-seat squadrons
     c.player_name = player_name
     c.instance = secrets.token_hex(2)
     add_player_pilot(c, player_name)
@@ -149,6 +150,7 @@ def sync_theater(c: Campaign) -> list[str]:
             if o.get("supply_link") and not obj.supply_link:
                 obj.supply_link = o["supply_link"]
     added += airbases.ensure_objectives(c)
+    added += crews.ensure_wsos(c)
     return added
 
 

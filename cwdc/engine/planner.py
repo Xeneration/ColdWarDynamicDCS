@@ -10,7 +10,8 @@ Phase 2 step 5, "air commanders take 2". Each side:
      enemy SAM umbrella, and an escort if enemy fighters can reach it.
 
 Step 6 adds OCA: strikes on enemy airfields that host squadrons (engine.airbases).
-Sortie rate is limited by each squadron's `sorties`, its ready aircraft and crews, its
+Sortie rate is limited by each squadron's `sorties`, its ready aircraft and rested crews
+(pilots, and WSOs for two-seat types - engine.crews), its
 airbase's damage (a closed base flies nothing) and the period (night: CAP only).
 """
 from __future__ import annotations
@@ -19,8 +20,8 @@ from dataclasses import dataclass
 from typing import Optional
 
 from cwdc import theater as T
-from cwdc.engine import airbases, rng
-from cwdc.model import (Campaign, Flight, FlightStatus, Objective, ObjectiveKind, Package,
+from cwdc.engine import airbases, crews, rng
+from cwdc.model import (Campaign, CrewRole, Flight, FlightStatus, Objective, ObjectiveKind, Package,
                         PilotStatus, Pos, Side, Squadron, Task)
 
 FLIGHT_SIZE = 2
@@ -155,12 +156,16 @@ class _Pool:
         self.left: dict[str, int] = {}
         self.airframes: dict[str, list] = {}
         self.pilots: dict[str, list] = {}
+        self.wsos: dict[str, list] = {}
         for sq in sorted((s for s in c.squadrons.values() if s.side is side), key=lambda s: s.id):
             afs = c.squadron_airframes(sq.id)
             r.shuffle(afs)
-            pls = sorted((p for p in c.squadron_pilots(sq.id) if not p.is_player), key=lambda p: -p.sorties)
-            self.airframes[sq.id], self.pilots[sq.id] = afs, pls
+            pls = sorted(crews.available(c, sq.id, CrewRole.PILOT), key=crews.schedule_order)
+            wsos = sorted(crews.available(c, sq.id, CrewRole.WSO), key=crews.schedule_order)                 if crews.two_seat(sq) else None
+            self.airframes[sq.id], self.pilots[sq.id], self.wsos[sq.id] = afs, pls, wsos
             n = sq.sorties or (SORTIES["player"] if sq.player_squadron else SORTIES["default"])
+            if wsos is not None:
+                n = min(n, len(wsos) // FLIGHT_SIZE)
             n = airbases.sorties(c, sq.base_id, n)                # a damaged base launches less
             self.left[sq.id] = min(n, len(afs) // FLIGHT_SIZE, len(pls) // FLIGHT_SIZE)
 
@@ -182,11 +187,12 @@ class _Pool:
                 best = (key, sq, options[0])
         return (best[1], best[2]) if best else (None, None)
 
-    def take(self, sq: Squadron) -> tuple[list, list]:
+    def take(self, sq: Squadron) -> tuple[list, list, list]:
         self.left[sq.id] -= 1
         afs = [self.airframes[sq.id].pop(0) for _ in range(FLIGHT_SIZE)]
         pls = [self.pilots[sq.id].pop(0) for _ in range(FLIGHT_SIZE)]
-        return afs, pls
+        wsos = [self.wsos[sq.id].pop(0) for _ in range(FLIGHT_SIZE)] if self.wsos[sq.id] is not None else []
+        return afs, pls, wsos
 
 
 def plan_turn(c: Campaign) -> None:
@@ -249,14 +255,14 @@ def _package(c: Campaign, side: Side, task: Task, desc: str, target: Objective |
 def _flight(c: Campaign, pool: _Pool, sq: Squadron, task: Task, pkg: Package,
             target: Objective | None = None, area: Pos | None = None,
             supports: str | None = None) -> Flight:
-    afs, pls = pool.take(sq)
+    afs, pls, wsos = pool.take(sq)
     n = c.counters.get(f"cs:{sq.id}:{c.turn}", 0) + 1
     c.counters[f"cs:{sq.id}:{c.turn}"] = n
     fid = c.next_id("F")
     loadouts = T.airframe_catalogue().get(sq.aircraft_type, {}).get("loadouts", {})
     f = Flight(id=fid, package_id=pkg.id, side=sq.side, squadron_id=sq.id, task=task,
                callsign=f"{sq.callsign} {n}", airframe_ids=[a.id for a in afs],
-               pilot_ids=[p.id for p in pls], target_id=target.id if target else None, area=area,
+               pilot_ids=[p.id for p in pls], wso_ids=[p.id for p in wsos], target_id=target.id if target else None, area=area,
                loadout=loadouts.get(task.value) or loadouts.get("CAP" if task is Task.ESCORT else ""),
                player_eligible=sq.player_squadron and _flyable(sq), supports=supports)
     c.flights[fid] = f

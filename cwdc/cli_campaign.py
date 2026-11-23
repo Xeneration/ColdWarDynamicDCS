@@ -6,7 +6,7 @@ from pathlib import Path
 
 from cwdc import dcs_paths, store
 from cwdc import theater as T
-from cwdc.model import AirframeStatus, Campaign, PilotStatus, Side
+from cwdc.model import AirframeStatus, Campaign, CrewRole, PilotStatus, Side
 
 
 def _ll(pos) -> str:
@@ -55,9 +55,11 @@ def cmd_status(args) -> None:
             continue
         afs = Counter(a.status for a in c.airframes.values() if a.squadron_id == sq.id)
         pilots = len(c.squadron_pilots(sq.id))
+        wsos = len(c.squadron_pilots(sq.id, role=CrewRole.WSO))
         print(f"  {sq.name:<34} {sq.aircraft_type:<10} @ {c.airbases[sq.base_id].dcs_name:<12} "
               f"ready {afs[AirframeStatus.READY]:>2}  repair {afs[AirframeStatus.DAMAGED]:>2}  "
-              f"lost {afs[AirframeStatus.DESTROYED]:>2}  pilots {pilots}")
+              f"lost {afs[AirframeStatus.DESTROYED]:>2}  pilots {pilots}"
+              + (f"  WSOs {wsos}" if sq.establishment_wsos else ""))
     if c.sectors:
         from cwdc.engine.ground import _fmt, active, power
         print("\nGround war:")
@@ -143,6 +145,13 @@ def cmd_fly(args) -> None:
         print("No player slot: spectate (F10/F2), speed up with Ctrl+Z; it ends by itself.")
     else:
         print(f"You lead {f.callsign}: {c.packages[f.package_id].description}")
+        if f.wso_ids:
+            w = c.pilots[f.wso_ids[0]]
+            print(f"Your WSO: {w.rank} {w.name} ({w.sorties} sorties)")
+        me = c.player_pilot()
+        if me.fatigue >= 0.5:
+            from cwdc.engine.crews import describe_fatigue
+            print(f"(You are {describe_fatigue(me)}: {me.fatigue:.0%} fatigue.)")
     others = [c.flights[x].callsign for x in rec.spawned_flights if x != fid]
     print(f"Also in this mission: {', '.join(others) or 'nobody else'}")
     print(f"\nIn DCS: Mission > My Missions > ColdWarDynamic > {Path(rec.miz_path).name}")
@@ -250,12 +259,18 @@ def cmd_roster(args) -> None:
     c = _load(args)
     sq = next(s for s in c.squadrons.values() if s.player_squadron)
     print(f"{sq.name} roster")
-    pilots = sorted((p for p in c.pilots.values() if p.squadron_id == sq.id),
-                    key=lambda p: (p.status is not PilotStatus.ACTIVE, -p.sorties, p.name))
-    for p in pilots:
-        me = " <- you" if p.is_player else ""
-        print(f"  {p.rank:<7} {p.name:<22} {p.status.value:<6} sorties {p.sorties:>3}  "
-              f"air {p.air_kills}  ground {p.ground_kills}{me}")
+    from cwdc.engine.crews import describe_fatigue
+    for role, title in ((CrewRole.PILOT, "Pilots"), (CrewRole.WSO, "WSOs")):
+        crew = sorted((p for p in c.pilots.values() if p.squadron_id == sq.id and p.role is role),
+                      key=lambda p: (p.status is not PilotStatus.ACTIVE, -p.sorties, p.name))
+        if not crew:
+            continue
+        print(f"\n {title}:")
+        for p in crew:
+            me = " <- you" if p.is_player else ""
+            rest = describe_fatigue(p) if p.status is PilotStatus.ACTIVE else ""
+            print(f"  {p.rank:<7} {p.name:<22} {p.status.value:<6} {rest:<9} sorties {p.sorties:>3}  "
+                  f"air {p.air_kills}  ground {p.ground_kills}{me}")
 
 
 def cmd_rollback(args) -> None:

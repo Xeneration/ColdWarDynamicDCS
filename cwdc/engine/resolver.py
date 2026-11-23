@@ -11,7 +11,7 @@ from __future__ import annotations
 import random
 
 from cwdc import theater as T
-from cwdc.engine import rng
+from cwdc.engine import crews, rng
 from cwdc.model import (Campaign, Flight, Kill, Objective, ObjectiveKind, PilotFate, PilotStatus,
                         Pos, Side, SortieResult, Task)
 
@@ -51,27 +51,33 @@ class _Sim:
         self.alive[f.id].remove(slot)
         res = self.res[f.id]
         res.airframes_lost.append(f.airframe_ids[slot])
-        res.pilot_fates.append(self.fate(f.pilot_ids[slot], where))
+        res.pilot_fates.extend(self.fates(f, slot, where))
         if killer is not None and self.alive.get(killer.id):
             ks = self.r.choice(self.alive[killer.id])
             self.res[killer.id].kills.append(Kill(
                 pilot_id=killer.pilot_ids[ks], target=f.airframe_ids[slot],
                 target_type=self.c.squadrons[f.squadron_id].aircraft_type, weapon=weapon, air=True))
 
-    def fate(self, pilot_id: str, where: Pos) -> PilotFate:
-        side = self.c.pilots[pilot_id].side
+    def fates(self, f: Flight, slot: int, where: Pos) -> list[PilotFate]:
+        """The crew of a lost aircraft eject together (or not); each then has their own luck."""
+        crew = crews.seat_crew(f, slot)
         if self.r.random() > 0.6:
-            return PilotFate(pilot_id=pilot_id, status=PilotStatus.KIA, note="did not eject")
-        friendly = T.side_at_pos(self.c.front_line, where) is side
-        roll = self.r.random()
-        if friendly:
-            st = PilotStatus.ACTIVE if roll < 0.8 else PilotStatus.WIA
-            return PilotFate(pilot_id=pilot_id, status=st, note="ejected and was recovered")
-        st = PilotStatus.POW if roll < 0.7 else PilotStatus.MIA
-        return PilotFate(pilot_id=pilot_id, status=st, note="ejected over enemy territory")
+            return [PilotFate(pilot_id=p, status=PilotStatus.KIA, note="did not eject") for p in crew]
+        friendly = T.side_at_pos(self.c.front_line, where) is f.side
+        out = []
+        for pid in crew:
+            roll = self.r.random()
+            if friendly:
+                st = PilotStatus.ACTIVE if roll < 0.8 else PilotStatus.WIA
+                out.append(PilotFate(pilot_id=pid, status=st, note="ejected and was recovered"))
+            else:
+                st = PilotStatus.POW if roll < 0.7 else PilotStatus.MIA
+                out.append(PilotFate(pilot_id=pid, status=st, note="ejected over enemy territory"))
+        return out
 
     def air_combat(self, a: Flight, b: Flight, a_factor: float = 1.0) -> None:
-        ra, rb = _rating(self.c, a, "air_rating") * a_factor, _rating(self.c, b, "air_rating")
+        ra = _rating(self.c, a, "air_rating") * a_factor * crews.performance(self.c, a)
+        rb = _rating(self.c, b, "air_rating") * crews.performance(self.c, b)
         pa = min(0.4, max(0.03, BASE_AIR_LOSS * rb / ra))
         pb = min(0.4, max(0.03, BASE_AIR_LOSS * ra / rb))
         where = self.where(b) if b.task is Task.CAP else self.where(a)
@@ -164,7 +170,7 @@ class _Sim:
                     n = self.kill_units(tgt, hits, prefer_radar=True)
                     self._ground_kills(f, tgt, n)
             else:
-                p = P_WEAPON * _rating(self.c, f, "strike_rating")
+                p = P_WEAPON * _rating(self.c, f, "strike_rating") * crews.performance(self.c, f)
                 hits = sum(self.r.random() < p for _ in range(2 * n_alive))
                 n = self.kill_units(tgt, hits)
                 self._ground_kills(f, tgt, n)

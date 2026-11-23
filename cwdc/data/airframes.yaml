@@ -7,6 +7,7 @@ F-4E-45MC:
   air_rating: 1.0      # abstract air-combat strength (F-4E = 1.0)
   strike_rating: 1.0
   flyable: true
+  crew: 2              # pilot + WSO (default 1)
   loadout_file: loadouts_f4e.yaml
   cruise_kmh: 850
   cruise_alt_m: 6000

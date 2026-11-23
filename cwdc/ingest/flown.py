@@ -33,7 +33,7 @@ def results_from_dcs(c: Campaign, rec: MissionRecord, data: dict) -> tuple[list[
 
     lost: set[str] = set()
     ejected: dict[str, Pos | None] = {}
-    chute: dict[str, Pos | None] = {}
+    chutes: dict[str, list[tuple[str, Pos | None]]] = {}   # unit -> [(parachute name, landing)]
     pilot_dead: set[str] = set()
     hit: set[str] = set()
     obj_dead: set[str] = set()
@@ -50,7 +50,7 @@ def results_from_dcs(c: Campaign, rec: MissionRecord, data: dict) -> tuple[list[
         if ev == "S_EVENT_EJECTION" and iname in man:
             ejected[iname] = _pos(ini)
         if ev == "S_EVENT_LANDING_AFTER_EJECTION" and e.get("place") in man:
-            chute[e["place"]] = _pos(ini)
+            chutes.setdefault(e["place"], []).append((_name(ini) or "", _pos(ini)))
         if ev == "S_EVENT_PILOT_DEAD" and iname in man:
             pilot_dead.add(iname)
         if ev == "S_EVENT_HIT" and tname in man:
@@ -100,7 +100,11 @@ def results_from_dcs(c: Campaign, rec: MissionRecord, data: dict) -> tuple[list[
         pilot = entry["pilot"]
         if uname in lost or uname in ejected or uname in pilot_dead:
             res.airframes_lost.append(entry["airframe"])
-            res.pilot_fates.append(_fate(c, pilot, uname, ejected, chute, pilot_dead))
+            seats = _seat_landings(chutes.get(uname, []))
+            res.pilot_fates.append(_fate(c, pilot, uname, ejected, seats["pilot"],
+                                         uname in pilot_dead))
+            if entry.get("wso"):
+                res.pilot_fates.append(_fate(c, entry["wso"], uname, ejected, seats["wso"], False))
         else:
             u = present.get(uname)
             if (u and u.get("life0") and u["life"] / u["life0"] < DAMAGE_THRESHOLD) or uname in hit:
@@ -113,11 +117,30 @@ def results_from_dcs(c: Campaign, rec: MissionRecord, data: dict) -> tuple[list[
     return list(by_flight.values()), destroyed
 
 
-def _fate(c: Campaign, pilot_id: str, uname: str, ejected, chute, pilot_dead) -> PilotFate:
+def _seat_landings(chutes: list[tuple[str, Pos | None]]) -> dict[str, Pos | None]:
+    """Which parachute is whose. The F-4E's are named F-4E_Parachute_Pilot / _WSO; single
+    seaters' have other names (e.g. pilot_f15_parachute) and belong to the pilot."""
+    out: dict[str, Pos | None] = {"pilot": None, "wso": None}
+    rest = []
+    for name, pos in chutes:
+        if "wso" in name.lower() and out["wso"] is None:
+            out["wso"] = pos
+        elif "pilot" in name.lower() and out["pilot"] is None:
+            out["pilot"] = pos
+        else:
+            rest.append(pos)
+    for seat in ("pilot", "wso"):
+        if out[seat] is None and rest:
+            out[seat] = rest.pop(0)
+    return out
+
+
+def _fate(c: Campaign, pilot_id: str, uname: str, ejected, landed: Pos | None,
+          dead: bool) -> PilotFate:
     side = c.pilots[pilot_id].side
-    if uname in pilot_dead or uname not in ejected:
+    if dead or uname not in ejected:
         return PilotFate(pilot_id=pilot_id, status=PilotStatus.KIA, note="killed in action")
-    where = chute.get(uname) or ejected.get(uname)
+    where = landed or ejected.get(uname)
     if where is None:
         return PilotFate(pilot_id=pilot_id, status=PilotStatus.MIA, note="ejected, position unknown")
     lat, lon = T.pos_to_latlon(where)

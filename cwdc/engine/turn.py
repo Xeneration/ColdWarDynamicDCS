@@ -3,9 +3,9 @@ from __future__ import annotations
 
 from datetime import timedelta
 
-from cwdc.engine import airbases, apply, factory, ground, logistics, planner, resolver
-from cwdc.model import (Airframe, AirframeStatus, Campaign, FlightStatus, Pilot, PilotStatus,
-                        SortieResult)
+from cwdc.engine import airbases, apply, crews, factory, ground, logistics, planner, resolver
+from cwdc.model import (Airframe, AirframeStatus, Campaign, CrewRole, FlightStatus, Pilot,
+                        PilotStatus, SortieResult)
 from cwdc.engine import rng
 
 REPLACEMENT_EVERY_TURNS = 4      # once a day
@@ -46,6 +46,8 @@ def end_turn(c: Campaign, dcs_results: list[SortieResult] | None = None,
                        f"You continue as {new.rank} {new.name} (new crew). **")
 
     c.pending_mission = None
+    crews.rest(c, night=planner.period(c) == "night",
+               exclude={pid for f in c.flights.values() for pid in crews.crew_of(f)})
     c.add_news(f"Turn {c.turn}: " + "; ".join(l for l in debrief if l.startswith("[")))
     _advance(c)
     planner.plan_turn(c)
@@ -87,3 +89,8 @@ def _replacements(c: Campaign) -> None:
             pid = c.next_id(f"{sq.side.value[0]}p")
             c.pilots[pid] = Pilot(id=pid, name=f"{r.choice(pool['first'])} {r.choice(pool['last'])}",
                                   rank=pool["ranks"][0], side=sq.side, squadron_id=sq.id)
+        if sq.establishment_wsos:
+            have_w = len(c.squadron_pilots(sq.id, role=CrewRole.WSO))
+            n = min(REPLACEMENT_PILOTS, sq.establishment_wsos - have_w)
+            if n > 0:
+                crews._recruit(c, sq, n, r, names, CrewRole.WSO, ranks=[pool["ranks"][0]])

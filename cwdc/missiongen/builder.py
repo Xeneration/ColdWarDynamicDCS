@@ -334,6 +334,8 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
             af = c.airframes[f.airframe_ids[i]]
             manifest[unit.name] = {"kind": "airframe", "flight": f.id, "airframe": af.id,
                                    "pilot": f.pilot_ids[i]}
+            if i < len(f.wso_ids):
+                manifest[unit.name]["wso"] = f.wso_ids[i]
             if sq.aircraft_type == "F-4E-45MC":
                 unit.set_property("Quality", af.quality)
             if bot or not (is_player and i == 0):
@@ -397,6 +399,15 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
              f"Flight: {player.callsign} ({sq.name}), {len(player.airframe_ids)}x {sq.aircraft_type}"
              f" from {c.airbases[sq.base_id].dcs_name} ({start} start)",
              f"Tasking: {c.packages[player.package_id].description}"]
+    crew = []
+    for i, pid in enumerate(player.pilot_ids):
+        p = c.pilots[pid]
+        seat = f"{p.rank} {p.name}"
+        if i < len(player.wso_ids):
+            w = c.pilots[player.wso_ids[i]]
+            seat += f" / {w.rank} {w.name} (WSO)"
+        crew.append(f"{player.callsign}-{i + 1} {seat}")
+    lines.append("Crews: " + "; ".join(crew))
     if player.target_id:
         tgt = c.objectives[player.target_id]
         lat, lon = T.pos_to_latlon(tgt.pos)
