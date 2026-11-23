@@ -22,12 +22,38 @@ world = {
             S_EVENT_MISSION_END = 12, S_EVENT_BIRTH = 15, S_EVENT_ENGINE_SHUTDOWN = 18,
             S_EVENT_KILL = 28, S_EVENT_UNIT_LOST = 30, S_EVENT_LANDING_AFTER_EJECTION = 31,
             S_EVENT_RUNWAY_TAKEOFF = 54, S_EVENT_RUNWAY_TOUCH = 55 },
-  addEventHandler = function(h) HANDLER = h end,
+  addEventHandler = function(h)
+    HANDLERS = HANDLERS or {}
+    HANDLERS[#HANDLERS + 1] = h
+    HANDLER = HANDLERS[1]          -- the main CWDC recorder
+  end,
 }
+-- deliver an event to every registered handler, like DCS does
+function fire(e) for _, h in ipairs(HANDLERS) do h:onEvent(e) end end
 coord = { LOtoLL = function(p) return 50 + p.x / 1e6, 7 + p.z / 1e6, p.y end }
+SCHEDS, FLAGS = {}, {}
 timer = { getTime = function() return T end, getAbsTime = function() return 28800 + T end,
-          scheduleFunction = function(f, a, t) SCHED = { f = f, a = a, t = t } end }
-trigger = { action = { outText = function(t, d) MSGS[#MSGS + 1] = t end } }
+          scheduleFunction = function(f, a, t)
+            SCHED = { f = f, a = a, t = t }
+            SCHEDS[#SCHEDS + 1] = SCHED
+          end }
+trigger = { action = { outText = function(t, d) MSGS[#MSGS + 1] = t end,
+                       setUserFlag = function(f, v) FLAGS[f] = v end } }
+
+-- advance mission time to `now`, running every scheduled function that is due
+function run_due(now)
+  T = now
+  local ran = true
+  while ran do
+    ran = false
+    for _, s in ipairs(SCHEDS) do
+      if s.t and s.t <= now then
+        s.t = s.f(s.a, s.t)
+        ran = true
+      end
+    end
+  end
+end
 Object = { Category = { UNIT = 1, WEAPON = 2, STATIC = 3, BASE = 4, SCENERY = 5 } }
 function Object.getCategory(o) return o:getCategory() end
 

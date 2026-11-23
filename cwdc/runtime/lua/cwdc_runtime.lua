@@ -280,6 +280,61 @@ timer.scheduleFunction(function(_, t)
   return t + CWDC.snapshot_interval
 end, nil, timer.getTime() + CWDC.snapshot_interval)
 
+------------------------------------------------------------------------
+-- Bot missions: end automatically (no player to exit the mission)
+--   CWDC_CONFIG.end_when = { groups = {...}, time_limit = s, flag = n }
+-- When every aircraft of those groups has landed or been lost, or at the
+-- time limit, the runtime sets `flag`; a mission trigger then ends it.
+------------------------------------------------------------------------
+CWDC.end_pending = nil
+CWDC.end_requested = false
+
+function CWDC.request_end(reason)
+  if CWDC.end_requested then return end
+  CWDC.end_requested = true
+  local w = CWDC.config.end_when or {}
+  CWDC.emit("NOTE", { model_time = timer.getTime(), note = "auto end: " .. reason })
+  trigger.action.outText("CWDC: " .. reason .. " - mission ends in 30 s.", 30)
+  timer.scheduleFunction(function()
+    trigger.action.setUserFlag(tostring(w.flag or 9001), true)
+    return nil
+  end, nil, timer.getTime() + 30)
+end
+
+local END_EVENTS = {
+  [world.event.S_EVENT_LAND] = true, [world.event.S_EVENT_UNIT_LOST] = true,
+  [world.event.S_EVENT_CRASH] = true, [world.event.S_EVENT_DEAD] = true,
+  [world.event.S_EVENT_EJECTION] = true, [world.event.S_EVENT_PILOT_DEAD] = true,
+}
+
+if CWDC.config.end_when then
+  CWDC.end_pending = {}
+  for _, gname in ipairs(CWDC.config.end_when.groups or {}) do
+    local g = Group.getByName(gname)
+    if g then
+      for _, u in ipairs(g:getUnits() or {}) do CWDC.end_pending[u:getName()] = true end
+    end
+  end
+  local end_handler = {}
+  function end_handler:onEvent(e)
+    if not e or not END_EVENTS[e.id] or not e.initiator then return end
+    local ok, name = pcall(function() return e.initiator:getName() end)
+    if ok and name and CWDC.end_pending[name] then
+      CWDC.end_pending[name] = nil
+      if next(CWDC.end_pending) == nil then CWDC.request_end("focus flight complete") end
+    end
+  end
+  world.addEventHandler(end_handler)
+  local limit = CWDC.config.end_when.time_limit
+  if limit then
+    timer.scheduleFunction(function(_, t)
+      if CWDC.end_requested then return nil end
+      if t >= limit then CWDC.request_end("time limit reached") return nil end
+      return t + 60
+    end, nil, timer.getTime() + 60)
+  end
+end
+
 if CWDC.mission_id == "unknown" then
   log("WARNING: CWDC_CONFIG missing - mission_id unknown")
 end

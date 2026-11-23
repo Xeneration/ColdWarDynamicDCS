@@ -191,7 +191,17 @@ def _spread_units(group, toward: Pos, alt_step: float = 30) -> None:
         u.alt += alt_step * i
 
 
-def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runway") -> MissionRecord:
+BOT_TIME_LIMIT = 2 * 3600       # s; bot missions end at the latest after this much mission time
+
+
+def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runway",
+          bot: bool = False) -> MissionRecord:
+    """Build the mission around `player_flight_id`.
+
+    bot=True: an AI-only mission. The focus flight is flown by its AI crew, there is no
+    player slot (DCS starts in spectator view), and the mission ends itself once the
+    focus flight has landed or been lost, or after BOT_TIME_LIMIT.
+    """
     import logging
     logging.getLogger().setLevel(logging.CRITICAL)
     if start not in TAXI_TIME:
@@ -285,9 +295,9 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
                                    "pilot": f.pilot_ids[i]}
             if sq.aircraft_type == "F-4E-45MC":
                 unit.set_property("Quality", af.quality)
-            if not (is_player and i == 0):
+            if bot or not (is_player and i == 0):
                 unit.skill = Skill.Good if sq.side is Side.BLUE else Skill.Average
-        if is_player:
+        if is_player and not bot:
             g.units[0].set_player()
 
         # AI bombers stay on task: no jettison, attack only their assigned target, evade threats
@@ -328,7 +338,10 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
 
     # --- briefing
     sq = c.squadrons[player.squadron_id]
-    lines = [f"{c.name} - turn {c.turn}, {c.time:%d %b %Y %H:%M} local",
+    lines = (["BOT MISSION (AI only): spectate with F10 / F2 and speed up with Ctrl+Z. It ends "
+              f"itself when {player.callsign} has landed or been lost, or after "
+              f"{BOT_TIME_LIMIT // 3600} h.", ""] if bot else [])
+    lines += [f"{c.name} - turn {c.turn}, {c.time:%d %b %Y %H:%M} local",
              f"Flight: {player.callsign} ({sq.name}), {len(player.airframe_ids)}x {sq.aircraft_type}"
              f" from {c.airbases[sq.base_id].dcs_name} ({start} start)",
              f"Tasking: {c.packages[player.package_id].description}"]
@@ -351,19 +364,22 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
     m.set_description_text("\n".join(lines))
     m.set_description_bluetask_text(c.packages[player.package_id].description)
 
-    inject_runtime(m, mission_id, tracked)
+    end_when = {"groups": [f"{player.id} {player.callsign}"], "time_limit": BOT_TIME_LIMIT}         if bot else None
+    inject_runtime(m, mission_id, tracked, end_when=end_when)
     out_dir.mkdir(parents=True, exist_ok=True)
-    path = out_dir / mission_filename(c, player)
+    path = out_dir / mission_filename(c, player, bot)
     m.save(str(path))
     return MissionRecord(mission_id=mission_id, turn=c.turn, player_flight_id=player.id,
                          miz_path=str(path), generated_at=time.time(), manifest=manifest,
-                         spawned_flights=[f.id for f in plan.flights])
+                         spawned_flights=[f.id for f in plan.flights], bot=bot)
 
 
-def mission_filename(c: Campaign, f: Flight) -> str:
+def mission_filename(c: Campaign, f: Flight, bot: bool = False) -> str:
     """e.g. 'CWDC Fulda Gap 1976 - T001 14Aug 0600 - Colt 2 Strike.miz' (unique per flight/turn)."""
     import re
     raw = f"CWDC {c.name} - T{c.turn:03d} {c.time:%d%b %H%M} - {f.callsign} {f.task.value}"
+    if bot:
+        raw += " (BOT)"
     return re.sub(r'[<>:"/\\|?*]', "", raw) + ".miz"
 
 

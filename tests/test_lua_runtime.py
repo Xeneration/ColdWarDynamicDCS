@@ -163,3 +163,34 @@ def test_scenery_hits_dropped_but_scenery_kills_kept():
     events = json.loads(lua.eval("CWDC_export()"))["events"]
     assert [(e["event"], e["target"]["type"]) for e in events] == [
         ("S_EVENT_HIT", "MiG-21Bis"), ("S_EVENT_KILL", "POPLAR")]
+
+
+def _bot(limit=7200, logbuf=None):
+    cfg = config_lua("bot-1", ["BLUE-Hawk1"], end_when={"groups": ["BLUE-Hawk1"], "time_limit": limit})
+    return mission_runtime(cfg, logbuf, pre_runtime=UNITS)
+
+
+def test_bot_mission_ends_when_focus_flight_done():
+    log = []
+    lua = _bot(logbuf=log)
+    lua.execute("""
+      T = 1000
+      fire({ id = world.event.S_EVENT_LAND, time = 1000, initiator = P })
+    """)
+    assert lua.eval("CWDC.end_requested") is False          # wingman still flying
+    lua.execute("T = 1100; fire({ id = world.event.S_EVENT_UNIT_LOST, time = 1100, initiator = W })")
+    assert lua.eval("CWDC.end_requested") is True
+    assert any(" NOTE " in line for line in log)
+    assert lua.eval("#CWDC.events") == 2                    # main recorder still saw both events
+    lua.execute("run_due(1129)")
+    assert lua.eval("FLAGS['9001']") is None                 # 30 s grace
+    lua.execute("run_due(1130)")
+    assert lua.eval("FLAGS['9001']") is True
+
+
+def test_bot_mission_time_limit():
+    lua = _bot(limit=120)
+    lua.execute("run_due(60)")
+    assert lua.eval("CWDC.end_requested") is False
+    lua.execute("run_due(120)")
+    assert lua.eval("CWDC.end_requested") is True

@@ -239,6 +239,7 @@ class MissionRecord(BaseModel):
     #   {"kind": "objective", "objective": id, "unit": idx}
     manifest: dict[str, dict] = {}
     spawned_flights: list[str] = []    # non-player flights present (and so resolved) in DCS
+    bot: bool = False                  # AI-only mission (no player slot)
     ingested: bool = False
 
 

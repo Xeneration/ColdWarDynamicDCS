@@ -93,21 +93,29 @@ def cmd_fly(args) -> None:
         raise SystemExit(f"no flight {fid} this turn - see `cwdc ato`")
     if c.pending_mission and c.pending_mission.player_flight_id != fid:
         print(f"(replacing pending mission {c.pending_mission.mission_id})")
-    try:
-        planner.assign_player(c, fid)
-    except ValueError as e:
-        raise SystemExit(str(e))
+    if args.bot:
+        for other in c.flights:                 # the player sits this one out
+            planner.release_player(c, other)
+    else:
+        try:
+            planner.assign_player(c, fid)
+        except ValueError as e:
+            raise SystemExit(str(e))
     if not dcs_paths.hook_is_current():
         print(f"hook installed/updated: {dcs_paths.install_hook()}")
     previous = c.pending_mission
-    rec = builder.build(c, fid, dcs_paths.missions_dir(), start=args.start)
+    rec = builder.build(c, fid, dcs_paths.missions_dir(), start=args.start, bot=args.bot)
     if previous and previous.miz_path != rec.miz_path:
         Path(previous.miz_path).unlink(missing_ok=True)     # superseded, never flown
     c.pending_mission = rec
     store.save(c)
     f = c.flights[fid]
     print(f"Mission written: {rec.miz_path}")
-    print(f"You lead {f.callsign}: {c.packages[f.package_id].description}")
+    if args.bot:
+        print(f"BOT mission around {f.callsign}: {c.packages[f.package_id].description}")
+        print("No player slot: spectate (F10/F2), speed up with Ctrl+Z; it ends by itself.")
+    else:
+        print(f"You lead {f.callsign}: {c.packages[f.package_id].description}")
     others = [c.flights[x].callsign for x in rec.spawned_flights if x != fid]
     print(f"Also in this mission: {', '.join(others) or 'nobody else'}")
     print(f"\nIn DCS: Mission > My Missions > ColdWarDynamic > {Path(rec.miz_path).name}")
@@ -165,6 +173,50 @@ def cmd_skip(args) -> None:
     print(f"\nNow turn {c.turn}, {c.time:%d %b %H:%M}.")
 
 
+def _tally(c: Campaign) -> dict:
+    out = {}
+    for side in Side:
+        out[(side, "aircraft")] = sum(1 for a in c.airframes.values()
+                                      if a.status is AirframeStatus.DESTROYED
+                                      and c.squadrons[a.squadron_id].side is side)
+        out[(side, "aircrew")] = sum(1 for p in c.pilots.values() if p.side is side
+                                     and p.status in (PilotStatus.KIA, PilotStatus.MIA, PilotStatus.POW))
+        out[(side, "ground")] = sum(1 for o in c.objectives.values() if o.side is side
+                                    for u in o.units if not u.alive)
+    return out
+
+
+def cmd_autorun(args) -> None:
+    """Play N turns with every sortie simulated (no DCS) - for testing the strategic layer."""
+    from cwdc.engine import planner, turn
+    c = _load(args)
+    if c.pending_mission:
+        planner.release_player(c, c.pending_mission.player_flight_id)
+        print(f"(discarding pending mission {c.pending_mission.mission_id})")
+    start = _tally(c)
+    print(f"Autorun {args.turns} turns from turn {c.turn} ({c.time:%d %b %H:%M})")
+    print("  turn  time           sorties | lost aircraft B/R | aircrew B/R | ground units B/R")
+    for _ in range(args.turns):
+        before, t0, n = _tally(c), c.time, len(c.flights)
+        lines = turn.end_turn(c)
+        store.save(c, snapshot=True)
+        now = _tally(c)
+        d = {k: now[k] - before[k] for k in now}
+        print(f"  {c.turn - 1:>4}  {t0:%d %b %H:%M}  {n:>7} | "
+              f"{d[(Side.BLUE, 'aircraft')]:>8} / {d[(Side.RED, 'aircraft')]:<6} | "
+              f"{d[(Side.BLUE, 'aircrew')]:>4} / {d[(Side.RED, 'aircrew')]:<4} | "
+              f"{d[(Side.BLUE, 'ground')]:>7} / {d[(Side.RED, 'ground')]}")
+        if args.verbose:
+            for line in lines[1:]:
+                print("        " + line)
+    end = _tally(c)
+    tot = {k: end[k] - start[k] for k in end}
+    print(f"Totals: aircraft lost B {tot[(Side.BLUE, 'aircraft')]} / R {tot[(Side.RED, 'aircraft')]}, "
+          f"aircrew B {tot[(Side.BLUE, 'aircrew')]} / R {tot[(Side.RED, 'aircrew')]}, "
+          f"ground units B {tot[(Side.BLUE, 'ground')]} / R {tot[(Side.RED, 'ground')]}")
+    print(f"Now turn {c.turn}, {c.time:%d %b %Y %H:%M}. `cwdc rollback <turn>` to go back.")
+
+
 def cmd_roster(args) -> None:
     c = _load(args)
     sq = next(s for s in c.squadrons.values() if s.player_squadron)
@@ -205,12 +257,20 @@ def register(sub) -> None:
     p.add_argument("--start", choices=["runway", "ramp", "air"], default="runway",
                    help="runway (default, hot on the runway), ramp (warm on parking) or "
                         "air (airborne ~50 nm from the target)")
+    p.add_argument("--bot", action="store_true",
+                   help="AI-only mission around this flight (any flight id, either side); "
+                        "you spectate, it ends itself")
     p.add_argument("--campaign")
     p.set_defaults(func=cmd_fly)
     p = sub.add_parser("ingest", help="read the flown mission's results and end the turn")
     p.add_argument("--from-log", action="store_true", help="rebuild results from dcs.log")
     p.add_argument("--campaign")
     p.set_defaults(func=cmd_ingest)
+    p = sub.add_parser("autorun", help="simulate N turns without DCS (strategic-layer testing)")
+    p.add_argument("turns", type=int)
+    p.add_argument("--verbose", "-v", action="store_true", help="print every turn's debrief")
+    p.add_argument("--campaign")
+    p.set_defaults(func=cmd_autorun)
     p = sub.add_parser("rollback", help="restore the snapshot from the start of a turn")
     p.add_argument("turn", type=int)
     p.add_argument("--campaign")

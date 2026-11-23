@@ -268,3 +268,28 @@ def test_sync_theater_adds_new_objectives_only(camp):
     camp.objectives["r_sa2_gotha"].units[0].alive = False
     assert sync_theater(camp) == ["Wasserkuppe radar site"]
     assert not camp.objectives["r_sa2_gotha"].units[0].alive
+
+
+def test_bot_mission_has_no_player_and_ends_itself(camp, tmp_path):
+    f = _flight(camp, Task.STRIKE)
+    rec = builder.build(camp, f.id, tmp_path, bot=True)
+    assert rec.bot and "(BOT)" in rec.miz_path
+    m = dcs.Mission()
+    m.load_file(rec.miz_path)
+    skills = {u.skill for coal in m.coalition.values() for co in coal.countries.values()
+              for g in co.plane_group for u in g.units}
+    assert dcs.unit.Skill.Player not in skills and dcs.unit.Skill.Client not in skills
+    preds = [a.predicate for t in m.triggerrules.triggers for a in t.actions]
+    assert "a_end_mission" in preds
+    assert camp.player_pilot().id not in f.pilot_ids
+
+
+def test_cli_autorun(tmp_path, monkeypatch, capsys):
+    from cwdc.cli import main
+    monkeypatch.setenv("CWDC_CAMPAIGNS_DIR", str(tmp_path / "campaigns"))
+    monkeypatch.setenv("CWDC_DCS_WRITEDIR", str(tmp_path / "dcs"))
+    main(["new", "--name", "Auto", "--seed", "5"])
+    main(["autorun", "4"])
+    out = capsys.readouterr().out
+    assert "Totals:" in out and store.load().turn == 5
+    assert (store.campaign_dir("auto") / "turns" / "005.json").is_file()
