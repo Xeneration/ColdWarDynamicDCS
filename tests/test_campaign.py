@@ -18,14 +18,22 @@ def camp():
     return new_campaign("Test Campaign", seed=7, player_name="Capt Test")
 
 
+ATTACK = {Task.STRIKE, Task.BAI, Task.CAS, Task.INTERDICTION}
+
+
 def _flight(c, task):
+    """A player-eligible flight; Task.STRIKE means 'any ground-attack flight'."""
+    if task is Task.STRIKE:
+        return next(f for f in c.flights.values()
+                    if f.player_eligible and f.task in ATTACK and f.target_id)
     return next(f for f in c.flights.values() if f.player_eligible and f.task is task)
 
 
 def test_new_campaign(camp):
     c = camp
     assert c.player_pilot().name == "Capt Test"
-    assert {f.task for f in c.flights.values() if f.player_eligible} >= {Task.CAP, Task.STRIKE}
+    tasks = {f.task for f in c.flights.values() if f.player_eligible}
+    assert Task.CAP in tasks and tasks & ATTACK
     assert any(f.side is Side.RED for f in c.flights.values())
     # all airbases and objectives sit on the right side of the front
     for o in c.objectives.values():

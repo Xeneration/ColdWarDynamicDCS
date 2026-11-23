@@ -18,6 +18,7 @@ from cwdc.model import (Campaign, Flight, Kill, Objective, ObjectiveKind, PilotF
 CONTACT_RANGE = 120_000
 P_CAP_CONTACT = 0.5
 P_INTERCEPT = 0.5
+P_LEAK = 0.3                     # with an escort, chance interceptors still reach the strikers
 BASE_AIR_LOSS = 0.15
 P_SAM = 0.07
 P_AAA = 0.03
@@ -118,12 +119,20 @@ class _Sim:
                        and x.area.dist(tgt.pos) <= CONTACT_RANGE]
             friendly_cover = [x for x in caps[f.side] if self.alive[x.id]
                               and x.area.dist(tgt.pos) <= CONTACT_RANGE]
-            if hostile:
+            if hostile and f.supports is None:          # support flights ride with their package
                 p = max(0.15, P_INTERCEPT - 0.15 * len(friendly_cover))
                 if self.r.random() < p:
                     interceptor = self.r.choice(hostile)
                     engaged.add(interceptor.id)
-                    self.air_combat(f, interceptor, a_factor=0.7)   # bomb-laden strikers
+                    escorts = [x for x in self.flights if x.supports == f.id
+                               and x.task is Task.ESCORT and self.alive[x.id]]
+                    if escorts:
+                        # the escort takes the fight; only some interceptors leak through
+                        self.air_combat(escorts[0], interceptor)
+                        if self.alive[interceptor.id] and self.r.random() < P_LEAK:
+                            self.air_combat(f, interceptor, a_factor=0.7)
+                    else:
+                        self.air_combat(f, interceptor, a_factor=0.7)   # bomb-laden strikers
 
         # 3. SEAD first (so it can suppress), then everyone else runs the SAM gauntlet
         suppressed: set[str] = set()

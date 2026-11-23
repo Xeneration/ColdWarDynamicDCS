@@ -344,6 +344,33 @@ Testing is by `cwdc autorun N` (abstract turns in seconds) plus occasional `cwdc
   - Outcomes now vary with interdiction. In some seeds Fulda stalls at about 7 km and Rhön breaks to about 16 km; in others Fulda reaches 36–42 km.
   - Every seed reaches a stalemate after about day 7, with no NATO counter-offensive yet. That's for step 9.
 
+**Progress (2026-11-23): step 5 done** (`engine/planner.py`)
+- **Needs-based air commanders:**
+  - Each side mans its barrier-CAP stations first (doctrine: NATO 1, relying on escorts and the Hawk belt; Warsaw Pact 2).
+  - Then it scores needs:
+    - **CAS** against enemy formation elements in sectors where the enemy is attacking, weighted by enemy/own power;
+    - **BAI** elsewhere, with a bonus where its own side is attacking;
+    - **interdiction**, with a bonus for links feeding an enemy offensive;
+    - **SEAD** against SAMs;
+    - **strikes** on EWR and command sites.
+  - Needs are filled in priority order by the best squadron: specialists first, then the nearest. Role discipline means a squadron only flies a need's first two acceptable tasks, so the 23rd TFS doesn't drop CAS bombs.
+- **Packages:** a main flight, plus a **SEAD** flight if the target sits under an enemy SAM umbrella, plus an **escort** if enemy CAP is within 120 km. NATO escorts everything threatened; the Warsaw Pact only escorts high-value targets.
+- **Sortie limits:** sorties per squadron, ready aircraft and crews, and night (CAP only).
+- **Resolver:** support flights ride with their package. Interceptors meet the escort first, and only 30% leak through to the strikers. SEAD still suppresses the covering SAM.
+- **Mission builder:**
+  - The player's whole package is spawned.
+  - AI escorts of AI packages get an `Escort` task on their main flight.
+  - If the player flies the escort (or SEAD support), the main AI flight launches overhead the player's base after the taxi time, so they join up.
+  - Escorts fly high (no low-level waypoints).
+- **Bug caught by a test:** in bot missions, AI escorts weren't attached to the focus flight. Fixed, and the test now checks the escorted group id.
+- **Balance read** (4 seeds, 10 days):
+  - Air losses are lower and more even: 20–34 per side, against NATO 38–60 before.
+  - The Fulda front ends at 11–40 km.
+  - One seed produces a NATO counter-offensive 36 km into the GDR at Göttingen.
+- **Still to do:**
+  - OCA against airbases arrives with step 6 (airbase damage).
+  - Doctrine weights will be tuned in step 9.
+
 What's deliberately left for later phases: the web UI (Phase 3), the crisis phase, the MAGIC controller and kneeboards (Phase 4), and the immersion lockdown (Phase 5).
 
 **Phase 3: Web UI**

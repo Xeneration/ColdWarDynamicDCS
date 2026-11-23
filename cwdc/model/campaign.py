@@ -236,6 +236,7 @@ class Flight(BaseModel):
     status: FlightStatus = FlightStatus.PLANNED
     player_eligible: bool = False
     displaced_pilot_id: Optional[str] = None   # lead pilot stood down when the player took the seat
+    supports: Optional[str] = None     # escort / SEAD flight: the package's main flight it protects
 
 
 class Package(BaseModel):

@@ -1,15 +1,32 @@
-"""Air tasking: both sides plan every sortie of the turn (extensibility principle 1)."""
+"""Air tasking: both sides plan every sortie of the turn (extensibility principle 1).
+
+Phase 2 step 5, "air commanders take 2". Each side:
+  1. mans its barrier-CAP stations (doctrine decides how many);
+  2. scores its *needs* - CAS where an enemy attack threatens a sector, BAI/strike on
+     enemy formations elsewhere, interdiction of the supply lines feeding enemy
+     offensives, SEAD and strikes on air-defence and radar sites;
+  3. fills the needs in priority order from squadrons that can fly them, building
+     **packages**: the main flight plus a SEAD flight if the target sits under an
+     enemy SAM umbrella, and an escort if enemy fighters can reach it.
+
+Sortie rate is limited by each squadron's `sorties`, its ready aircraft and crews,
+and the period (night: CAP only).
+"""
 from __future__ import annotations
+
+from dataclasses import dataclass
 
 from cwdc import theater as T
 from cwdc.engine import rng
 from cwdc.model import (Campaign, Flight, FlightStatus, Objective, ObjectiveKind, Package,
-                        PilotStatus, Side, Squadron, Task)
+                        PilotStatus, Pos, Side, Squadron, Task)
 
 FLIGHT_SIZE = 2
 SORTIES = {"player": 3, "default": 2}
 STATION_NAMES = ["Alpha", "Bravo", "Charlie", "Delta"]
+ENEMY_FIGHTER_REACH = 120_000     # enemy CAP stations this close to a target justify an escort
 
+# Kept for callers that ask which objective kinds a task can attack.
 TARGET_KINDS = {
     Task.STRIKE: {ObjectiveKind.DEPOT, ObjectiveKind.ARTILLERY, ObjectiveKind.ARMOR,
                   ObjectiveKind.COMMAND, ObjectiveKind.EWR, ObjectiveKind.RAIL},
@@ -20,19 +37,33 @@ TARGET_KINDS = {
     Task.SEAD: {ObjectiveKind.SAM},
 }
 
+# Which squadron tasks can fly a need, in order of preference.
+CAN_FLY = {
+    Task.CAS: [Task.CAS, Task.BAI, Task.STRIKE],
+    Task.BAI: [Task.BAI, Task.STRIKE, Task.CAS],
+    Task.STRIKE: [Task.STRIKE, Task.BAI, Task.INTERDICTION],
+    Task.INTERDICTION: [Task.INTERDICTION, Task.STRIKE, Task.BAI],
+    Task.SEAD: [Task.SEAD],
+}
 
-def _feeds_attack(c: Campaign, o: Objective) -> bool:
-    """Does this logistics target supply a sector where its side is attacking?"""
-    nodes = set()
-    if o.supply_node:
-        nodes.add(o.supply_node)
-    if o.supply_link:
-        lk = next((l for l in c.supply_links if l.id == o.supply_link), None)
-        if lk:
-            nodes.add(lk.b)
-    return any(sec.attacker is o.side and sec.depots.get(o.side) in nodes
-               for sec in c.sectors.values())
+DOCTRINE = {
+    # NATO: one barrier CAP (the Hawk belt does the rest), escorts and SEAD for packages
+    Side.BLUE: {"cap_stations": 1, "cas": 1.0, "bai": 1.0, "interdiction": 1.0, "strike": 1.0,
+                "escort": True, "sead_support": True},
+    # Warsaw Pact: GCI-directed fighters on CAP, mass on the battlefield, few escorts
+    Side.RED: {"cap_stations": 2, "cas": 1.2, "bai": 1.0, "interdiction": 0.8, "strike": 0.8,
+               "escort": False, "sead_support": True},
+}
 
+
+@dataclass
+class Need:
+    task: Task
+    target: Objective
+    score: float
+
+
+# ----------------------------------------------------------------------------- helpers
 
 def period(c: Campaign) -> str:
     h = c.time.hour
@@ -49,25 +80,100 @@ def _flyable(sq: Squadron) -> bool:
     return bool(T.airframe_catalogue().get(sq.aircraft_type, {}).get("flyable"))
 
 
-def _pick_target(c: Campaign, side: Side, task: Task, taken: set[str],
-                 prefer_near: list[Objective]) -> Objective | None:
-    kinds = TARGET_KINDS[task]
-    cands = [o for o in c.objectives.values()
-             if o.side is side.enemy and o.kind in kinds and not o.destroyed and o.id not in taken]
-    if not cands:
-        return None
+def _feeds_attack(c: Campaign, o: Objective) -> bool:
+    """Does this logistics target supply a sector where its side is attacking?"""
+    nodes = set()
+    if o.supply_node:
+        nodes.add(o.supply_node)
+    if o.supply_link:
+        lk = next((l for l in c.supply_links if l.id == o.supply_link), None)
+        if lk:
+            nodes.add(lk.b)
+    return any(sec.attacker is o.side and sec.depots.get(o.side) in nodes
+               for sec in c.sectors.values())
 
-    def score(o: Objective) -> float:
-        s = o.value * len(o.alive_units) / len(o.units)
-        if task is Task.INTERDICTION and _feeds_attack(c, o):
-            s += 3                      # cut the supply of an enemy offensive first
-        if task is Task.SEAD and prefer_near:
-            # SAMs covering targets we are already hitting come first
-            if any(o.pos.dist(t.pos) <= o.threat_range_m for t in prefer_near):
-                s += 10
-        return s
 
-    return max(cands, key=score)
+def _sam_cover(c: Campaign, target: Objective, enemy: Side) -> list[Objective]:
+    return [o for o in c.objectives.values() if o.side is enemy and o.kind is ObjectiveKind.SAM
+            and not o.destroyed and o.id != target.id and o.pos.dist(target.pos) <= o.threat_range_m]
+
+
+def _enemy_fighters_near(c: Campaign, pos: Pos, enemy: Side) -> bool:
+    return any(p.dist(pos) <= ENEMY_FIGHTER_REACH for p in c.cap_stations.get(enemy, []))
+
+
+# ----------------------------------------------------------------------------- needs
+
+def needs(c: Campaign, side: Side) -> list[Need]:
+    from cwdc.engine.ground import power
+    doc = DOCTRINE[side]
+    enemy = side.enemy
+    out: list[Need] = []
+    live = [o for o in c.objectives.values() if o.side is enemy and not o.destroyed]
+
+    for o in live:
+        frac = len(o.alive_units) / len(o.units)
+        if o.formation_id and o.kind in (ObjectiveKind.ARMOR, ObjectiveKind.ARTILLERY):
+            sec = c.sectors.get(o.sector_id) if o.sector_id else None
+            if sec is not None:
+                own, theirs = power(c, sec.id, side), power(c, sec.id, enemy)
+                if sec.attacker is enemy:                       # they are attacking us here
+                    crit = theirs / max(own, 1.0)
+                    out.append(Need(Task.CAS, o, (4 + 3 * crit) * frac * doc["cas"]))
+                    continue
+            push = 2.0 if sec is not None and sec.attacker is side else 0.0   # support our offensive
+            out.append(Need(Task.BAI, o, (2 + 0.5 * o.value + push) * frac * doc["bai"]))
+        elif o.kind in (ObjectiveKind.RAIL, ObjectiveKind.CONVOY, ObjectiveKind.DEPOT):
+            s = 2 + 0.5 * o.value + (4 if _feeds_attack(c, o) else 0)
+            out.append(Need(Task.INTERDICTION, o, s * frac * doc["interdiction"]))
+        elif o.kind is ObjectiveKind.SAM:
+            out.append(Need(Task.SEAD, o, (1.5 + 0.3 * o.value) * frac))
+        elif o.kind in (ObjectiveKind.EWR, ObjectiveKind.COMMAND):
+            out.append(Need(Task.STRIKE, o, (1 + 0.3 * o.value) * frac * doc["strike"]))
+    return sorted(out, key=lambda n: -n.score)
+
+
+# ----------------------------------------------------------------------------- planning
+
+class _Pool:
+    """Remaining sorties, aircraft and crews of one side's squadrons this turn."""
+
+    def __init__(self, c: Campaign, side: Side, r):
+        self.c = c
+        self.left: dict[str, int] = {}
+        self.airframes: dict[str, list] = {}
+        self.pilots: dict[str, list] = {}
+        for sq in sorted((s for s in c.squadrons.values() if s.side is side), key=lambda s: s.id):
+            afs = c.squadron_airframes(sq.id)
+            r.shuffle(afs)
+            pls = sorted((p for p in c.squadron_pilots(sq.id) if not p.is_player), key=lambda p: -p.sorties)
+            self.airframes[sq.id], self.pilots[sq.id] = afs, pls
+            n = sq.sorties or (SORTIES["player"] if sq.player_squadron else SORTIES["default"])
+            self.left[sq.id] = min(n, len(afs) // FLIGHT_SIZE, len(pls) // FLIGHT_SIZE)
+
+    def pick(self, tasks: list[Task], near: Pos | None = None, exclude: set[str] = frozenset()):
+        """Best squadron able to fly one of `tasks`: specialists first, then nearest."""
+        best = None
+        for sq_id, n in self.left.items():
+            if n <= 0 or sq_id in exclude:
+                continue
+            sq = self.c.squadrons[sq_id]
+            # role discipline: only a need's first two acceptable tasks (no strike squadron on CAS)
+            options = [t for t in tasks[:2] if t in sq.tasks]
+            if not options:
+                continue
+            spec = sq.tasks.index(options[0])                   # lower = more of a specialist
+            dist = self.c.airbases[sq.base_id].pos.dist(near) if near else 0.0
+            key = (tasks.index(options[0]), spec, dist)
+            if best is None or key < best[0]:
+                best = (key, sq, options[0])
+        return (best[1], best[2]) if best else (None, None)
+
+    def take(self, sq: Squadron) -> tuple[list, list]:
+        self.left[sq.id] -= 1
+        afs = [self.airframes[sq.id].pop(0) for _ in range(FLIGHT_SIZE)]
+        pls = [self.pilots[sq.id].pop(0) for _ in range(FLIGHT_SIZE)]
+        return afs, pls
 
 
 def plan_turn(c: Campaign) -> None:
@@ -78,72 +184,85 @@ def plan_turn(c: Campaign) -> None:
     night = period(c) == "night"
 
     for side in Side:
+        doc = DOCTRINE[side]
+        pool = _Pool(c, side, r)
+
+        # 1. barrier CAP
+        stations = c.cap_stations.get(side, [])[:doc["cap_stations"]]
+        for idx, st in enumerate(stations):
+            sq, task = pool.pick([Task.CAP], near=st)
+            if sq:
+                pkg = _package(c, side, Task.CAP, f"Barrier CAP, station {STATION_NAMES[idx % 4]}", area=st)
+                _flight(c, pool, sq, Task.CAP, pkg, area=st)
+        if night:
+            continue                                  # the F-4E/MiGs of 1976 do little at night
+
+        # 2. needs, in priority order, each with its escort and SEAD
         taken: set[str] = set()
-        cap_count = 0
-        deferred: list[tuple[Squadron, Task, list, list]] = []
-        pools = {}
-        for sq in sorted((s for s in c.squadrons.values() if s.side is side), key=lambda s: s.id):
-            airframes = c.squadron_airframes(sq.id)
-            pilots = [p for p in c.squadron_pilots(sq.id) if not p.is_player]
-            r.shuffle(airframes)
-            pilots.sort(key=lambda p: -p.sorties)
-            pools[sq.id] = (airframes, pilots)
-            tasks = [Task.CAP] if night else [t for t in sq.tasks if t in TARGET_KINDS or t is Task.CAP]
-            if night and Task.CAP not in sq.tasks:
+        for need in needs(c, side):
+            if need.target.id in taken:
                 continue
-            n = sq.sorties or (SORTIES["player"] if sq.player_squadron else SORTIES["default"])
-            for k in range(n):
-                task = tasks[k % len(tasks)]
-                if task is Task.SEAD:
-                    deferred.append((sq, task, airframes, pilots))
-                    continue
-                if task is Task.CAP:
-                    stations = c.cap_stations.get(side, [])
-                    if not stations:
-                        continue
-                    idx = cap_count % len(stations)
-                    cap_count += 1
-                    _add_flight(c, sq, task, airframes, pilots, area_idx=idx)
-                else:
-                    tgt = _pick_target(c, side, task, taken, [])
-                    if tgt:
-                        taken.add(tgt.id)
-                        _add_flight(c, sq, task, airframes, pilots, target=tgt)
-
-        hit = [c.objectives[t] for t in taken]
-        for sq, task, airframes, pilots in deferred:
-            tgt = _pick_target(c, side, task, taken, hit)
-            if tgt:
-                taken.add(tgt.id)
-                _add_flight(c, sq, task, airframes, pilots, target=tgt)
+            sq, task = pool.pick(CAN_FLY[need.task], near=need.target.pos)
+            if sq is None:
+                continue
+            taken.add(need.target.id)
+            pkg = _package(c, side, task, f"{task.value} - {need.target.name}", target=need.target)
+            main = _flight(c, pool, sq, task, pkg, target=need.target)
+            if task is Task.SEAD:
+                continue
+            if doc["sead_support"]:
+                for sam in _sam_cover(c, need.target, side.enemy)[:1]:
+                    ssq, _ = pool.pick([Task.SEAD], near=sam.pos)
+                    if ssq and sam.id not in taken:
+                        taken.add(sam.id)
+                        _flight(c, pool, ssq, Task.SEAD, pkg, target=sam, supports=main.id)
+            if (doc["escort"] or need.target.value >= 4) and _enemy_fighters_near(c, need.target.pos, side.enemy):
+                esq, _ = pool.pick([Task.ESCORT, Task.CAP], near=need.target.pos)
+                if esq:
+                    _flight(c, pool, esq, Task.ESCORT, pkg, area=need.target.pos, supports=main.id)
+            _describe(c, pkg)
 
 
-def _add_flight(c: Campaign, sq: Squadron, task: Task, airframes: list, pilots: list,
-                target: Objective | None = None, area_idx: int | None = None) -> Flight | None:
-    if len(airframes) < FLIGHT_SIZE or len(pilots) < FLIGHT_SIZE:
-        return None
-    afs = [airframes.pop(0) for _ in range(FLIGHT_SIZE)]
-    pls = [pilots.pop(0) for _ in range(FLIGHT_SIZE)]
+def _package(c: Campaign, side: Side, task: Task, desc: str, target: Objective | None = None,
+             area: Pos | None = None) -> Package:
+    pid = c.next_id("P")
+    pkg = Package(id=pid, side=side, task=task, description=desc, flight_ids=[],
+                  target_id=target.id if target else None, area=area)
+    c.packages[pid] = pkg
+    return pkg
+
+
+def _flight(c: Campaign, pool: _Pool, sq: Squadron, task: Task, pkg: Package,
+            target: Objective | None = None, area: Pos | None = None,
+            supports: str | None = None) -> Flight:
+    afs, pls = pool.take(sq)
     n = c.counters.get(f"cs:{sq.id}:{c.turn}", 0) + 1
     c.counters[f"cs:{sq.id}:{c.turn}"] = n
     fid = c.next_id("F")
-    pid = c.next_id("P")
-    area = None
-    if task is Task.CAP:
-        area = c.cap_stations[sq.side][area_idx]
-        desc = f"Barrier CAP, station {STATION_NAMES[area_idx % 4]}"
-    else:
-        desc = f"{task.value} - {target.name}"
-    f = Flight(id=fid, package_id=pid, side=sq.side, squadron_id=sq.id, task=task,
+    loadouts = T.airframe_catalogue().get(sq.aircraft_type, {}).get("loadouts", {})
+    f = Flight(id=fid, package_id=pkg.id, side=sq.side, squadron_id=sq.id, task=task,
                callsign=f"{sq.callsign} {n}", airframe_ids=[a.id for a in afs],
                pilot_ids=[p.id for p in pls], target_id=target.id if target else None, area=area,
-               loadout=T.airframe_catalogue().get(sq.aircraft_type, {}).get("loadouts", {}).get(task.value),
-               player_eligible=sq.player_squadron and _flyable(sq))
+               loadout=loadouts.get(task.value) or loadouts.get("CAP" if task is Task.ESCORT else ""),
+               player_eligible=sq.player_squadron and _flyable(sq), supports=supports)
     c.flights[fid] = f
-    c.packages[pid] = Package(id=pid, side=sq.side, task=task, description=desc, flight_ids=[fid],
-                              target_id=f.target_id, area=area)
+    pkg.flight_ids.append(fid)
     return f
 
+
+def _describe(c: Campaign, pkg: Package) -> None:
+    support = [c.flights[f] for f in pkg.flight_ids[1:]]
+    if support:
+        pkg.description += " (with " + ", ".join(
+            f"{'escort' if f.task is Task.ESCORT else f.task.value} {f.callsign}" for f in support) + ")"
+
+
+def package_flights(c: Campaign, flight_id: str) -> list[Flight]:
+    f = c.flights[flight_id]
+    return [c.flights[x] for x in c.packages[f.package_id].flight_ids]
+
+
+# ----------------------------------------------------------------------------- player seat
 
 def assign_player(c: Campaign, flight_id: str) -> Flight:
     """Put the player pilot in the lead seat of a flight; the displaced pilot stands down."""

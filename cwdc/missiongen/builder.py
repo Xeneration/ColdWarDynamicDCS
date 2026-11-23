@@ -90,6 +90,9 @@ def _offset(p: Pos, toward: Pos, lateral: float) -> Pos:
 
 def select(c: Campaign, player: Flight) -> Plan:
     plan = Plan(flights=[player])
+    if player.package_id in c.packages:             # the player's whole package flies together
+        plan.flights += [c.flights[x] for x in c.packages[player.package_id].flight_ids
+                         if x != player.id and x in c.flights]
     route = _route(c, player)
     dest = _dest(c, player)
     enemy = player.side.enemy
@@ -133,14 +136,19 @@ def select(c: Campaign, player: Flight) -> Plan:
         radar = o.kind is ObjectiveKind.EWR and o.pos.dist(dest) <= EWR_RADIUS
         if near or covers_route or radar:
             objs[o.id] = o
+    for f in plan.flights:                          # escorted / SEAD-supported targets
+        if f.target_id and f.target_id not in objs and not c.objectives[f.target_id].destroyed:
+            objs[f.target_id] = c.objectives[f.target_id]
     plan.objectives = list(objs.values())
+    # spawn order: player first, then main flights, then the flights that support them
+    plan.flights.sort(key=lambda f: (f is not player, f.supports is not None))
     return plan
 
 
 def _cap_station(c: Campaign, f: Flight, player: Flight) -> Pos:
     """Where a CAP flight orbits in this mission. Friendly CAP covering a player strike moves
     forward to just short of the target; everyone else flies their planned station."""
-    if f is not player and f.side is player.side and player.target_id:
+    if f is not player and f.side is player.side and (player.target_id or player.task is Task.ESCORT):
         return _toward(_dest(c, player), _base(c, player), FORWARD_CAP_DIST)
     return f.area
 
@@ -223,6 +231,8 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
     obj_groups: dict[str, object] = {}
     tracked_statics: list[str] = []
     static_targets: dict[str, Pos] = {}
+    groups: dict[str, object] = {}
+    spawn_at: dict[str, Pos] = {}
 
     # time for the player to reach the destination: AI strikes are synchronised to it
     pspec = T.airframe_catalogue().get(c.squadrons[player.squadron_id].aircraft_type, {})
@@ -230,6 +240,8 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
     p_dist = min(AIR_START_DIST, _base(c, player).dist(_dest(c, player))) if start == "air" \
         else _base(c, player).dist(_dest(c, player))
     player_eta = TAXI_TIME[start] + p_dist / p_speed
+    player_base = _base(c, player)
+    player_spawn = _toward(_dest(c, player), player_base, AIR_START_DIST) if start == "air" else player_base
 
     # --- objectives (spawn first so strike flights can target their group ids)
     for o in plan.objectives:
@@ -286,17 +298,29 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
                                             start_type=START_TYPES[start], group_size=n,
                                             parking_slots=slots)
         else:
+            main = c.flights.get(f.supports) if f.supports else None
             if is_player:                                   # air start en route
                 spawn = _toward(dest, base.pos, AIR_START_DIST)
-            elif f.task is Task.CAP:
+            elif f.id == player.supports:
+                # the player escorts / supports this flight: it launches with the player
+                spawn = player_spawn
+                if start in START_TYPES:
+                    plan.delay.setdefault(f.id, TAXI_TIME[start])
+            elif f.task is Task.ESCORT and main is not None and main.id in spawn_at:
+                spawn = spawn_at[main.id]                   # escort forms up on its package
+                if main.id in plan.delay:
+                    plan.delay.setdefault(f.id, plan.delay[main.id])
+            elif f.task in (Task.CAP, Task.ESCORT):
                 spawn = _cap_station(c, f, player)
             else:                                           # AI strike: arrive with the player
                 ai_dist = (speed / 3.6) * player_eta
                 spawn = _toward(dest, base.pos, ai_dist)
+            spawn_at[f.id] = spawn
             spawn = _offset(spawn, dest, FLIGHT_SPACING * k)
             g = m.flight_group_inflight(country, gname, type_cls, T.to_point(spawn), altitude=alt,
                                         speed=speed, maintask=dcs_task, group_size=n)
             _spread_units(g, dest)
+        groups[f.id] = g
         if f.id in plan.delay:
             _delay(g, plan.delay[f.id])
         _apply_loadout(g, f, sq.aircraft_type, dcs_task)
@@ -324,11 +348,17 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
             opts.append(dtask.OptRestrictJettison(True))
 
         # waypoints
-        if f.task is Task.CAP:
+        escorted = groups.get(f.supports) if f.task is Task.ESCORT and f.supports else None
+        if ai_flown and escorted is not None and (bot or c.flights[f.supports] is not player):
+            # AI escort: stay with the package and engage fighters that threaten it
+            g.points[0].tasks.append(dtask.EscortTaskAction(escorted.id, engagement_max_dist=60_000,
+                                                             lastwpt=3))
+            g.add_waypoint(T.to_point(dest), alt, speed, name="TGT")
+        elif f.task is Task.CAP or (f.task is Task.ESCORT and ai_flown):
             station_pos = _cap_station(c, f, player)
             station = T.to_point(station_pos)
             wp = g.add_waypoint(station, alt, speed, name="CAP")
-            if not is_player and f.side is player.side and player.target_id:
+            if ai_flown and f.side is player.side and (player.target_id or player.task is Task.ESCORT):
                 # covering the player's strike: engage anything approaching the target area
                 wp.tasks.append(dtask.EngageTargetsInZone(T.to_point(_dest(c, player)),
                                                           CAP_ENGAGE_RADIUS, [dtask.Targets.All.Air]))
@@ -339,18 +369,19 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
                 wp.tasks.append(dtask.OrbitAction(alt, speed, dtask.OrbitAction.OrbitPattern.Circle))
         else:
             ip = _toward(dest, base.pos, 20_000)
-            low = spec.get("low_alt_m", 500)
+            low = alt if f.task is Task.ESCORT else spec.get("low_alt_m", 500)   # escorts stay high
             ipwp = g.add_waypoint(T.to_point(ip), low, speed, name="IP")
             twp = g.add_waypoint(T.to_point(dest), low, speed, name="TGT")
             for wp in (ipwp, twp):
-                wp.alt_type = "RADIO"      # low level means height above ground, not sea level
+                if f.task is not Task.ESCORT:
+                    wp.alt_type = "RADIO"  # low level means height above ground, not sea level
             if ai_flown and f.target_id in static_targets:
                 # structures (rail yard, depot): bomb the site
                 twp.tasks.append(dtask.Bombing(T.to_point(static_targets[f.target_id]), group_attack=True))
             elif ai_flown and f.target_id in obj_groups:
                 twp.tasks.append(dtask.AttackGroup(obj_groups[f.target_id].id))
             g.add_waypoint(T.to_point(ip), alt, speed, name="EGRESS")
-        if not (f.task is Task.CAP and not is_player):
+        if not (f.task in (Task.CAP, Task.ESCORT) and ai_flown):
             g.land_at(airport)
         tracked.append(gname)
 

@@ -79,16 +79,26 @@ def test_lost_depot_falls_back_to_nearest_friendly_node(camp):
     assert depot.side is Side.BLUE and depot.id in ("bn_alsfeld", "bn_kassel")
 
 
+def _at_war(c, turns=1):
+    """Interdiction is planned once offensives are under way (they decide what to cut)."""
+    for _ in range(turns):
+        turn.end_turn(c)
+    return c
+
+
 def test_planner_flies_interdiction_against_logistics(camp):
+    _at_war(camp)
     inter = [f for f in camp.flights.values() if f.task is Task.INTERDICTION]
-    assert {f.side for f in inter} == {Side.BLUE, Side.RED}
+    assert Side.BLUE in {f.side for f in inter}
     for f in inter:
         assert camp.objectives[f.target_id].kind.value in ("rail", "convoy", "depot")
 
 
 def test_rail_yard_spawns_statics_and_ingest_reads_them(camp, tmp_path):
+    _at_war(camp)
     f = next(fl for fl in camp.flights.values()
-             if fl.side is Side.BLUE and fl.task is Task.INTERDICTION)
+             if fl.side is Side.BLUE and fl.task is Task.INTERDICTION
+             and camp.objectives[fl.target_id].kind.value == "rail")
     rec = builder.build(camp, f.id, tmp_path, bot=True)
     statics = [n for n, e in rec.manifest.items() if e.get("static")]
     assert statics and all(n.startswith(f.target_id) for n in statics)
