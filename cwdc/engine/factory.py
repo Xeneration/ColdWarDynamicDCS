@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import re
+import secrets
 from datetime import datetime
 
 from cwdc import theater as T
@@ -75,6 +76,7 @@ def new_campaign(name: str, seed: int = 1976, theater: str = "fulda_1976",
                                   squadron_id=s.id)
 
     c.player_name = player_name
+    c.instance = secrets.token_hex(2)
     add_player_pilot(c, player_name)
     c.add_news(f"{c.time:%d %b %Y}: Warsaw Pact forces have crossed the inner German border. "
                "USAFE squadrons are committed to the defence of the Fulda Gap.")

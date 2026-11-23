@@ -18,6 +18,10 @@ def cmd_new(args) -> None:
     if (store.campaign_dir(slug(args.name)) / "campaign.json").exists() and not args.force:
         raise SystemExit(f"campaign '{slug(args.name)}' exists - use --force to overwrite")
     c = new_campaign(args.name, seed=args.seed, player_name=args.pilot)
+    old = store.campaign_dir(c.id)
+    if old.exists():               # --force: drop the old campaign's turn snapshots too
+        import shutil
+        shutil.rmtree(old)
     path = store.save(c, snapshot=True)
     print(f"New campaign '{c.name}' ({c.id}) created: {path}")
     print(f"You are {c.player_pilot().rank} {c.player_name}, "

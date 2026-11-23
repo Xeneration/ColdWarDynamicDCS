@@ -226,3 +226,13 @@ def test_collision_and_fratricide_not_credited(camp, tmp_path):
     results, _ = results_from_dcs(camp, rec, data)
     assert not [k for r in results for k in r.kills]
     assert sum(len(r.airframes_lost) for r in results) == 1
+
+
+def test_mission_ids_unique_per_campaign_instance(tmp_path):
+    """A re-created campaign must not pick up the old campaign's results from dcs.log."""
+    a, b = new_campaign("Same Name", seed=1), new_campaign("Same Name", seed=1)
+    assert a.instance != b.instance
+    fa, fb = _flight(a, Task.CAP), _flight(b, Task.CAP)
+    ra = builder.build(a, fa.id, tmp_path / "a")
+    rb = builder.build(b, fb.id, tmp_path / "b")
+    assert fa.id == fb.id and ra.mission_id != rb.mission_id

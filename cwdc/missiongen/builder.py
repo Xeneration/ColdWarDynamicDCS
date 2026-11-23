@@ -194,7 +194,8 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
     m.weather.clouds_base = 2500
     m.weather.wind_at_ground.speed = 3
 
-    mission_id = f"{c.id}-t{c.turn:03d}-{player.id}"
+    tag = f"-{c.instance}" if c.instance else ""
+    mission_id = f"{c.id}{tag}-t{c.turn:03d}-{player.id}"
     manifest: dict[str, dict] = {}
     tracked: list[str] = []
     obj_groups: dict[str, object] = {}

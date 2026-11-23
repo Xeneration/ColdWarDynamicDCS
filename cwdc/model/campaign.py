@@ -260,6 +260,7 @@ class Campaign(BaseModel):
     turn: int = 1
     turn_hours: int = 6
     player_name: str = "Player"
+    instance: str = ""                 # random tag per campaign creation; keeps mission ids unique
 
     airbases: dict[str, Airbase] = {}
     squadrons: dict[str, Squadron] = {}
