@@ -59,3 +59,10 @@ def test_do_script_text_is_inline_not_a_dictionary_key(tmp_path):
     assert do_script["text"].startswith("CWDC_CONFIG = {")
     assert 'mission_id = "spike-c-001"' in do_script["text"]
     assert "DictKey" not in mission["trig"]["actions"][1]
+
+
+@pytest.mark.parametrize("name", sorted(loadouts.loadouts()))
+def test_loadout_combinations_match_module_payloads(name):
+    """Regression (live flight): DCS silently stripped SEAD Shrikes combined with a
+    centreline tank. Every store pair must appear together in a Heatblur payload."""
+    assert loadouts.unseen_pairs(name) == []

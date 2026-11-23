@@ -52,6 +52,27 @@ airbases:
   - {id: kothen, dcs_name: Kothen, side: red}
 
 objectives:
+  # ---------------------------------------------------------------- radar (always spawned)
+  # Early warning gives both sides' AI fighters GCI-style target data. The AN/FPS-117 is a
+  # stand-in for the 1970s NATO dome on the Wasserkuppe; the 55G6 "Nebo" is period-correct.
+  - id: r_ewr_inselsberg
+    name: "Grosser Inselsberg radar station"
+    kind: ewr
+    side: red
+    country: USSR
+    latlon: [50.852, 10.468]
+    value: 2
+    units:
+      - {type: 55G6 EWR}
+  - id: b_ewr_wasserkuppe
+    name: "Wasserkuppe radar site"
+    kind: ewr
+    side: blue
+    country: USA
+    latlon: [50.498, 9.938]
+    value: 2
+    units:
+      - {type: FPS-117 Dome}
   # ---------------------------------------------------------------- Warsaw Pact
   - id: r_sa2_gotha
     name: "SA-2 site Gotha"

@@ -243,3 +243,28 @@ def test_mission_filename_is_readable_and_unique(camp):
     na, nb = builder.mission_filename(camp, a), builder.mission_filename(camp, b)
     assert na != nb and na.endswith(".miz")
     assert na == "CWDC Test Campaign - T001 14Aug 0600 - Colt 1 CAP.miz"
+
+
+def test_radar_sites_spawn_and_friendly_cap_moves_forward(camp, tmp_path):
+    f = _flight(camp, Task.STRIKE)
+    planner.assign_player(camp, f.id)
+    plan = builder.select(camp, f)
+    assert {"r_ewr_inselsberg", "b_ewr_wasserkuppe"} <= {o.id for o in plan.objectives}
+    cover = [x for x in plan.flights if x.side is Side.BLUE and x.task is Task.CAP]
+    assert cover, "friendly CAP should cover the strike"
+    tgt = camp.objectives[f.target_id].pos
+    station = builder._cap_station(camp, cover[0], f)
+    assert station.dist(tgt) == pytest.approx(builder.FORWARD_CAP_DIST, rel=0.01)
+    rec = builder.build(camp, f.id, tmp_path)
+    m = dcs.Mission()
+    m.load_file(rec.miz_path)
+    g = m.find_group(f"{cover[0].id} {cover[0].callsign}")
+    assert any(t.Id == "EngageTargetsInZone" for p in g.points for t in p.tasks if hasattr(t, "Id"))
+
+
+def test_sync_theater_adds_new_objectives_only(camp):
+    from cwdc.engine.factory import sync_theater
+    del camp.objectives["b_ewr_wasserkuppe"]
+    camp.objectives["r_sa2_gotha"].units[0].alive = False
+    assert sync_theater(camp) == ["Wasserkuppe radar site"]
+    assert not camp.objectives["r_sa2_gotha"].units[0].alive

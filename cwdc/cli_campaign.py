@@ -14,6 +14,17 @@ def _ll(pos) -> str:
     return f"{lat:.2f}N {lon:.2f}E"
 
 
+def _load(args) -> Campaign:
+    """Load the campaign and pick up objectives added to the theater data since."""
+    from cwdc.engine.factory import sync_theater
+    c = store.load(args.campaign)
+    added = sync_theater(c)
+    if added:
+        print(f"(theater update: added {', '.join(added)})")
+        store.save(c)
+    return c
+
+
 def cmd_new(args) -> None:
     from cwdc.engine.factory import new_campaign, slug
     if (store.campaign_dir(slug(args.name)) / "campaign.json").exists() and not args.force:
@@ -33,7 +44,7 @@ def cmd_new(args) -> None:
 
 def cmd_status(args) -> None:
     from cwdc.engine.planner import period
-    c = store.load(args.campaign)
+    c = _load(args)
     print(f"{c.name} - turn {c.turn}, {c.time:%a %d %b %Y %H:%M} ({period(c)})")
     if c.pending_mission:
         pm = c.pending_mission
@@ -57,7 +68,7 @@ def cmd_status(args) -> None:
 
 
 def cmd_ato(args) -> None:
-    c = store.load(args.campaign)
+    c = _load(args)
     print(f"Air tasking order - turn {c.turn}, {c.time:%d %b %Y %H:%M}\n")
     print("  ID    Callsign   Squadron        Task     Mission")
     for f in sorted(c.flights.values(), key=lambda f: (not f.player_eligible, f.id)):
@@ -76,7 +87,7 @@ def cmd_ato(args) -> None:
 def cmd_fly(args) -> None:
     from cwdc.engine import planner
     from cwdc.missiongen import builder
-    c = store.load(args.campaign)
+    c = _load(args)
     fid = args.flight.upper()
     if fid not in c.flights:
         raise SystemExit(f"no flight {fid} this turn - see `cwdc ato`")
@@ -131,7 +142,7 @@ def _load_result(c: Campaign, from_log: bool) -> dict:
 def cmd_ingest(args) -> None:
     from cwdc.engine import turn
     from cwdc.ingest.flown import results_from_dcs
-    c = store.load(args.campaign)
+    c = _load(args)
     if not c.pending_mission:
         raise SystemExit("no pending mission - `cwdc fly <ID>` first")
     data = _load_result(c, args.from_log)
@@ -144,7 +155,7 @@ def cmd_ingest(args) -> None:
 
 def cmd_skip(args) -> None:
     from cwdc.engine import planner, turn
-    c = store.load(args.campaign)
+    c = _load(args)
     if c.pending_mission:
         planner.release_player(c, c.pending_mission.player_flight_id)
         print(f"(discarding pending mission {c.pending_mission.mission_id})")
@@ -155,7 +166,7 @@ def cmd_skip(args) -> None:
 
 
 def cmd_roster(args) -> None:
-    c = store.load(args.campaign)
+    c = _load(args)
     sq = next(s for s in c.squadrons.values() if s.player_squadron)
     print(f"{sq.name} roster")
     pilots = sorted((p for p in c.pilots.values() if p.squadron_id == sq.id),
@@ -167,7 +178,7 @@ def cmd_roster(args) -> None:
 
 
 def cmd_rollback(args) -> None:
-    c = store.load(args.campaign)
+    c = _load(args)
     c = store.rollback(c.id, args.turn)
     print(f"Rolled back to the start of turn {c.turn} ({c.time:%d %b %H:%M}).")
 

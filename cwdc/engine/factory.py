@@ -38,11 +38,7 @@ def new_campaign(name: str, seed: int = 1976, theater: str = "fulda_1976",
                                        pos=Pos(x=ap.position.x, z=ap.position.y))
 
     for o in th["objectives"]:
-        c.objectives[o["id"]] = Objective(
-            id=o["id"], name=o["name"], kind=ObjectiveKind(o["kind"]), side=Side(o["side"]),
-            country=o["country"], pos=T.latlon_to_pos(*o["latlon"]), value=o.get("value", 1),
-            threat_range_m=o.get("threat_range_km", 0) * 1000, supply_node=o.get("supply_node"),
-            units=[ObjUnit(**u) for u in o["units"]])
+        c.objectives[o["id"]] = _objective(o)
 
     for n in th.get("supply_nodes", []):
         c.supply_nodes[n["id"]] = SupplyNode(id=n["id"], name=n["name"], side=Side(n["side"]),
@@ -82,6 +78,28 @@ def new_campaign(name: str, seed: int = 1976, theater: str = "fulda_1976",
                "USAFE squadrons are committed to the defence of the Fulda Gap.")
     planner.plan_turn(c)
     return c
+
+
+def _objective(o: dict) -> Objective:
+    return Objective(
+        id=o["id"], name=o["name"], kind=ObjectiveKind(o["kind"]), side=Side(o["side"]),
+        country=o["country"], pos=T.latlon_to_pos(*o["latlon"]), value=o.get("value", 1),
+        threat_range_m=o.get("threat_range_km", 0) * 1000, supply_node=o.get("supply_node"),
+        units=[ObjUnit(**u) for u in o["units"]])
+
+
+def sync_theater(c: Campaign) -> list[str]:
+    """Add objectives that were added to the theater data after the campaign was created.
+
+    Existing objectives (and their damage) are never touched. Returns names added.
+    """
+    th = T.load_data(THEATERS[c.theater][0])
+    added = []
+    for o in th["objectives"]:
+        if o["id"] not in c.objectives:
+            c.objectives[o["id"]] = _objective(o)
+            added.append(o["name"])
+    return added
 
 
 def add_player_pilot(c: Campaign, name: str) -> Pilot:

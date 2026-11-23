@@ -29,6 +29,7 @@ def iter_units(mission: dict):
 
 def harvest(dirs: list[Path], unit_type: str) -> dict:
     pylons: dict[int, dict[str, dict]] = defaultdict(dict)
+    payloads: set[tuple] = set()
     files = 0
     for d in dirs:
         for miz in d.rglob("*.miz"):
@@ -43,6 +44,9 @@ def harvest(dirs: list[Path], unit_type: str) -> dict:
             for unit in iter_units(mission):
                 if unit.get("type") != unit_type:
                     continue
+                payloads.add(tuple(sorted(
+                    (int(n), p["CLSID"]) for n, p in unit.get("payload", {}).get("pylons", {}).items()
+                    if p.get("CLSID") and p["CLSID"] != "<CLEAN>")))
                 for num, py in unit.get("payload", {}).get("pylons", {}).items():
                     clsid = py.get("CLSID")
                     if clsid:
@@ -51,7 +55,9 @@ def harvest(dirs: list[Path], unit_type: str) -> dict:
                         if miz.name not in entry["seen_in"] and len(entry["seen_in"]) < 3:
                             entry["seen_in"].append(miz.name)
     return {"unit_type": unit_type, "missions_scanned": files,
-            "pylons": {str(k): v for k, v in sorted(pylons.items())}}
+            "pylons": {str(k): v for k, v in sorted(pylons.items())},
+            # every distinct full payload seen: used to check store *combinations*
+            "payloads": [list(map(list, p)) for p in sorted(payloads)]}
 
 
 def main() -> None:

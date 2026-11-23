@@ -87,6 +87,43 @@ def resolve(name: str, aircraft: str = F4E) -> dict[int, str]:
     return out
 
 
+def _family(clsid: str) -> str:
+    """Store family: missile variants are interchangeable for fit checks (AIM-7E/E-2/F...)."""
+    import re
+    name = _clsid_names().get(clsid, clsid)
+    name = re.sub(r"AIM-7\w*(-\d)?", "AIM-7", name)
+    name = re.sub(r"AIM-9\w*", "AIM-9", name)
+    return name
+
+
+@lru_cache(maxsize=None)
+def _seen_pairs(aircraft: str) -> frozenset:
+    if aircraft not in HARVESTED:
+        return frozenset()
+    data = json.loads((DATA_DIR / HARVESTED[aircraft]).read_text(encoding="utf-8"))
+    pairs = set()
+    for payload in data.get("payloads", []):
+        items = sorted((int(p), _family(c)) for p, c in payload)
+        for i, a in enumerate(items):
+            for b in items[i + 1:]:
+                pairs.add((a, b))
+    return frozenset(pairs)
+
+
+def unseen_pairs(name: str, aircraft: str = F4E) -> list[tuple]:
+    """Store pairs in a loadout that no shipped mission ever combines.
+
+    DCS silently drops stores from invalid combinations (found in live testing:
+    SEAD Shrikes + centreline tank came out as 2 Shrikes and 3 Sparrows), so a
+    loadout should only combine stores that real module-author payloads combine.
+    """
+    seen = _seen_pairs(aircraft)
+    if not seen:
+        return []
+    items = sorted((p, _family(c)) for p, c in resolve(name, aircraft).items())
+    return [(a, b) for i, a in enumerate(items) for b in items[i + 1:] if (a, b) not in seen]
+
+
 def apply(group, name: str, aircraft: str = F4E) -> None:
     """Load a named loadout onto every unit of a pydcs flying group."""
     pylons = resolve(name, aircraft)

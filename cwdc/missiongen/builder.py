@@ -23,7 +23,7 @@ from cwdc import theater as T
 from cwdc.engine import rng
 from cwdc.missiongen import coalitions, loadouts
 from cwdc.missiongen.runtime_inject import inject_runtime
-from cwdc.model import Campaign, Flight, MissionRecord, Objective, Pos, Side, Task
+from cwdc.model import Campaign, Flight, MissionRecord, Objective, ObjectiveKind, Pos, Side, Task
 
 ENEMY_CAP_RADIUS = 90_000       # enemy CAP stations this close to the route may make contact
 P_ENEMY_CAP_CONTACT = 0.5       # chance each such CAP flight is actually in the player's fight
@@ -33,6 +33,9 @@ FRIENDLY_CAP_RADIUS = 60_000    # friendly CAP stations this close to the route 
 ENEMY_STRIKE_RADIUS = 60_000    # enemy strikes on targets this close to a player CAP station
 OBJECTIVE_RADIUS = 25_000       # objectives this close to the player's area/target are spawned
 AIR_START_DIST = 90_000         # m from the destination for `--start air`
+EWR_RADIUS = 200_000            # radar sites this close to the destination are always spawned
+FORWARD_CAP_DIST = 30_000       # friendly CAP covering a strike orbits this far short of the target
+CAP_ENGAGE_RADIUS = 60_000      # ...and engages enemy aircraft within this radius of the target
 TAXI_TIME = {"ramp": 600, "runway": 90, "air": 0}   # s before the player is en route
 FLIGHT_SPACING = 3_000          # m lateral separation between spawned flights
 UNIT_SPACING = 250              # m between aircraft of one flight
@@ -127,10 +130,19 @@ def select(c: Campaign, player: Flight) -> Plan:
             continue
         near = o.pos.dist(dest) <= OBJECTIVE_RADIUS
         covers_route = o.threat_range_m and any(p.dist(o.pos) <= o.threat_range_m for p in route)
-        if near or covers_route:
+        radar = o.kind is ObjectiveKind.EWR and o.pos.dist(dest) <= EWR_RADIUS
+        if near or covers_route or radar:
             objs[o.id] = o
     plan.objectives = list(objs.values())
     return plan
+
+
+def _cap_station(c: Campaign, f: Flight, player: Flight) -> Pos:
+    """Where a CAP flight orbits in this mission. Friendly CAP covering a player strike moves
+    forward to just short of the target; everyone else flies their planned station."""
+    if f is not player and f.side is player.side and player.target_id:
+        return _toward(_dest(c, player), _base(c, player), FORWARD_CAP_DIST)
+    return f.area
 
 
 def _unit_name(f: Flight, i: int) -> str:
@@ -253,7 +265,7 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
             if is_player:                                   # air start en route
                 spawn = _toward(dest, base.pos, AIR_START_DIST)
             elif f.task is Task.CAP:
-                spawn = f.area
+                spawn = _cap_station(c, f, player)
             else:                                           # AI strike: arrive with the player
                 ai_dist = (speed / 3.6) * player_eta
                 spawn = _toward(dest, base.pos, ai_dist)
@@ -281,14 +293,20 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
         # AI bombers stay on task: no jettison, attack only their assigned target, evade threats
         if not is_player and f.target_id:
             opts = g.points[0].tasks
-            opts.append(dtask.OptROE(dtask.OptROE.Values.OpenFire))
+            # assigned target first, but free to shoot back at fighters (they keep their bombs)
+            opts.append(dtask.OptROE(dtask.OptROE.Values.OpenFireWeaponFree))
             opts.append(dtask.OptReactOnThreat(dtask.OptReactOnThreat.Values.EvadeFire))
             opts.append(dtask.OptRestrictJettison(True))
 
         # waypoints
         if f.task is Task.CAP:
-            station = T.to_point(f.area)
+            station_pos = _cap_station(c, f, player)
+            station = T.to_point(station_pos)
             wp = g.add_waypoint(station, alt, speed, name="CAP")
+            if not is_player and f.side is player.side and player.target_id:
+                # covering the player's strike: engage anything approaching the target area
+                wp.tasks.append(dtask.EngageTargetsInZone(T.to_point(_dest(c, player)),
+                                                          CAP_ENGAGE_RADIUS, [dtask.Targets.All.Air]))
             if is_player:
                 wp.tasks.append(dtask.OrbitAction(alt, speed, dtask.OrbitAction.OrbitPattern.RaceTrack))
                 g.add_waypoint(T.to_point(Pos(x=f.area.x + 30_000, z=f.area.z)), alt, speed, name="CAP-2")

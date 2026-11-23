@@ -181,6 +181,17 @@ The flight was a strike from Hahn on the Geisa artillery. Ingest worked end to e
 | 119 nm transit with nothing happening | Hahn is far from the Fulda front. | The 496th TFS disperses to **Rhein-Main AB** (Frankfurt, 72 nm to Geisa). |
 | Overwhelmed by MiG CAP; AI strikers jettisoned and fought | Every enemy CAP near the route spawned (4 flights, 8 MiGs at once), and AI strikers had default ROE. | Enemy CAP flights roll for contact, with at most 2 per mission and the second as a +10 min wave. Friendly CAP on the route now joins strike missions. AI strikers get "attack assigned targets only", "evade fire" and "no jettison". |
 
+### Second live flight (2026-11-23): findings and fixes
+The second flight was a Colt 2 strike from Rhein-Main. The player crashed during the attack, so that run was not ingested and is being re-flown.
+
+| Problem | Cause | Fix |
+|---|---|---|
+| Ford 2 (SEAD) carried only 3 Sparrows and 2 Shrikes, and never fired a Shrike | The SEAD loadout combined 4 Shrikes with a centreline tank, a combination no Heatblur payload uses, and DCS silently strips stores from invalid combinations. The same check found two more bad combinations: Sidewinders beside a TER (CAS_ROCKEYE) or beside an LAU-88 (BAI_MAVERICK). | All 7 loadouts now match the combinations in Heatblur's 131 distinct shipped payloads. Missile variants (AIM-7E/E-2/F, AIM-9 family) count as interchangeable. A test enforces this (`loadouts.unseen_pairs`). |
+| Friendly CAP (Colt 1) only engaged after the MiGs had fired: it shot first at t=706 s, the MiGs at 652 s, and Ford 2 died at 679–690 s | It orbited its planned station 40 km behind the front, the strikers were 70 km ahead, and no side had early-warning radar. | CAP covering a player strike now orbits 30 km short of the target, with *Engage targets in zone* (60 km around the target). EWR sites spawn on both sides: Wasserkuppe (NATO, FPS-117 standing in) and Großer Inselsberg (Warsaw Pact, 55G6). |
+| AI strikers died without fighting back | ROE was "attack assigned targets only". | ROE is now "assigned target first, weapons free": they keep their bombs (no jettison) and shoot back. |
+
+The SA-9 (Strela-1) with the Geisa artillery shot down Ford 1-1 and damaged Colt 2-2. That's working as intended.
+
 ## Extensibility principles (binding for Phase 1 onwards)
 The campaign state is the war. Each DCS mission is only a window onto one slice of it. Phase 1 may fill in only a few mission types, but its data model must follow these rules from the start, because retrofitting them later is the expensive part.
 
