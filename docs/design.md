@@ -256,10 +256,49 @@ ColdWarDynamicDCS/
 - `cwdc new` creates a campaign, `cwdc generate` writes the next mission, `cwdc ingest` processes the results.
 - One player mission type each for CAP and strike, with losses carried over between missions.
 
-**Phase 2: Strategic engine**
-- Theater data, 1976 order of battle, sectors and the ground war.
-- AI ATO for both sides, logistics, airbase damage, pilots.
-- Unit tests for the engine.
+**Phase 2: Strategic engine** (detailed plan, 2026-11-23)
+
+Testing is by `cwdc autorun N` (abstract turns in seconds) plus occasional `cwdc fly <ID> --bot` AI-only DCS missions. The player is not needed to develop this phase. Build in this order; each step lands with tests and an autorun sanity check.
+
+1. **Ground war: sectors and formations** (`engine/ground.py`)
+   - The front is cut into **sectors** along the inner German border: Göttingen, Fulda Gap, Rhön/Meiningen and Hof corridor.
+   - Each sector holds **formations** for both sides, e.g. 11th ACR and 3rd Armored Division brigades against 8th Guards Army regiments. Each formation has combat strength, posture (attack, defend or reserve), readiness and supply.
+   - Each turn, every sector resolves Lanchester-style attrition. It is modified by force ratio, posture, terrain, supply, artillery, and the CAS/BAI damage that turn's flights dealt to that sector's units.
+   - The result moves the sector's **front offset** (km gained or lost).
+   - The front-line polyline is rebuilt from the sector offsets, so `side_at` changes as the front moves. Airbases, objectives and supply nodes can be **overrun and change hands**.
+2. **Objectives belong to formations.**
+   - Today's fixed objectives (the Vacha armour, the Geisa artillery, ...) become the visible sub-units of formations, positioned relative to the moving front.
+   - Destroying their vehicles reduces the parent formation's strength.
+   - Formations rebuild and re-spawn sub-units from supply. This fixes "the target list runs dry after ~2 days".
+3. **Reinforcement schedules**
+   - Warsaw Pact: second-echelon armies arrive from day 3–4.
+   - NATO: REFORGER units arrive later.
+   - Both are data-driven, from the OOB file.
+4. **Logistics flow** (`engine/logistics.py`)
+   - Each turn supply flows along `SupplyLink`s, from rear rail heads to forward depots to formations, limited by link capacity and damage.
+   - Low supply cuts combat power and regeneration.
+   - **Interdiction targets** become real: bridges and rail junctions are objectives tied to links. Damage reduces capacity, and engineers repair it over turns.
+   - Convoys appear as moving objectives on road links. This is the hook for later player airlift and logistics missions (C-130J).
+5. **Air commanders, take 2** (`engine/planner.py`). The planner scores needs, then builds **multi-flight packages** (strike + escort + SEAD) instead of single flights. Needs considered:
+   - CAS where a sector is critical;
+   - interdiction of the links feeding the strongest enemy push;
+   - air superiority against enemy CAP strength;
+   - OCA against airbases.
+
+   Sortie rate is limited by aircraft and crews, airbase status and the period (night). Both sides use the same logic, with doctrine weights per side.
+6. **Airbase damage**
+   - OCA strikes cut runways and parking, which reduces a base's sortie rate. Repair takes turns.
+   - Overrun bases are lost: their squadrons relocate, or their aircraft are lost.
+7. **Crews**
+   - Two-seat F-4E crews (pilot + WSO), each a persistent person.
+   - Fatigue limits sorties per day. Recovery and rescue rules stay as in Phase 1.
+8. **Campaign outcome**
+   - Warsaw Pact victory: the front reaches the Main/Rhine line (Frankfurt), or NATO air power is exhausted.
+   - NATO victory: the front holds for N days and then a counter-offensive regains the border.
+   - The end state, with a war summary, is shown in `status`.
+9. **Balance pass** using `autorun` statistics: per-sortie loss rates of roughly 1–4%, a front that moves tens of km over the first days rather than collapsing in hours, and air losses that respond to SEAD and escort.
+
+What's deliberately left for later phases: the web UI (Phase 3), the crisis phase, the MAGIC controller and kneeboards (Phase 4), and the immersion lockdown (Phase 5).
 
 **Phase 3: Web UI**
 - Campaign creation, theater map, briefing/ATO selection, generate-mission button, automatic ingest by watching the results folder, debrief and squadron pages.
