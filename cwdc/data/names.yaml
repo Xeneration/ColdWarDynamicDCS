@@ -1,0 +1,17 @@
+# Crew name pools for generated pilots.
+blue:
+  ranks: [2nd Lt, 1st Lt, 1st Lt, Capt, Capt, Capt, Maj]
+  first: [James, Robert, John, Michael, William, David, Richard, Thomas, Charles, Gary,
+          Larry, Ronald, Dennis, Steven, Mark, Paul, Kenneth, Donald, Jerry, Daniel,
+          Frank, Raymond, Walter, Douglas, Roger, Bruce, Wayne, Carl, Terry, Alan]
+  last: [Miller, Johnson, Anderson, Walker, Harris, Clark, Lewis, Young, Hall, Allen,
+         Wright, Scott, Green, Baker, Adams, Nelson, Carter, Mitchell, Roberts, Turner,
+         Phillips, Campbell, Parker, Evans, Edwards, Collins, Stewart, Morris, Murphy, Cook,
+         Rogers, Morgan, Cooper, Peterson, Reed, Bailey, Kelly, Howard, Ward, Brooks]
+red:
+  ranks: [Lt, Snr Lt, Snr Lt, Capt, Capt, Maj]
+  first: [Aleksandr, Sergei, Vladimir, Nikolai, Yuri, Viktor, Igor, Andrei, Mikhail,
+          Gennady, Valery, Anatoly, Oleg, Boris, Pavel, Dmitri, Vasily, Leonid]
+  last: [Ivanov, Petrov, Sidorov, Smirnov, Kuznetsov, Popov, Sokolov, Lebedev, Kozlov,
+         Novikov, Morozov, Volkov, Solovyov, Vasiliev, Zaitsev, Pavlov, Semyonov, Golubev,
+         Vinogradov, Bogdanov, Vorobyov, Fyodorov, Mikhailov, Belyaev, Tarasov, Belov]

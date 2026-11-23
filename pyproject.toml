@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cwdc"
+version = "0.0.1"
+description = "ColdWarDynamicDCS - a mid-1970s dynamic campaign for DCS World (Cold War Germany, F-4E)"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "pydcs @ git+https://github.com/pydcs/dcs.git",
+    "pydantic>=2",
+    "fastapi",
+    "uvicorn[standard]",
+    "pillow",
+    "pyyaml",
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "lupa"]
+
+[project.scripts]
+cwdc = "cwdc.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["cwdc*"]
+
+[tool.setuptools.package-data]
+cwdc = ["data/*.json", "data/*.yaml", "runtime/lua/*.lua"]
+# (campaign saves live outside the repo, in Saved Games\DCS\CWDC\campaigns)
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# LuaJIT (lupa) uses SEH exception 0xe24c4a02 internally; faulthandler misreports it as fatal.
+addopts = "-p no:faulthandler"

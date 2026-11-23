@@ -1,0 +1,47 @@
+# Per-airframe catalogue (extensibility principle 6): adding a flyable type is data, not code.
+#
+# loadouts: campaign Task -> loadout name. "default" = pydcs/DCS default payload for the task.
+# Named loadouts for a type live in its loadout_file and are validated per pylon.
+
+F-4E-45MC:
+  air_rating: 1.0      # abstract air-combat strength (F-4E = 1.0)
+  strike_rating: 1.0
+  flyable: true
+  loadout_file: loadouts_f4e.yaml
+  cruise_kmh: 850
+  cruise_alt_m: 6000
+  low_alt_m: 300
+  loadouts:
+    CAP: CAP
+    Escort: CAP
+    Strike: STRIKE_M117
+    CAS: CAS_ROCKEYE
+    BAI: BAI_MAVERICK
+    SEAD: SEAD_SHRIKE
+
+MiG-21Bis:
+  air_rating: 0.85      # abstract air-combat strength (F-4E = 1.0)
+  strike_rating: 0.3
+  flyable: false
+  cruise_kmh: 800
+  cruise_alt_m: 5000
+  low_alt_m: 500
+  loadouts: {CAP: default}
+
+MiG-23MLD:
+  air_rating: 0.95      # abstract air-combat strength (F-4E = 1.0)
+  strike_rating: 0.4
+  flyable: false
+  cruise_kmh: 850
+  cruise_alt_m: 6000
+  low_alt_m: 500
+  loadouts: {CAP: default}
+
+MiG-27K:
+  air_rating: 0.4      # abstract air-combat strength (F-4E = 1.0)
+  strike_rating: 0.9
+  flyable: false
+  cruise_kmh: 800
+  cruise_alt_m: 3000
+  low_alt_m: 200
+  loadouts: {Strike: default}

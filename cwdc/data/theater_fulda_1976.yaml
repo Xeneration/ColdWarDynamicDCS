@@ -1,0 +1,182 @@
+# Phase 1 theater: a small slice of the Fulda Gap, August 1976, day 1 of the war.
+# Positions are lat/lon (converted to DCS map coordinates on load).
+# Airbase positions come from the DCS terrain itself (dcs_name must match pydcs).
+
+name: "Fulda Gap 1976"
+terrain: GermanyCW
+start: "1976-08-14T06:00:00"
+turn_hours: 6
+
+# Inner German Border (+ Czechoslovak border), north -> south. West of this line is NATO.
+front_line:
+  - [53.95, 10.90]
+  - [53.65, 10.85]
+  - [53.37, 10.62]
+  - [53.15, 10.95]
+  - [53.05, 11.30]
+  - [52.85, 11.05]
+  - [52.62, 10.85]
+  - [52.40, 10.80]
+  - [52.20, 10.95]
+  - [52.00, 10.60]
+  - [51.80, 10.62]
+  - [51.58, 10.55]
+  - [51.40, 10.20]
+  - [51.22, 9.98]
+  - [51.05, 10.00]
+  - [50.90, 9.95]
+  - [50.82, 10.03]
+  - [50.68, 9.97]
+  - [50.55, 10.05]
+  - [50.42, 10.30]
+  - [50.33, 10.70]
+  - [50.27, 11.05]
+  - [50.38, 11.45]
+  - [50.32, 11.90]
+  - [50.20, 12.20]
+  - [49.95, 12.45]
+  - [49.60, 12.55]
+  - [49.30, 12.90]
+
+# Barrier CAP stations, ~25-40 km behind the front.
+cap_stations:
+  blue: [[50.75, 9.65], [50.45, 9.85]]
+  red: [[50.95, 10.55], [50.65, 10.75]]
+
+airbases:
+  - {id: hahn, dcs_name: Hahn, side: blue}
+  - {id: spangdahlem, dcs_name: Spangdahlem, side: blue}
+  - {id: merseburg, dcs_name: Merseburg, side: red}
+  - {id: allstedt, dcs_name: Allstedt, side: red}
+  - {id: kothen, dcs_name: Kothen, side: red}
+
+objectives:
+  # ---------------------------------------------------------------- Warsaw Pact
+  - id: r_sa2_gotha
+    name: "SA-2 site Gotha"
+    kind: sam
+    side: red
+    country: USSR
+    latlon: [50.95, 10.70]
+    value: 3
+    threat_range_km: 40
+    units:
+      - {type: SNR_75V}
+      - {type: p-19 s-125 sr, dx: -120, dz: 80}
+      - {type: S_75M_Volhov, dx: 150, dz: 0}
+      - {type: S_75M_Volhov, dx: 0, dz: 150}
+      - {type: S_75M_Volhov, dx: -150, dz: 0}
+      - {type: S_75M_Volhov, dx: 0, dz: -150}
+  - id: r_sa6_salzungen
+    name: "SA-6 battery Bad Salzungen"
+    kind: sam
+    side: red
+    country: USSR
+    latlon: [50.81, 10.23]
+    value: 3
+    threat_range_km: 20
+    units:
+      - {type: Kub 1S91 str}
+      - {type: Kub 2P25 ln, dx: 120, dz: 60}
+      - {type: Kub 2P25 ln, dx: -120, dz: 60}
+  - id: r_tank_vacha
+    name: "8th Guards Army tank battalion, Vacha"
+    kind: armor
+    side: red
+    country: USSR
+    latlon: [50.80, 10.12]
+    value: 4
+    threat_range_km: 2.5
+    units:
+      - {type: T-55}
+      - {type: T-55, dx: 40, dz: 30}
+      - {type: T-55, dx: -40, dz: 30}
+      - {type: T-55, dx: 80, dz: 60}
+      - {type: BMP-1, dx: -60, dz: -40}
+      - {type: BMP-1, dx: 60, dz: -40}
+      - {type: ZSU-23-4 Shilka, dx: 0, dz: -80}
+  - id: r_arty_geisa
+    name: "Artillery battalion east of Geisa"
+    kind: artillery
+    side: red
+    country: USSR
+    latlon: [50.73, 10.08]
+    value: 3
+    threat_range_km: 2.5
+    units:
+      - {type: SAU Gvozdika}
+      - {type: SAU Gvozdika, dx: 50}
+      - {type: SAU Gvozdika, dx: 100}
+      - {type: SAU Gvozdika, dx: 150}
+      - {type: Ural-375, dx: 60, dz: -80}
+      - {type: Strela-1 9P31, dx: -60, dz: -60}
+  - id: r_depot_meiningen
+    name: "Forward supply depot Meiningen"
+    kind: depot
+    side: red
+    country: GDR
+    latlon: [50.57, 10.42]
+    value: 2
+    threat_range_km: 2.5
+    supply_node: rn_meiningen
+    units:
+      - {type: Ural-375}
+      - {type: Ural-375, dx: 25}
+      - {type: Ural-375, dx: 50}
+      - {type: Ural-375, dx: 75}
+      - {type: ZSU-23-4 Shilka, dx: 40, dz: 60}
+  # ---------------------------------------------------------------- NATO
+  - id: b_hawk_fulda
+    name: "I-HAWK battery Fulda"
+    kind: sam
+    side: blue
+    country: USA
+    latlon: [50.55, 9.70]
+    value: 3
+    threat_range_km: 35
+    units:
+      - {type: Hawk pcp}
+      - {type: Hawk sr, dx: 100, dz: 50}
+      - {type: Hawk tr, dx: -100, dz: 50}
+      - {type: Hawk ln, dx: 150, dz: -60}
+      - {type: Hawk ln, dx: -150, dz: -60}
+  - id: b_acr_alpha
+    name: "11th ACR troop, OP Alpha"
+    kind: armor
+    side: blue
+    country: USA
+    latlon: [50.63, 9.90]
+    value: 4
+    threat_range_km: 2
+    units:
+      - {type: M-60}
+      - {type: M-60, dx: 40, dz: 30}
+      - {type: M-60, dx: -40, dz: 30}
+      - {type: M-113, dx: 60, dz: -40}
+      - {type: M-113, dx: -60, dz: -40}
+      - {type: Vulcan, dx: 0, dz: -80}
+  - id: b_depot_hersfeld
+    name: "V Corps supply point Bad Hersfeld"
+    kind: depot
+    side: blue
+    country: USA
+    latlon: [50.87, 9.71]
+    value: 2
+    threat_range_km: 2
+    supply_node: bn_hersfeld
+    units:
+      - {type: M 818}
+      - {type: M 818, dx: 25}
+      - {type: M 818, dx: 50}
+      - {type: M 818, dx: 75}
+      - {type: M48 Chaparral, dx: 40, dz: 60}
+
+# Logistics network (Phase 1: stored only; Phase 2 simulates flow)
+supply_nodes:
+  - {id: bn_frankfurt, name: "Frankfurt rail head", side: blue, latlon: [50.11, 8.68], stock: 500, capacity: 1000}
+  - {id: bn_hersfeld, name: "Bad Hersfeld supply point", side: blue, latlon: [50.87, 9.71], stock: 100, capacity: 200}
+  - {id: rn_erfurt, name: "Erfurt rail yard", side: red, latlon: [50.98, 11.03], stock: 500, capacity: 1000}
+  - {id: rn_meiningen, name: "Meiningen depot", side: red, latlon: [50.57, 10.42], stock: 100, capacity: 200}
+supply_links:
+  - {a: bn_frankfurt, b: bn_hersfeld, mode: rail, capacity: 60}
+  - {a: rn_erfurt, b: rn_meiningen, mode: rail, capacity: 60}

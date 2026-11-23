@@ -1,0 +1,264 @@
+# ColdWarDynamicDCS — Design
+
+## Context
+DCS has no built-in dynamic campaign, and none of the existing ones cover the Cold War. This project is an external campaign manager that:
+- keeps a persistent mid-1970s war on the **Cold War Germany** map, built around the **Heatblur F-4E**;
+- writes each mission as a `.miz` file into the DCS Missions folder;
+- reads back what happened after the player flies it, and moves the war forward.
+
+## Phase 0 findings (2026-11-23)
+- **Spike A: passed.** `dcs.terrain.Germany()` reports `GermanyCW` and has 227 airfields and helipads, including:
+  - USAF F-4E bases: Spangdahlem, Hahn, Ramstein, Bitburg, Sembach, Zweibrücken;
+  - Warsaw Pact bases: Wittstock, Parchim, Finow, Templin, Zerbst, Merseburg, Altes Lager, and many more.
+- **Spike B: passed.**
+  - pydcs `F_4E_45MC` lists most stores but not the MER/TER multi-racks.
+  - `tools/harvest_payloads.py` scanned 155 Heatblur-shipped missions and recorded every (pylon, CLSID) pair in `cwdc/data/f4e_clsids.json`.
+  - Period loadouts are defined in `cwdc/data/loadouts_f4e.yaml` and validated per pylon.
+- **Bonus:** the HB F-4E exposes `Quality` (aircraft condition), `Wear` and `PersistentAircraftKey` as unit properties. These suit a campaign where airframes degrade.
+- **Spike C, first live test (2026-11-23): failed, and the cause is now fixed.**
+  - *Error dialog* `[string "DictKey_Translation_5"]:1: '=' expected`. DCS executes the `text` field of `a_do_script` verbatim and never resolves it through the l10n dictionary (`MissionEditor/modules/me_predicates.lua`). The script is now embedded inline with `String(code)`, and a regression test covers it.
+  - *No results file.* ED's `API/Sim_ControlAPI.md` marks `net.dostring_in` as obsolete and unsafe, disabled unless `autoexec.cfg` whitelists it, so the hook could never reach the mission. **New channel:** the runtime writes tagged, chunked JSON lines with `env.info("[CWDC] <id> <KIND> <seq> <i>/<n> <json>")`. The hook reads them with the supported `Sim.getLogHistory()` API and writes the results file. Because the same lines land in `dcs.log`, `cwdc show-result --from-log` can rebuild a result even without the hook.
+  - Testing: the runtime, the hook and the Python reassembler are unit-tested under LuaJIT (Lua 5.1, the same version DCS uses) against mocked DCS APIs, including chunked messages and overlapping log reads.
+- **Spike C, second live test (2026-11-23): PASSED.**
+  - `Sim.getLogHistory` does deliver `SCRIPTING` lines to hooks.
+  - 2-part chunked snapshots reassembled correctly.
+  - The hook file and the `dcs.log` rebuild were identical, and three restarts in one DCS session were handled.
+  - Captured: both MiG kills with weapons, the MiG pilot's ejection and parachute landing with positions, the player's landing at Hahn, and the tracked-group snapshot at mission end.
+  - The recorded lines are kept as a regression fixture: `tests/fixtures/spike_c_flight.log`.
+  - Follow-ups this surfaced:
+    - Scenery HITs (trees, fences, approach lights) are now dropped in the runtime. Scenery KILL/DEAD events are kept for bridge targets, and ingest classifies them.
+    - Collisions show up as a "weapon" named after the aircraft type. `ingest.results.is_collision` flags them.
+    - DCS sometimes leaves the weapon off a KILL event. `kill_weapon` falls back to the last HIT on the same target.
+    - **Re-flying a mission ID overwrites its result.** The hook now stamps `run_started` on each run. Phase 1 must decide the policy: last attempt counts, or a re-flight is refused or flagged.
+    - The AI wingman (warm start, in the player's group) only took off at t=588 s, about 8 minutes after the lead. Phase 1 mission generation should look at start types and AI wingman behaviour.
+- **Environment:** this Windows IoT LTSC build had no winget. It was installed through `Microsoft.WinGet.Client` (`Repair-WinGetPackageManager`), then Git and Python 3.12 were installed with winget.
+
+**Decisions made:**
+- **Scenario:** a crisis that escalates into war.
+- **Ground war:** resolved abstractly off-screen. Only the units that matter to a mission are spawned in DCS.
+- **Players:** single-player first, with a data model that can grow to multiplayer.
+- **Interface:** a local web UI.
+
+**Environment found:**
+- DCS 2.9.31, with the GermanyColdWar terrain, F-4E, F-100D, F-14, AJS37 and Supercarrier installed.
+- `MissionScripting.lua` is stock (sanitised), so missions have no `io`/`lfs`.
+- git and Python are **not installed**, so they are prerequisites.
+- pydcs (`pydcs/dcs`) has a `dcs/terrain/germany` module, which is almost certainly the Cold War Germany map. This is checked in Phase 0.
+
+## Architecture
+
+```
+┌──────────── Campaign Manager (Python 3.12) ─────────────┐
+│ Web UI (FastAPI + vanilla JS + Leaflet)                  │
+│   map / briefing+ATO / squadron / debrief / news         │
+│ Strategic engine: turns, ground war, AI air commanders,  │
+│   logistics, crisis/escalation, pilots                   │
+│ Mission generator (pydcs) ──► Saved Games\DCS\Missions\  │
+│ Results ingester ◄── Saved Games\DCS\CWDC\results\*.json │
+└──────────────────────────────────────────────────────────┘
+          │ .miz with embedded Lua runtime        ▲ JSON
+          ▼                                       │
+  DCS mission env: cwdc_runtime.lua ──► hook: Scripts\Hooks\CWDC.lua
+  (event tracking, GCI, ROE, state table)   (polls via net.dostring_in, writes file)
+```
+
+### Key technical choices
+- **Python + pydcs** writes the missions. This is the same proven approach DCS Liberation uses. Typed data models use **pydantic**.
+- **Getting results back without desanitising DCS:**
+  - A runtime script inside the mission records births, kills, losses, landings, ejections, unit health, and the positions of tracked groups.
+  - It emits each record as a tagged JSON log line (`env.info`), plus a tracked-group snapshot every 30 s and at mission end.
+  - A **GUI hook** (`Saved Games\DCS\Scripts\Hooks\CWDC-hook.lua`) reads those lines with `Sim.getLogHistory()` and writes `CWDC\results\<mission_id>.json`.
+  - Fallback: the same data can be rebuilt from `dcs.log`. No `net.dostring_in` and no desanitising is involved.
+- **Saved data:** one folder per campaign. It holds `campaign.json` (current state) plus a snapshot for every turn (`turns/NNN.json`), so a crashed or abandoned mission can be rolled back. The files are human-readable and easy to diff.
+- **Map:** pydcs projection gives latitude/longitude, drawn on Leaflet over real-world tiles (muted topo style). Overlays show the front-line trace, airbases, SAM rings and known targets. Enemy information shown is limited to what intel has detected (fog of war).
+- **Assets:** DCS stock assets only. There is no Cold War asset pack dependency at first. The unit catalogue has an "era filter" that uses in-service years, so 1976 rules out the F-15, A-10, M1 and so on. The unit list is generated from pydcs and checked by hand.
+
+## Campaign design
+
+**Time:** one turn is about one mission period (dawn, day, dusk, night). A day has 3–4 turns. The 1970s F-4E is weak at night, so night turns are mostly AI tasking.
+
+**Crisis phase (Day −N to Day 0):**
+- A tension level (0–100) is driven by scripted and randomised events: border incidents, Warsaw Pact exercises, mobilisation intel.
+- Player tasks in this phase:
+  - QRA / Zulu alert intercepts of Warsaw Pact aircraft probing the ADIZ (shadow, ID, escort out);
+  - recon along the inner German border;
+  - CAP over the Berlin corridor.
+- ROE is **weapons tight**. The runtime script detects any weapon release by the player. Firing early speeds up escalation and goes on the pilot's record.
+- War breaks out on a randomised day with an opening Warsaw Pact strike on NATO airfields. The player may be sitting QRA when it happens.
+
+**War phase:**
+- The front is a set of sectors along the inner German border (Fulda, Hof, Göttingen, North German Plain edge, as the map allows). Each sector holds abstract divisions/brigades with strength, supply and readiness.
+- Ground combat is resolved per sector each turn with Lanchester-style attrition, adjusted by:
+  - air support delivered (CAS/BAI);
+  - interdiction of supply (bridges, rail, depots);
+  - SAM/AAA cover.
+- Sectors push the front line forward or back.
+- **AI air commanders** on both sides build an ATO (air tasking order) each turn from their objectives and available assets:
+  - OCA (offensive counter-air) against airfields;
+  - CAP/barrier CAP;
+  - CAS/BAI;
+  - interdiction;
+  - SEAD;
+  - recon;
+  - escort.
+- The player picks one tasked package for their flight. Every other flight is resolved abstractly, or spawned as AI in the player's mission if it overlaps in space and time.
+
+**Resources:**
+- Aircraft and pilot pools per squadron, with replacements arriving over time.
+- Munitions stocks, which matter for scarce AGM-65A/AIM-7E.
+- Airbase damage: runway cuts and repair.
+- Pilot outcome by where they come down: ejecting over friendly territory means rescued, over enemy territory means POW or MIA.
+
+**Immersion:**
+- Generated briefing text and kneeboard pages (flight plan, frequencies, codewords, threat map) rendered with Pillow.
+- Period-correct loadouts that respect stock levels.
+- Daily intel summaries and "Stars and Stripes"-style news.
+- Squadron roster with kills, sorties and awards.
+- Seasonal weather.
+
+**Order of battle 1976:**
+- NATO: USAF F-4E (player squadron), F-4E Wild Weasel-type SEAD with Shrikes, F-100/F-5 where historically plausible, stock NATO SAMs and AAA (Hawk, Chaparral/Vulcan, Gepard/Roland gated by year).
+- Warsaw Pact: MiG-21bis, MiG-23MLD, MiG-25PD, MiG-27, Su-17, Su-24, Mi-8/24, SA-2/3/6/8/9, ZSU-23-4, T-55/T-62/T-72, BMP-1.
+- The exact list is checked against the stock assets that pydcs exposes and against which airfields lie on the map.
+
+**AI behaviour (checked 2026-11-23):**
+- I searched for an existing mod that overhauls DCS AI aircraft behaviour and found **none**. What exists:
+  - forum threads complaining about "UFO" AI;
+  - ED's own BFM update in 2.8;
+  - ED's promised AI flight model rework, the GFM (General Flight Model), not yet released;
+  - `necr0n/dcs-make-flyable`, which only lists SFM tweaks as a goal.
+- So the plan has **no mod-install step**. Instead the campaign tames the AI itself:
+  - **Generator side:** realistic skill spread (mostly Average/Good); heavy fuel/drop tanks and full loads on Warsaw Pact fighters; sensible ROE/reaction-to-threat options; restricted afterburner use.
+  - **Runtime side:** GCI-dependent Soviet tactics and doctrine-style engagement logic in the runtime script (e.g. break off after one pass, bingo fuel rules).
+  - **Optional script handicap:** extra simulated weight on known UFO types, an idea taken from community practice (e.g. MiG-21). This needs testing.
+- Revisit if ED ships the GFM or a community AI mod appears.
+
+## Phase 1 status (2026-11-23): playable command-line loop
+- **Model** (`cwdc/model/campaign.py`):
+  - Campaign → airbases, squadrons, pilots, airframes, objectives (individual units), and the supply network schema.
+  - The ATO is Packages → Flights for **both** sides.
+  - One `SortieResult` type for flown and simulated sorties.
+  - `MissionRecord` keeps a manifest from DCS unit names back to campaign entities.
+- **Data:**
+  - `theater_fulda_1976.yaml`: inner German border trace, CAP stations, 5 airbases, 8 objectives, 4 supply nodes.
+  - `oob_fulda_1976.yaml`: 2 F-4E squadrons; MiG-21bis, MiG-23MLD and MiG-27K regiments.
+  - `airframes.yaml`: per-airframe catalogue with tasks → loadouts and combat ratings.
+- **Engine:**
+  - `factory` creates a campaign.
+  - `planner` plans every sortie on both sides (night turns are CAP only).
+  - `resolver` resolves the abstract sorties in order: CAP sweeps, interceptions, SAM/AAA, weapons effects. Kills always match losses on the other side.
+  - `apply` is a single code path for all results.
+  - `turn` handles repairs, WIA recovery, daily replacements, the clock and re-planning.
+- **Mission builder** (`missiongen/builder.py`) spawns the player flight plus everything overlapping it:
+  - enemy CAP within 90 km of the route;
+  - enemy strikes on targets within 60 km of a player CAP station, together with their targets;
+  - friendly flights on targets within 25 km;
+  - objectives near the target, and SAMs whose range covers the route.
+
+  AI strikes launch 7 minutes in, so they arrive alongside the player. Low-level waypoints use radar altitude.
+- **Ingest** (`ingest/flown.py`) maps DCS events back through the manifest:
+  - losses and damage;
+  - pilot fate by where the parachute landed (recovered, POW, KIA or MIA);
+  - kills credited to pilots;
+  - ground units destroyed, including units missing from the final snapshot.
+- **Re-flight policy:** the latest run before ingest counts. The mission closes on ingest.
+- **Known gaps, deferred to Phase 2:**
+  - Ground objectives are never reinforced or rebuilt, so the target list runs dry after ~2 days.
+  - No ground war or front movement.
+  - Supply is stored but not simulated.
+  - One crew member per F-4E (no WSO).
+  - Simple abstract combat odds that need balancing.
+  - The player's AI wingman start-up delay seen in Spike C is not yet addressed.
+  - Not yet flown in DCS: the first real Phase 1 mission is the next live test.
+
+## Extensibility principles (binding for Phase 1 onwards)
+The campaign state is the war. Each DCS mission is only a window onto one slice of it. Phase 1 may fill in only a few mission types, but its data model must follow these rules from the start, because retrofitting them later is the expensive part.
+
+1. **Every sortie exists.**
+   - Each turn, both sides build a full ATO of `Package` → `Flight` → `Task`: CAP, strike, SEAD, recon, CAS/BAI, interdiction, escort, airlift, convoy escort, and so on.
+   - The player picks *any* flight they can fly. Nothing is tied to "the player's F-4E mission".
+2. **One results pipeline.**
+   - Flights the player doesn't fly are resolved by the abstract combat model: detection, SAM and fighter threat, escort, skill, weather.
+   - That model produces the **same results structure** as a flown mission (losses, kills, BDA, pilot fates, cargo delivered).
+   - Both go through the same `ingest` code into the campaign state. Flown and simulated sorties differ only in fidelity.
+3. **The mission contains whatever overlaps it.**
+   - The generator spawns the player's flight plus every flight, convoy and site that overlaps it in time and space, as AI. Examples: enemy CAP on the route, SAMs at the target, a friendly package ahead of you.
+   - Everything else stays abstract.
+4. **Persistent people and airframes.**
+   - Squadron rosters hold individual pilots (sorties, kills, fatigue, status KIA/MIA/POW/WIA) and individual airframes, linked to the HB F-4E `Quality`/`Wear` properties.
+   - Simulated losses remove real roster entries.
+5. **Logistics is a network, not a number.**
+   - Depots, airfields, rail and road links and their capacities feed supply to front-line sectors.
+   - Convoys, trains and airlift are entities that move each turn and can be intercepted. Ground combat consumes supply.
+   - Interdiction, convoy escort and transport missions therefore all act on the same model.
+6. **Aircraft-agnostic player slots.**
+   - Loadouts, mission types and the briefing and kneeboard templates come from a per-airframe catalogue. `loadouts_f4e.yaml` becomes one entry in that catalogue.
+   - Adding a flyable type means adding data, not code.
+7. **The runtime tracks objectives, not just groups.**
+   - The in-mission script reports generic outcomes: group status, zone arrival (convoy reached depot), cargo/landing at a destination, and target destroyed.
+   - New mission types reuse these instead of adding special cases.
+
+**Logistics flying:**
+- AI airlift uses the period-correct AI `C-130` (pydcs `C_130`).
+- For player-flown transport, the **C-130J-30** (pydcs `C_130J_30`, flyable) is an **accepted anachronism**: it stands in for the C-130E/H that USAFE actually flew in 1976. The era filter allows it as a configurable exception, enabled by default when the module is installed.
+- Era-correct helicopter alternatives, if they're added later: UH-1H and Mi-8.
+
+## Repo layout
+```
+ColdWarDynamicDCS/
+  pyproject.toml            # uv/pip, Python 3.12, deps: pydcs, pydantic, fastapi, uvicorn, pillow, pytest
+  cwdc/
+    model/                  # pydantic: Campaign, Theater, Side, Squadron, Pilot, Unit, Sector, Objective, Package
+    data/                   # theater/germany_cw.yaml (bases, sectors, objectives), oob_1976.yaml, loadouts_f4e.yaml, units_era.yaml
+    engine/                 # turn.py, ground.py, air_commander.py, logistics.py, crisis.py, intel.py
+    missiongen/             # builder.py (pydcs), flights.py, groundspawn.py, briefing.py, kneeboard.py
+    runtime/lua/            # cwdc_runtime.lua (embedded in .miz), CWDC-hook.lua (installed into Saved Games)
+    ingest/                 # results.py: JSON -> losses/kills/pilot status -> engine
+    dcs_paths.py            # locate Saved Games\DCS, install hook, output folders
+    web/                    # FastAPI app + static/ (JS, Leaflet, CSS)
+  tools/                    # extract_airfields.py, extract_f4e_payloads.py, list_stock_units.py
+  tests/                    # engine unit tests, missiongen smoke tests (generate + parse .miz), ingest fixtures
+  docs/design.md            # this design, kept up to date
+```
+
+## Roadmap
+**Phase 0: Setup and spikes (start here once approved)**
+1. Install Git and Python 3.12 with winget. You approve the installs.
+2. Clone `ColdWarDynamicDCS`. **I need the GitHub URL or owner.**
+3. Set up the project skeleton, `.gitignore` and `docs/design.md`.
+4. Spike A: confirm that `dcs.terrain.germany` is GermanyCW, and dump its airfields into `tools/extract_airfields.py` output.
+5. Spike B: pull the F-4E pylon/weapon CLSIDs out of `Mods\aircraft\F-4E` (read-only) and compare them with pydcs's F-4E definitions.
+6. Spike C: generate a minimal `.miz` (player F-4E cold start, one MiG-21 target, runtime script embedded), install the hook, and have **you** fly it. Confirm that the results JSON appears with the right kill/landing data.
+
+**Phase 1: Playable loop on the command line**
+- A hard-coded small theater.
+- `cwdc new` creates a campaign, `cwdc generate` writes the next mission, `cwdc ingest` processes the results.
+- One player mission type each for CAP and strike, with losses carried over between missions.
+
+**Phase 2: Strategic engine**
+- Theater data, 1976 order of battle, sectors and the ground war.
+- AI ATO for both sides, logistics, airbase damage, pilots.
+- Unit tests for the engine.
+
+**Phase 3: Web UI**
+- Campaign creation, theater map, briefing/ATO selection, generate-mission button, automatic ingest by watching the results folder, debrief and squadron pages.
+
+**Phase 4: Crisis phase and immersion**
+- Tension model, QRA/intercept/recon missions, ROE enforcement, the war-start event.
+- Briefings, kneeboards, news and weather.
+
+**Phase 5: Polish**
+- Balance passes, campaign presets (start date 1974–79, other squadrons), packaging into a one-click launcher, multiplayer client slots.
+
+## Verification
+- **Engine and ingest:** pytest with recorded JSON fixtures, so turn resolution is deterministic given a seed.
+- **Mission generator:** smoke tests generate a `.miz`, reload it with pydcs, and check groups, payloads and the embedded scripts.
+- **End-to-end (manual, per phase):**
+  1. Generate a mission.
+  2. You fly it in DCS.
+  3. Confirm the hook wrote the results JSON.
+  4. Ingest it and check in the UI that losses, kills and the front line updated.
+- **The Phase 0 Spike C round trip must pass before Phase 1 starts.** It is the riskiest assumption.
+
+## Open item
+- The GitHub repo URL or owner for `ColdWarDynamicDCS`. It is needed at step 0.2, and I'll ask then.

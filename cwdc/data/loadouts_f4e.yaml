@@ -1,0 +1,118 @@
+# Period loadouts for the player F-4E (DCS type "F-4E-45MC"), circa 1976.
+#
+# Pylon numbers (DCS F-4E-45MC):
+#   1  left outboard wing      13 right outboard wing
+#   2/4  left Sidewinder rails 10/12 right Sidewinder rails
+#   3  left inboard wing       11 right inboard wing
+#   5/6/8/9 Sparrow wells      7  centreline
+#   14 ALE-40 dispensers
+#
+# Weapon names must match a name the module actually accepts on that pylon
+# (see cwdc/data/f4e_clsids.json + pydcs). The loader validates this.
+#
+# Era rules for 1976: AIM-7E/E-2 (AIM-7F only from late 1976), AIM-9E/J,
+# AGM-45A/B, AGM-65A, AGM-12, Mk-82/83/84, M117, Mk-20 Rockeye, CBU-52,
+# GBU-10/12 + Pave Spike. NOT allowed: AIM-9L/M/P5, AGM-65D/G, CBU-87,
+# BLU-107 Durandal, GBU-24, ALQ-131 (anachronistic; there is no ALQ-119).
+
+loadouts:
+  CAP:
+    task: CAP
+    description: "4x AIM-7E-2, 4x AIM-9J, 2x 370 gal + 600 gal centreline"
+    pylons:
+      1: "Sargent Fletcher Fuel Tank 370 gallons"
+      2: "AIM-9J Sidewinder IR AAM"
+      4: "AIM-9J Sidewinder IR AAM"
+      5: "AIM-7E-2 Sparrow Semi-Active Radar"
+      6: "AIM-7E-2 Sparrow Semi-Active Radar"
+      7: "Sargent Fletcher Fuel Tank 600 gallons"
+      8: "AIM-7E-2 Sparrow Semi-Active Radar"
+      9: "AIM-7E-2 Sparrow Semi-Active Radar"
+      10: "AIM-9J Sidewinder IR AAM"
+      12: "AIM-9J Sidewinder IR AAM"
+      13: "Sargent Fletcher Fuel Tank 370 gallons"
+      14: "ALE-40 Dispensers (30 Flares + 60 Chaff)"
+
+  QRA:
+    task: Intercept
+    description: "Zulu alert: 4x AIM-7E, 4x AIM-9E, centreline tank"
+    pylons:
+      2: "AIM-9E Sidewinder IR AAM"
+      4: "AIM-9E Sidewinder IR AAM"
+      5: "AIM-7E Sparrow Semi-Active Radar"
+      6: "AIM-7E Sparrow Semi-Active Radar"
+      7: "Sargent Fletcher Fuel Tank 600 gallons"
+      8: "AIM-7E Sparrow Semi-Active Radar"
+      9: "AIM-7E Sparrow Semi-Active Radar"
+      10: "AIM-9E Sidewinder IR AAM"
+      12: "AIM-9E Sidewinder IR AAM"
+      14: "ALE-40 Dispensers (30 Flares + 60 Chaff)"
+
+  STRIKE_M117:
+    task: Ground Attack
+    description: "11x M117 (2x TER + centreline MER), 2x AIM-7E-2, wing tanks"
+    pylons:
+      1: "Sargent Fletcher Fuel Tank 370 gallons"
+      3: "3x M117 - 750lb GP Bomb LD (TER)"
+      5: "AIM-7E-2 Sparrow Semi-Active Radar"
+      7: "5x M117 - 750lb GP Bomb LD (MER)"
+      9: "AIM-7E-2 Sparrow Semi-Active Radar"
+      11: "3x M117 - 750lb GP Bomb LD (TER)"
+      13: "Sargent Fletcher Fuel Tank 370 gallons"
+      14: "ALE-40 Dispensers (30 Flares + 60 Chaff)"
+
+  STRIKE_MK82:
+    task: Ground Attack
+    description: "12x Mk-82 (2x TER + centreline MER), 2x AIM-7E-2, wing tanks"
+    pylons:
+      1: "Sargent Fletcher Fuel Tank 370 gallons"
+      3: "3x Mk-82 - 500lb GP Bomb LD (TER)"
+      5: "AIM-7E-2 Sparrow Semi-Active Radar"
+      7: "6x Mk-82 - 500lb GP Bomb LD (MER)"
+      9: "AIM-7E-2 Sparrow Semi-Active Radar"
+      11: "3x Mk-82 - 500lb GP Bomb LD (TER)"
+      13: "Sargent Fletcher Fuel Tank 370 gallons"
+      14: "ALE-40 Dispensers (30 Flares + 60 Chaff)"
+
+  CAS_ROCKEYE:
+    task: CAS
+    description: "12x Mk-20 Rockeye, 2x AIM-9J, 2x AIM-7E-2, wing tanks"
+    pylons:
+      1: "Sargent Fletcher Fuel Tank 370 gallons"
+      2: "AIM-9J Sidewinder IR AAM"
+      3: "3x Mk-20 Rockeye - 490lbs CBU, 247 x HEAT Bomblets (TER)"
+      5: "AIM-7E-2 Sparrow Semi-Active Radar"
+      7: "6x Mk-20 Rockeye - 490lbs CBU, 247 x HEAT Bomblets (MER)"
+      9: "AIM-7E-2 Sparrow Semi-Active Radar"
+      11: "3x Mk-20 Rockeye - 490lbs CBU, 247 x HEAT Bomblets (TER)"
+      12: "AIM-9J Sidewinder IR AAM"
+      13: "Sargent Fletcher Fuel Tank 370 gallons"
+      14: "ALE-40 Dispensers (30 Flares + 60 Chaff)"
+
+  SEAD_SHRIKE:
+    task: SEAD
+    description: "4x AGM-45A Shrike, 3x AIM-7E-2, centreline tank"
+    pylons:
+      1: "AGM-45A Shrike ARM (LAU-34)"
+      3: "AGM-45A Shrike ARM (LAU-34)"
+      5: "AIM-7E-2 Sparrow Semi-Active Radar"
+      7: "Sargent Fletcher Fuel Tank 600 gallons"
+      8: "AIM-7E-2 Sparrow Semi-Active Radar"
+      9: "AIM-7E-2 Sparrow Semi-Active Radar"
+      11: "AGM-45A Shrike ARM (LAU-34)"
+      13: "AGM-45A Shrike ARM (LAU-34)"
+      14: "ALE-40 Dispensers (30 Flares + 60 Chaff)"
+
+  BAI_MAVERICK:
+    task: Ground Attack
+    description: "4x AGM-65A (2x LAU-88), 2x AIM-9J, 2x AIM-7E-2, wing tanks"
+    pylons:
+      1: "Sargent Fletcher Fuel Tank 370 gallons"
+      2: "AIM-9J Sidewinder IR AAM"
+      3: "2x AGM-65A - Maverick A (TV Guided) (LAU-88)"
+      5: "AIM-7E-2 Sparrow Semi-Active Radar"
+      9: "AIM-7E-2 Sparrow Semi-Active Radar"
+      11: "2x AGM-65A - Maverick A (TV Guided) (LAU-88)"
+      12: "AIM-9J Sidewinder IR AAM"
+      13: "Sargent Fletcher Fuel Tank 370 gallons"
+      14: "ALE-40 Dispensers (30 Flares + 60 Chaff)"

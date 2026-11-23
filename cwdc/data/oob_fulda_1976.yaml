@@ -1,0 +1,63 @@
+# Phase 1 order of battle. Unit designations are plausible for 1976 USAFE / GSFG,
+# but numbers and basing are simplified. MiG-23MLD and MiG-27K are stand-ins for the
+# MiG-23M / MiG-27 of 1976 (DCS has only the later variants).
+#
+# Phase 1 models one crew member per airframe (the F-4E's WSO comes later).
+
+squadrons:
+  - id: b_496tfs
+    name: "496th TFS"
+    side: blue
+    country: USA
+    aircraft_type: F-4E-45MC
+    base: hahn
+    callsign: Buick
+    tasks: [CAP, Strike, CAS, BAI]
+    airframes: 18
+    pilots: 20
+    tail_prefix: "HR 68-"
+    player_squadron: true
+  - id: b_23tfs
+    name: "23rd TFS"
+    side: blue
+    country: USA
+    aircraft_type: F-4E-45MC
+    base: spangdahlem
+    callsign: Ford
+    tasks: [Strike, SEAD, CAP]
+    airframes: 18
+    pilots: 20
+    tail_prefix: "SP 69-"
+  - id: r_mig21_merseburg
+    name: "85th Guards Fighter Regiment"
+    side: red
+    country: USSR
+    aircraft_type: MiG-21Bis
+    base: merseburg
+    callsign: Sokol
+    tasks: [CAP]
+    airframes: 24
+    pilots: 26
+    tail_prefix: "Red "
+  - id: r_mig23_kothen
+    name: "Fighter Regiment, Köthen"
+    side: red
+    country: USSR
+    aircraft_type: MiG-23MLD
+    base: kothen
+    callsign: Berkut
+    tasks: [CAP]
+    airframes: 18
+    pilots: 20
+    tail_prefix: "Red 5"
+  - id: r_mig27_allstedt
+    name: "Fighter-Bomber Regiment, Allstedt"
+    side: red
+    country: USSR
+    aircraft_type: MiG-27K
+    base: allstedt
+    callsign: Grach
+    tasks: [Strike]
+    airframes: 18
+    pilots: 20
+    tail_prefix: "Red 7"
