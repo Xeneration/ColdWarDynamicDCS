@@ -179,3 +179,50 @@ def test_cli_end_to_end(tmp_path, monkeypatch, capsys):
     main(["status"])
     main(["roster"])
     assert store.load().turn == 3
+
+
+@pytest.mark.parametrize("start", ["runway", "ramp", "air"])
+@pytest.mark.parametrize("task", [Task.CAP, Task.STRIKE])
+def test_spawns_deconflicted_and_waves_timed(camp, tmp_path, start, task):
+    """Regression (first live flight): two AI flights spawned on the same spot and collided."""
+    import itertools
+    f = _flight(camp, task)
+    planner.assign_player(camp, f.id)
+    rec = builder.build(camp, f.id, tmp_path, start=start)
+    m = dcs.Mission()
+    m.load_file(rec.miz_path)
+    air, enemy_caps = [], 0
+    for coal in m.coalition.values():
+        for co in coal.countries.values():
+            for g in co.plane_group:
+                assert g.points[0].ETA == g.start_time       # DCS spawns on wp0 ETA
+                if g.points[0].type == "Turning Point":
+                    air += [(u.position, u.alt) for u in g.units]
+                fl = camp.flights[g.name.split()[0]]
+                if fl.side is Side.RED and fl.task is Task.CAP:
+                    enemy_caps += 1
+                if fl.side is Side.BLUE:
+                    assert g.units[0].callsign_dict["name"].startswith(
+                        camp.squadrons[fl.squadron_id].callsign)
+    for (p1, a1), (p2, a2) in itertools.combinations(air, 2):
+        assert p1.distance_to_point(p2) > 150 or abs(a1 - a2) > 100
+    assert 1 <= enemy_caps <= builder.MAX_ENEMY_CAP
+
+
+def test_collision_and_fratricide_not_credited(camp, tmp_path):
+    f = _flight(camp, Task.STRIKE)
+    planner.assign_player(camp, f.id)
+    rec = builder.build(camp, f.id, tmp_path)
+    blue = [n for n, e in rec.manifest.items()
+            if e["kind"] == "airframe" and camp.flights[e["flight"]].side is Side.BLUE]
+    a, b = blue[0], blue[-1]
+    data = {"events": [
+        {"t": 1, "event": "S_EVENT_KILL", "initiator": _unit(a, "F-4E-45MC"),
+         "target": _unit(b, "F-4E-45MC"), "weapon": "F-4E-45MC"},          # collision
+        {"t": 2, "event": "S_EVENT_KILL", "initiator": _unit(b, "F-4E-45MC"),
+         "target": _unit(a, "F-4E-45MC"), "weapon": "AIM-7E-2"},           # blue on blue
+        {"t": 3, "event": "S_EVENT_UNIT_LOST", "initiator": _unit(b, "F-4E-45MC")},
+    ], "snapshot": {}}
+    results, _ = results_from_dcs(camp, rec, data)
+    assert not [k for r in results for k in r.kills]
+    assert sum(len(r.airframes_lost) for r in results) == 1

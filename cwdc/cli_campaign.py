@@ -83,7 +83,7 @@ def cmd_fly(args) -> None:
         raise SystemExit(str(e))
     if not dcs_paths.hook_is_current():
         print(f"hook installed/updated: {dcs_paths.install_hook()}")
-    rec = builder.build(c, fid, dcs_paths.missions_dir())
+    rec = builder.build(c, fid, dcs_paths.missions_dir(), start=args.start)
     c.pending_mission = rec
     store.save(c)
     f = c.flights[fid]
@@ -181,6 +181,9 @@ def register(sub) -> None:
         p.set_defaults(func=func)
     p = sub.add_parser("fly", help="generate the DCS mission for a flight")
     p.add_argument("flight")
+    p.add_argument("--start", choices=["runway", "ramp", "air"], default="runway",
+                   help="runway (default, hot on the runway), ramp (warm on parking) or "
+                        "air (airborne ~50 nm from the target)")
     p.add_argument("--campaign")
     p.set_defaults(func=cmd_fly)
     p = sub.add_parser("ingest", help="read the flown mission's results and end the turn")

@@ -7,8 +7,9 @@ from here; the engine resolves the rest abstractly.
 from __future__ import annotations
 
 from cwdc import theater as T
-from cwdc.ingest.results import is_scenery, kill_weapon
-from cwdc.model import (Campaign, Kill, MissionRecord, PilotFate, PilotStatus, Pos, SortieResult)
+from cwdc.ingest.results import is_collision, is_scenery, kill_weapon
+from cwdc.model import (Campaign, Kill, MissionRecord, PilotFate, PilotStatus, Pos, Side,
+                        SortieResult)
 
 LOSS_EVENTS = {"S_EVENT_UNIT_LOST", "S_EVENT_CRASH", "S_EVENT_DEAD", "S_EVENT_EJECTION",
                "S_EVENT_PILOT_DEAD"}
@@ -57,8 +58,11 @@ def results_from_dcs(c: Campaign, rec: MissionRecord, data: dict) -> tuple[list[
         if ev == "S_EVENT_KILL" and tname in man and man[tname]["kind"] == "objective":
             obj_dead.add(tname)
         if ev == "S_EVENT_KILL" and iname in man and man[iname]["kind"] == "airframe" \
-                and not is_scenery(tgt) and tname:
+                and not is_scenery(tgt) and tname and not is_collision(e):
             k_entry = man.get(tname)
+            killer_side = c.flights[man[iname]["flight"]].side
+            if _side_of(c, k_entry, tgt) is killer_side:
+                continue                      # fratricide: no credit
             if k_entry and k_entry["kind"] == "airframe":
                 target, ttype, air = k_entry["airframe"], c.airframes[k_entry["airframe"]].type, True
             elif k_entry:
@@ -115,6 +119,14 @@ def _fate(c: Campaign, pilot_id: str, uname: str, ejected, chute, pilot_dead) ->
                          note=f"ejected over friendly territory and was recovered ({lat:.2f}N {lon:.2f}E)")
     return PilotFate(pilot_id=pilot_id, status=PilotStatus.POW,
                      note=f"ejected over enemy territory and was captured ({lat:.2f}N {lon:.2f}E)")
+
+
+def _side_of(c: Campaign, entry: dict | None, obj: dict) -> Side | None:
+    if entry and entry["kind"] == "airframe":
+        return c.squadrons[c.airframes[entry["airframe"]].squadron_id].side
+    if entry:
+        return c.objectives[entry["objective"]].side
+    return {1: Side.RED, 2: Side.BLUE}.get((obj or {}).get("coalition"))
 
 
 def _plane_types() -> set[str]:

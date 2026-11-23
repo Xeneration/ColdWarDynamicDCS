@@ -168,8 +168,18 @@ DCS has no built-in dynamic campaign, and none of the existing ones cover the Co
   - Supply is stored but not simulated.
   - One crew member per F-4E (no WSO).
   - Simple abstract combat odds that need balancing.
-  - The player's AI wingman start-up delay seen in Spike C is not yet addressed.
-  - Not yet flown in DCS: the first real Phase 1 mission is the next live test.
+
+### First live Phase 1 flight (2026-11-23): findings and fixes
+The flight was a strike from Hahn on the Geisa artillery. Ingest worked end to end. The mission itself was unplayable:
+
+| Problem | Cause | Fix |
+|---|---|---|
+| AI F-4E "crashed after takeoff", crew ejected | Ford 1 and Ford 2 were air-started at the **same coordinates and altitude** and collided at t=1 s. The intended 7-minute launch delay was ignored, because DCS takes an air group's spawn time from its first waypoint's ETA. | Each spawned flight gets its own lateral offset and altitude band, and aircraft inside a flight are spread out. Delays are written to wp0 ETA. AI strikes now air-start at the distance that gets them to the target *with* the player, instead of over their own base. |
+| Collision counted as an "air kill" on a friendly F-4E | Ingest credited every KILL event. | Collisions and same-side kills give no credit. Losses are still counted. |
+| AI wingman (Enfield 1-2) taxied for ~7 minutes | Ramp start (also seen in Spike C) | The player flight now defaults to a **hot runway start**. `--start ramp` picks adjacent parking spots, and `--start air` starts ~50 nm from the target. |
+| Callsign showed "Enfield" / "New callsign" | The campaign callsign "Buick" isn't a DCS western callsign, and the pilot name comes from the player's DCS Logbook profile. | Squadron callsigns must be DCS western callsigns (496th TFS → **Colt**), and units get matching radio callsigns. The pilot name is set in DCS → Logbook. |
+| 119 nm transit with nothing happening | Hahn is far from the Fulda front. | The 496th TFS disperses to **Rhein-Main AB** (Frankfurt, 72 nm to Geisa). |
+| Overwhelmed by MiG CAP; AI strikers jettisoned and fought | Every enemy CAP near the route spawned (4 flights, 8 MiGs at once), and AI strikers had default ROE. | Enemy CAP flights roll for contact, with at most 2 per mission and the second as a +10 min wave. Friendly CAP on the route now joins strike missions. AI strikers get "attack assigned targets only", "evade fire" and "no jettison". |
 
 ## Extensibility principles (binding for Phase 1 onwards)
 The campaign state is the war. Each DCS mission is only a window onto one slice of it. Phase 1 may fill in only a few mission types, but its data model must follow these rules from the start, because retrofitting them later is the expensive part.
@@ -246,9 +256,20 @@ ColdWarDynamicDCS/
 **Phase 4: Crisis phase and immersion**
 - Tension model, QRA/intercept/recon missions, ROE enforcement, the war-start event.
 - Briefings, kneeboards, news and weather.
+- **"MAGIC" radar controller** (requested 2026-11-23, modelled on the Heatblur and Contention servers), part of `cwdc_runtime.lua`:
+  - An F10 radio menu for each player group (`missionCommands.addCommandForGroup`).
+  - **Bogey dope:** BRAA (bearing, range in nm, altitude in thousands of feet, aspect hot/cold/flank) from the player to the nearest hostile aircraft *that friendly radar holds*.
+  - **Picture:** hostile groups as bullseye calls.
+  - Optional automatic threat calls when a bandit closes inside a set range.
+  - Replies are sent as `trigger.action.outTextForGroup`. Recorded voice clips may come later.
+  - Detection is realistic, not god's-eye: contacts come from friendly radar emitters (EWR sites, SAM search radars, AI fighters' radars) via `Controller:getDetectedTargets`, so low flyers can hide under the coverage. The theater therefore needs friendly EWR/GCI sites.
+  - The callsign is configurable and defaults to **MAGIC**. In 1976 Europe the real equivalent was ground GCI/CRC; NATO E-3s arrived in 1977–82.
 
 **Phase 5: Polish**
 - Balance passes, campaign presets (start date 1974–79, other squadrons), packaging into a one-click launcher, multiplayer client slots.
+- **Immersion lockdown, once all phases are finished** (requested 2026-11-23; kept on for now to help testing):
+  - Generated missions force DCS options: **labels off**, and **F10 map without aircraft or contact icons** (own aircraft only, or map only).
+  - Uses pydcs `mission.forced_options`. It becomes a campaign "realism" setting that defaults to on in the release.
 
 ## Verification
 - **Engine and ingest:** pytest with recorded JSON fixtures, so turn resolution is deterministic given a seed.
@@ -260,5 +281,3 @@ ColdWarDynamicDCS/
   4. Ingest it and check in the UI that losses, kills and the front line updated.
 - **The Phase 0 Spike C round trip must pass before Phase 1 starts.** It is the riskiest assumption.
 
-## Open item
-- The GitHub repo URL or owner for `ColdWarDynamicDCS`. It is needed at step 0.2, and I'll ask then.

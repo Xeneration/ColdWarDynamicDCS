@@ -3,6 +3,11 @@
 # MiG-23M / MiG-27 of 1976 (DCS has only the later variants).
 #
 # Phase 1 models one crew member per airframe (the F-4E's WSO comes later).
+#
+# Basing: the 496th TFS (peacetime home Hahn, 119 nm from the Fulda front) has dispersed
+# to Rhein-Main AB (72 nm) for the war, to keep transit times playable.
+# Callsigns of NATO squadrons must be DCS western callsigns (Enfield, Springfield, Uzi,
+# Colt, Dodge, Ford, Chevy, Pontiac) so the radio callsign matches the campaign one.
 
 squadrons:
   - id: b_496tfs
@@ -10,8 +15,8 @@ squadrons:
     side: blue
     country: USA
     aircraft_type: F-4E-45MC
-    base: hahn
-    callsign: Buick
+    base: rheinmain
+    callsign: Colt
     tasks: [CAP, Strike, CAS, BAI]
     airframes: 18
     pilots: 20

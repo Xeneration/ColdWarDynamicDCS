@@ -45,6 +45,7 @@ cap_stations:
 
 airbases:
   - {id: hahn, dcs_name: Hahn, side: blue}
+  - {id: rheinmain, dcs_name: Frankfurt, side: blue}   # Rhein-Main AB (USAF)
   - {id: spangdahlem, dcs_name: Spangdahlem, side: blue}
   - {id: merseburg, dcs_name: Merseburg, side: red}
   - {id: allstedt, dcs_name: Allstedt, side: red}

@@ -15,6 +15,7 @@ results back after you fly, so the war moves on.
 .\.venv\Scripts\python.exe -m cwdc new --pilot "Your Name"   # start a campaign
 .\.venv\Scripts\python.exe -m cwdc ato                       # this turn's tasking; * = you can fly it
 .\.venv\Scripts\python.exe -m cwdc fly F003                  # writes the .miz into Missions\ColdWarDynamic
+#   add --start ramp (parking) or --start air (~50 nm out); default is a hot runway start
 #   ...fly it in DCS, exit normally...
 .\.venv\Scripts\python.exe -m cwdc ingest                    # your results + the simulated rest -> next turn
 ```
@@ -26,6 +27,9 @@ Other commands:
 
 Campaign saves live in `Saved Games\DCS\CWDC\campaigns\<id>\`. That folder holds
 `campaign.json` plus one snapshot per turn in `turns\NNN.json`.
+
+Your in-game pilot name comes from your DCS Logbook profile (DCS main menu → Logbook), not
+from the campaign.
 
 **Re-flying:** if you fly the same generated mission more than once before ingesting, the
 *latest* run counts. Once you've ingested, the mission is closed. (`rollback` is the
