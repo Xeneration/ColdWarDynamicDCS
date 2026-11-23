@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from collections import Counter
+from pathlib import Path
 
 from cwdc import dcs_paths, store
 from cwdc import theater as T
@@ -87,7 +88,10 @@ def cmd_fly(args) -> None:
         raise SystemExit(str(e))
     if not dcs_paths.hook_is_current():
         print(f"hook installed/updated: {dcs_paths.install_hook()}")
+    previous = c.pending_mission
     rec = builder.build(c, fid, dcs_paths.missions_dir(), start=args.start)
+    if previous and previous.miz_path != rec.miz_path:
+        Path(previous.miz_path).unlink(missing_ok=True)     # superseded, never flown
     c.pending_mission = rec
     store.save(c)
     f = c.flights[fid]
@@ -95,7 +99,9 @@ def cmd_fly(args) -> None:
     print(f"You lead {f.callsign}: {c.packages[f.package_id].description}")
     others = [c.flights[x].callsign for x in rec.spawned_flights if x != fid]
     print(f"Also in this mission: {', '.join(others) or 'nobody else'}")
-    print("\nFly it in DCS, exit normally, then run `cwdc ingest`.")
+    print(f"\nIn DCS: Mission > My Missions > ColdWarDynamic > {Path(rec.miz_path).name}")
+    print("Fly it, exit normally, then run `cwdc ingest`.")
+    print("(Your in-game pilot name comes from your DCS Logbook profile, not the campaign.)")
 
 
 def _load_result(c: Campaign, from_log: bool) -> dict:

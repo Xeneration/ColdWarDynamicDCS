@@ -236,3 +236,10 @@ def test_mission_ids_unique_per_campaign_instance(tmp_path):
     ra = builder.build(a, fa.id, tmp_path / "a")
     rb = builder.build(b, fb.id, tmp_path / "b")
     assert fa.id == fb.id and ra.mission_id != rb.mission_id
+
+
+def test_mission_filename_is_readable_and_unique(camp):
+    a, b = _flight(camp, Task.CAP), _flight(camp, Task.STRIKE)
+    na, nb = builder.mission_filename(camp, a), builder.mission_filename(camp, b)
+    assert na != nb and na.endswith(".miz")
+    assert na == "CWDC Test Campaign - T001 14Aug 0600 - Colt 1 CAP.miz"

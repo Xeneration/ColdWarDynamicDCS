@@ -335,11 +335,18 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
 
     inject_runtime(m, mission_id, tracked)
     out_dir.mkdir(parents=True, exist_ok=True)
-    path = out_dir / f"CWDC_{c.id}_t{c.turn:03d}.miz"
+    path = out_dir / mission_filename(c, player)
     m.save(str(path))
     return MissionRecord(mission_id=mission_id, turn=c.turn, player_flight_id=player.id,
                          miz_path=str(path), generated_at=time.time(), manifest=manifest,
                          spawned_flights=[f.id for f in plan.flights])
+
+
+def mission_filename(c: Campaign, f: Flight) -> str:
+    """e.g. 'CWDC Fulda Gap 1976 - T001 14Aug 0600 - Colt 2 Strike.miz' (unique per flight/turn)."""
+    import re
+    raw = f"CWDC {c.name} - T{c.turn:03d} {c.time:%d%b %H%M} - {f.callsign} {f.task.value}"
+    return re.sub(r'[<>:"/\\|?*]', "", raw) + ".miz"
 
 
 def _adjacent_slots(airport, type_cls, n: int):
