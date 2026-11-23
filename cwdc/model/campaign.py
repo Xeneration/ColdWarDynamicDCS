@@ -136,6 +136,9 @@ class Objective(BaseModel):
     value: int = 1           # planning priority
     threat_range_m: float = 0.0  # air defence engagement radius
     supply_node: Optional[str] = None
+    formation_id: Optional[str] = None   # visible element of this ground formation
+    sector_id: Optional[str] = None      # moves with this sector's front
+    base_pos: Optional[Pos] = None       # position when the front offset is 0
 
     @property
     def alive_units(self) -> list[ObjUnit]:
@@ -162,6 +165,44 @@ class SupplyLink(BaseModel):
     mode: str = "road"       # road | rail | air
     capacity: float = 20.0
     damaged: float = 0.0
+
+
+# ----------------------------------------------------------------------------- ground war
+
+class Posture(str, Enum):
+    ATTACK = "attack"
+    DEFEND = "defend"
+    RESERVE = "reserve"
+
+
+class Sector(BaseModel):
+    """A stretch of the front. offset_km > 0: the Warsaw Pact has advanced into NATO territory."""
+    id: str
+    name: str
+    front_points: list[int]          # indices into Campaign.base_front_line
+    terrain: float = 1.0             # defender multiplier (hills, forest, rivers)
+    offset_km: float = 0.0
+    attacker: Optional[Side] = None  # who attacked this turn (for reports)
+
+
+class Formation(BaseModel):
+    """A ground formation (division / brigade / regiment), abstracted to combat strength."""
+    id: str
+    name: str
+    side: Side
+    country: str
+    sector_id: str
+    kind: str = "armor"              # armor | mech | cavalry | infantry
+    strength: float                  # current combat power (abstract points)
+    max_strength: float
+    posture: Posture = Posture.DEFEND
+    supply: float = 1.0              # 0..1, from logistics (Phase 2 step 4)
+    readiness: float = 1.0
+    arrival_turn: int = 1            # reinforcements arrive later
+
+    @property
+    def ratio(self) -> float:
+        return self.strength / self.max_strength if self.max_strength else 0.0
 
 
 # ----------------------------------------------------------------------------- tasking (ATO)
@@ -270,7 +311,10 @@ class Campaign(BaseModel):
     objectives: dict[str, Objective] = {}
     supply_nodes: dict[str, SupplyNode] = {}
     supply_links: list[SupplyLink] = []
-    front_line: list[tuple[float, float]] = []    # (lat, lon), north -> south
+    front_line: list[tuple[float, float]] = []    # current front (lat, lon), north -> south
+    base_front_line: list[tuple[float, float]] = []   # pre-war border the sector offsets apply to
+    sectors: dict[str, Sector] = {}
+    formations: dict[str, Formation] = {}
     cap_stations: dict[Side, list[Pos]] = {}
 
     packages: dict[str, Package] = {}             # current turn ATO

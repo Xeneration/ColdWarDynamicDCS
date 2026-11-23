@@ -10,9 +10,13 @@ WIA_RECOVERY_TURNS = 4
 
 
 def destroy_unit(c: Campaign, uid: str) -> None:
+    """A vehicle destroyed by air power (flown or simulated)."""
+    from cwdc.engine.ground import destroy_from_air
     oid, idx = uid.split("#")
     obj = c.objectives[oid]
     was_destroyed = obj.destroyed
+    if obj.units[int(idx)].alive:
+        destroy_from_air(c, obj, int(idx))
     obj.units[int(idx)].alive = False
     if obj.destroyed and not was_destroyed:
         c.add_news(f"{obj.name} has been destroyed.")

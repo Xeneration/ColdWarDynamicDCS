@@ -109,7 +109,10 @@ def _crafted_result(c, rec):
             "events": ev}
 
 
-def test_ingest_flown_strike_then_end_turn(camp, tmp_path):
+def test_ingest_flown_strike_then_end_turn(camp, tmp_path, monkeypatch):
+    from cwdc.engine import ground
+    # formation elements are rebuilt at turn end; switch that off to see the kills land
+    monkeypatch.setattr(ground, "sync_visible", lambda c: None)
     c = camp
     f = _flight(c, Task.STRIKE)
     planner.assign_player(c, f.id)

@@ -38,6 +38,14 @@ front_line:
   - [49.60, 12.55]
   - [49.30, 12.90]
 
+# Front sectors: stretches of the border above (indices into front_line, 0 = north).
+# terrain = defender multiplier. The ground war moves each sector's front independently.
+sectors:
+  - {id: goettingen, name: "Goettingen corridor", front_points: [11, 12, 13], terrain: 1.2}
+  - {id: fulda, name: "Fulda Gap", front_points: [14, 15, 16, 17], terrain: 1.1}
+  - {id: rhoen, name: "Rhoen / Meiningen", front_points: [18, 19, 20], terrain: 1.3}
+  - {id: hof, name: "Hof corridor", front_points: [21, 22, 23], terrain: 1.2}
+
 # Barrier CAP stations, ~25-40 km behind the front.
 cap_stations:
   blue: [[50.75, 9.65], [50.45, 9.85]]
@@ -90,6 +98,8 @@ objectives:
       - {type: S_75M_Volhov, dx: -150, dz: 0}
       - {type: S_75M_Volhov, dx: 0, dz: -150}
   - id: r_sa6_salzungen
+    formation: r_39gmrd
+    sector: fulda
     name: "SA-6 battery Bad Salzungen"
     kind: sam
     side: red
@@ -102,6 +112,8 @@ objectives:
       - {type: Kub 2P25 ln, dx: 120, dz: 60}
       - {type: Kub 2P25 ln, dx: -120, dz: 60}
   - id: r_tank_vacha
+    formation: r_39gmrd
+    sector: fulda
     name: "8th Guards Army tank battalion, Vacha"
     kind: armor
     side: red
@@ -118,6 +130,8 @@ objectives:
       - {type: BMP-1, dx: 60, dz: -40}
       - {type: ZSU-23-4 Shilka, dx: 0, dz: -80}
   - id: r_arty_geisa
+    formation: r_39gmrd
+    sector: fulda
     name: "Artillery battalion east of Geisa"
     kind: artillery
     side: red
@@ -147,7 +161,110 @@ objectives:
       - {type: Ural-375, dx: 50}
       - {type: Ural-375, dx: 75}
       - {type: ZSU-23-4 Shilka, dx: 40, dz: 60}
+  # forward elements of the other Warsaw Pact formations
+  - id: r_47gtd_fwd
+    name: "47th Guards Tank Division forward regiment"
+    formation: r_47gtd
+    sector: goettingen
+    kind: armor
+    side: red
+    country: USSR
+    latlon: [51.45, 10.45]
+    value: 4
+    threat_range_km: 2.5
+    units:
+      - {type: T-55}
+      - {type: T-55, dx: 40, dz: 30}
+      - {type: T-55, dx: -40, dz: 30}
+      - {type: T-55, dx: 80, dz: 60}
+      - {type: BMP-1, dx: -60, dz: -40}
+      - {type: BMP-1, dx: 60, dz: -40}
+      - {type: ZSU-23-4 Shilka, dx: 0, dz: -80}
+  - id: r_57gmrd_fwd
+    name: "57th Guards Motor Rifle Division forward regiment"
+    formation: r_57gmrd
+    sector: rhoen
+    kind: armor
+    side: red
+    country: USSR
+    latlon: [50.47, 10.45]
+    value: 4
+    threat_range_km: 2.5
+    units:
+      - {type: BMP-1}
+      - {type: BMP-1, dx: 40, dz: 30}
+      - {type: BMP-1, dx: -40, dz: 30}
+      - {type: T-55, dx: 80, dz: 60}
+      - {type: T-55, dx: -80, dz: 60}
+      - {type: Strela-1 9P31, dx: 0, dz: -80}
+  - id: r_79gtd_fwd
+    name: "79th Guards Tank Division forward regiment"
+    formation: r_79gtd
+    sector: hof
+    kind: armor
+    side: red
+    country: USSR
+    latlon: [50.45, 11.70]
+    value: 4
+    threat_range_km: 2.5
+    units:
+      - {type: T-55}
+      - {type: T-55, dx: 40, dz: 30}
+      - {type: T-55, dx: -40, dz: 30}
+      - {type: BMP-1, dx: -60, dz: -40}
+      - {type: BMP-1, dx: 60, dz: -40}
+      - {type: ZSU-23-4 Shilka, dx: 0, dz: -80}
   # ---------------------------------------------------------------- NATO
+  - id: b_pzgr4_fwd
+    name: "Panzergrenadierbrigade 4 battle group"
+    formation: b_pzgrbrig4
+    sector: goettingen
+    kind: armor
+    side: blue
+    country: Germany
+    latlon: [51.50, 10.10]
+    value: 4
+    threat_range_km: 2
+    units:
+      - {type: Leopard1A3}
+      - {type: Leopard1A3, dx: 40, dz: 30}
+      - {type: Leopard1A3, dx: -40, dz: 30}
+      - {type: Marder, dx: 60, dz: -40}
+      - {type: Marder, dx: -60, dz: -40}
+      - {type: Gepard, dx: 0, dz: -80}
+  - id: b_3ad_fwd
+    name: "3rd Armored Division task force"
+    formation: b_3ad
+    sector: rhoen
+    kind: armor
+    side: blue
+    country: USA
+    latlon: [50.40, 10.10]
+    value: 4
+    threat_range_km: 2
+    units:
+      - {type: M-60}
+      - {type: M-60, dx: 40, dz: 30}
+      - {type: M-60, dx: -40, dz: 30}
+      - {type: M-113, dx: 60, dz: -40}
+      - {type: M-113, dx: -60, dz: -40}
+      - {type: Vulcan, dx: 0, dz: -80}
+  - id: b_2acr_fwd
+    name: "2nd ACR troop, Hof"
+    formation: b_2acr
+    sector: hof
+    kind: armor
+    side: blue
+    country: USA
+    latlon: [50.25, 11.75]
+    value: 4
+    threat_range_km: 2
+    units:
+      - {type: M-60}
+      - {type: M-60, dx: 40, dz: 30}
+      - {type: M-113, dx: 60, dz: -40}
+      - {type: M-113, dx: -60, dz: -40}
+      - {type: Vulcan, dx: 0, dz: -80}
   - id: b_hawk_fulda
     name: "I-HAWK battery Fulda"
     kind: sam
@@ -163,6 +280,8 @@ objectives:
       - {type: Hawk ln, dx: 150, dz: -60}
       - {type: Hawk ln, dx: -150, dz: -60}
   - id: b_acr_alpha
+    formation: b_11acr
+    sector: fulda
     name: "11th ACR troop, OP Alpha"
     kind: armor
     side: blue

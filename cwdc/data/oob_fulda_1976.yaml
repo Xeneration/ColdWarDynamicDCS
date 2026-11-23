@@ -66,3 +66,31 @@ squadrons:
     airframes: 18
     pilots: 20
     tail_prefix: "Red 7"
+
+# Ground formations (Phase 2). strength = abstract combat power: a NATO brigade ~100,
+# a Soviet division ~250-300. arrival_turn > 1 = reinforcement (4 turns per day).
+formations:
+  # NATO - V / VII Corps and German I Corps
+  - {id: b_pzgrbrig4, name: "Panzergrenadierbrigade 4", side: blue, country: Germany, sector: goettingen, kind: mech, strength: 110}
+  - {id: b_pzbrig5, name: "Panzerbrigade 5", side: blue, country: Germany, sector: goettingen, kind: armor, strength: 110}
+  - {id: b_11acr, name: "11th Armored Cavalry Regiment", side: blue, country: USA, sector: fulda, kind: cavalry, strength: 90}
+  - {id: b_3ad_1bde, name: "3rd Armored Division, 1st Brigade", side: blue, country: USA, sector: fulda, kind: armor, strength: 110}
+  - {id: b_3ad, name: "3rd Armored Division (-)", side: blue, country: USA, sector: rhoen, kind: armor, strength: 180}
+  - {id: b_2acr, name: "2nd Armored Cavalry Regiment", side: blue, country: USA, sector: hof, kind: cavalry, strength: 90}
+  - {id: b_pzgrbrig35, name: "Panzergrenadierbrigade 35", side: blue, country: Germany, sector: hof, kind: mech, strength: 110}
+  # NATO reinforcements (sector: auto = committed where the front is most threatened)
+  - {id: b_8id, name: "8th Infantry Division (Mech)", side: blue, country: USA, sector: auto, kind: mech, strength: 200, arrival_turn: 7}
+  - {id: b_3id, name: "3rd Infantry Division (Mech)", side: blue, country: USA, sector: auto, kind: mech, strength: 200, arrival_turn: 11}
+  - {id: b_1ad, name: "1st Armored Division", side: blue, country: USA, sector: auto, kind: armor, strength: 220, arrival_turn: 15}
+  - {id: b_reforger_1cd, name: "1st Cavalry Division (REFORGER)", side: blue, country: USA, sector: auto, kind: armor, strength: 200, arrival_turn: 21}
+  - {id: b_reforger_2ad, name: "2nd Armored Division (REFORGER)", side: blue, country: USA, sector: auto, kind: armor, strength: 220, arrival_turn: 29}
+  # Warsaw Pact - 8th Guards Army, 3rd Shock Army, 1st Guards Tank Army
+  - {id: r_47gtd, name: "47th Guards Tank Division", side: red, country: USSR, sector: goettingen, kind: armor, strength: 260}
+  - {id: r_39gmrd, name: "39th Guards Motor Rifle Division", side: red, country: USSR, sector: fulda, kind: mech, strength: 280}
+  - {id: r_57gmrd, name: "57th Guards Motor Rifle Division", side: red, country: USSR, sector: rhoen, kind: mech, strength: 260}
+  - {id: r_79gtd, name: "79th Guards Tank Division", side: red, country: USSR, sector: hof, kind: armor, strength: 240}
+  - {id: r_1gta_9td, name: "9th Tank Division (1st Guards Tank Army)", side: red, country: USSR, sector: fulda, kind: armor, strength: 260, arrival_turn: 9}
+  - {id: r_1gta_11gtd, name: "11th Guards Tank Division (1st Guards Tank Army)", side: red, country: USSR, sector: rhoen, kind: armor, strength: 260, arrival_turn: 13}
+  # second strategic echelon (sector: auto = committed where the attack is going best)
+  - {id: r_20ga_35mrd, name: "35th Motor Rifle Division (20th Guards Army)", side: red, country: USSR, sector: auto, kind: mech, strength: 250, arrival_turn: 17}
+  - {id: r_20ga_6gmrd, name: "6th Guards Motor Rifle Division (20th Guards Army)", side: red, country: USSR, sector: auto, kind: mech, strength: 250, arrival_turn: 25}

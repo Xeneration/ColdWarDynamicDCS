@@ -7,8 +7,8 @@ from datetime import datetime
 
 from cwdc import theater as T
 from cwdc.engine import planner, rng
-from cwdc.model import (Airbase, Airframe, Campaign, ObjUnit, Objective, ObjectiveKind, Pilot,
-                        Pos, Side, Squadron, SupplyLink, SupplyNode, Task)
+from cwdc.model import (Airbase, Airframe, Campaign, Formation, ObjUnit, Objective, ObjectiveKind,
+                        Pilot, Pos, Sector, Side, Squadron, SupplyLink, SupplyNode, Task)
 
 THEATERS = {"fulda_1976": ("theater_fulda_1976.yaml", "oob_fulda_1976.yaml")}
 
@@ -29,6 +29,7 @@ def new_campaign(name: str, seed: int = 1976, theater: str = "fulda_1976",
     c = Campaign(id=slug(name), name=name, seed=seed, theater=theater,
                  time=datetime.fromisoformat(th["start"]), turn_hours=th["turn_hours"])
     c.front_line = [tuple(p) for p in th["front_line"]]
+    c.base_front_line = list(c.front_line)
     c.cap_stations = {Side(s): [T.latlon_to_pos(*ll) for ll in pts]
                       for s, pts in th["cap_stations"].items()}
 
@@ -45,6 +46,8 @@ def new_campaign(name: str, seed: int = 1976, theater: str = "fulda_1976",
                                              pos=T.latlon_to_pos(*n["latlon"]),
                                              stock=n.get("stock", 100), capacity=n.get("capacity", 100))
     c.supply_links = [SupplyLink(**l) for l in th.get("supply_links", [])]
+
+    _add_ground_war(c, th, oob)
 
     used_names: set[str] = set()
     for sq in oob["squadrons"]:
@@ -81,11 +84,32 @@ def new_campaign(name: str, seed: int = 1976, theater: str = "fulda_1976",
 
 
 def _objective(o: dict) -> Objective:
+    pos = T.latlon_to_pos(*o["latlon"])
     return Objective(
         id=o["id"], name=o["name"], kind=ObjectiveKind(o["kind"]), side=Side(o["side"]),
-        country=o["country"], pos=T.latlon_to_pos(*o["latlon"]), value=o.get("value", 1),
+        country=o["country"], pos=pos, value=o.get("value", 1),
         threat_range_m=o.get("threat_range_km", 0) * 1000, supply_node=o.get("supply_node"),
+        formation_id=o.get("formation"), sector_id=o.get("sector"),
+        base_pos=pos if o.get("sector") else None,
         units=[ObjUnit(**u) for u in o["units"]])
+
+
+def _add_ground_war(c: Campaign, th: dict, oob: dict) -> list[str]:
+    """Add sectors and formations that are not in the campaign yet. Returns names added."""
+    added = []
+    for s in th.get("sectors", []):
+        if s["id"] not in c.sectors:
+            c.sectors[s["id"]] = Sector(id=s["id"], name=s["name"], front_points=s["front_points"],
+                                        terrain=s.get("terrain", 1.0))
+            added.append(s["name"])
+    for f in oob.get("formations", []):
+        if f["id"] not in c.formations:
+            c.formations[f["id"]] = Formation(
+                id=f["id"], name=f["name"], side=Side(f["side"]), country=f["country"],
+                sector_id=f["sector"], kind=f.get("kind", "armor"), strength=f["strength"],
+                max_strength=f["strength"], arrival_turn=f.get("arrival_turn", 1))
+            added.append(f["name"])
+    return added
 
 
 def sync_theater(c: Campaign) -> list[str]:
@@ -94,11 +118,20 @@ def sync_theater(c: Campaign) -> list[str]:
     Existing objectives (and their damage) are never touched. Returns names added.
     """
     th = T.load_data(THEATERS[c.theater][0])
+    oob = T.load_data(THEATERS[c.theater][1])
     added = []
+    if not c.base_front_line:
+        c.base_front_line = [tuple(p) for p in th["front_line"]]
+    added += _add_ground_war(c, th, oob)
     for o in th["objectives"]:
         if o["id"] not in c.objectives:
             c.objectives[o["id"]] = _objective(o)
             added.append(o["name"])
+        else:                                   # link older objectives to the ground war
+            obj = c.objectives[o["id"]]
+            if o.get("formation") and not obj.formation_id:
+                obj.formation_id, obj.sector_id = o["formation"], o.get("sector")
+                obj.base_pos = obj.base_pos or obj.pos
     return added
 
 

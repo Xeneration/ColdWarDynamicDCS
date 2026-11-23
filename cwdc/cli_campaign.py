@@ -58,6 +58,21 @@ def cmd_status(args) -> None:
         print(f"  {sq.name:<34} {sq.aircraft_type:<10} @ {c.airbases[sq.base_id].dcs_name:<12} "
               f"ready {afs[AirframeStatus.READY]:>2}  repair {afs[AirframeStatus.DAMAGED]:>2}  "
               f"lost {afs[AirframeStatus.DESTROYED]:>2}  pilots {pilots}")
+    if c.sectors:
+        from cwdc.engine.ground import _fmt, active, power
+        print("\nGround war:")
+        for sec in c.sectors.values():
+            print(f"  {sec.name:<22} {_fmt(sec):<28} red {power(c, sec.id, Side.RED):>4.0f} "
+                  f"vs blue {power(c, sec.id, Side.BLUE):>4.0f}")
+            for f in sorted(c.formations.values(), key=lambda f: f.side.value):
+                if f.sector_id == sec.id and active(c, f) and (args.all or f.side is Side.BLUE):
+                    print(f"      [{f.side.value:4}] {f.name:<50} {f.strength:>4.0f}/{f.max_strength:<4.0f}"
+                          f" {f.posture.value}")
+        coming = sorted((f for f in c.formations.values()
+                         if f.arrival_turn > c.turn and f.side is Side.BLUE), key=lambda f: f.arrival_turn)
+        if coming:
+            print("  Expected NATO reinforcements: " + ", ".join(
+                f"{f.name} (turn {f.arrival_turn})" for f in coming))
     print("\nObjectives:")
     for o in c.objectives.values():
         state = "DESTROYED" if o.destroyed else f"{len(o.alive_units)}/{len(o.units)} units"
@@ -181,8 +196,8 @@ def _tally(c: Campaign) -> dict:
                                       and c.squadrons[a.squadron_id].side is side)
         out[(side, "aircrew")] = sum(1 for p in c.pilots.values() if p.side is side
                                      and p.status in (PilotStatus.KIA, PilotStatus.MIA, PilotStatus.POW))
-        out[(side, "ground")] = sum(1 for o in c.objectives.values() if o.side is side
-                                    for u in o.units if not u.alive)
+        out[(side, "ground")] = sum(f.strength for f in c.formations.values()
+                                    if f.side is side and f.arrival_turn <= c.turn)
     return out
 
 
@@ -195,7 +210,8 @@ def cmd_autorun(args) -> None:
         print(f"(discarding pending mission {c.pending_mission.mission_id})")
     start = _tally(c)
     print(f"Autorun {args.turns} turns from turn {c.turn} ({c.time:%d %b %H:%M})")
-    print("  turn  time           sorties | lost aircraft B/R | aircrew B/R | ground units B/R")
+    secs = "/".join(s.id[:4] for s in c.sectors.values())
+    print(f"  turn  time           sorties | lost aircraft B/R | aircrew B/R | ground power B/R | front km ({secs})")
     for _ in range(args.turns):
         before, t0, n = _tally(c), c.time, len(c.flights)
         lines = turn.end_turn(c)
@@ -205,7 +221,8 @@ def cmd_autorun(args) -> None:
         print(f"  {c.turn - 1:>4}  {t0:%d %b %H:%M}  {n:>7} | "
               f"{d[(Side.BLUE, 'aircraft')]:>8} / {d[(Side.RED, 'aircraft')]:<6} | "
               f"{d[(Side.BLUE, 'aircrew')]:>4} / {d[(Side.RED, 'aircrew')]:<4} | "
-              f"{d[(Side.BLUE, 'ground')]:>7} / {d[(Side.RED, 'ground')]}")
+              f"{now[(Side.BLUE, 'ground')]:>7.0f} / {now[(Side.RED, 'ground')]:<6.0f} | "
+              + "/".join(f"{s.offset_km:.0f}" for s in c.sectors.values()))
         if args.verbose:
             for line in lines[1:]:
                 print("        " + line)
@@ -213,7 +230,7 @@ def cmd_autorun(args) -> None:
     tot = {k: end[k] - start[k] for k in end}
     print(f"Totals: aircraft lost B {tot[(Side.BLUE, 'aircraft')]} / R {tot[(Side.RED, 'aircraft')]}, "
           f"aircrew B {tot[(Side.BLUE, 'aircrew')]} / R {tot[(Side.RED, 'aircrew')]}, "
-          f"ground units B {tot[(Side.BLUE, 'ground')]} / R {tot[(Side.RED, 'ground')]}")
+          f"ground power now B {end[(Side.BLUE, 'ground')]:.0f} / R {end[(Side.RED, 'ground')]:.0f}")
     print(f"Now turn {c.turn}, {c.time:%d %b %Y %H:%M}. `cwdc rollback <turn>` to go back.")
 
 

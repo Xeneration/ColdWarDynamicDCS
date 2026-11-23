@@ -298,6 +298,27 @@ Testing is by `cwdc autorun N` (abstract turns in seconds) plus occasional `cwdc
    - The end state, with a war summary, is shown in `status`.
 9. **Balance pass** using `autorun` statistics: per-sortie loss rates of roughly 1–4%, a front that moves tens of km over the first days rather than collapsing in hours, and air losses that respond to SEAD and escort.
 
+**Progress (2026-11-23): steps 1–3 done** (`engine/ground.py`)
+- **Sectors:** four (Göttingen, Fulda, Rhön/Meiningen, Hof), each owning a stretch of the inner German border.
+  - Each sector's `offset_km` pushes its points along the normal pointing into NATO territory.
+  - The rebuilt polyline drives `side_at`.
+- **Formations:** 18 in total, of which 11 are reinforcements. Their strength is abstract.
+  - The attacker is the side with the better odds: the Warsaw Pact attacks at 0.9× terrain-adjusted odds, NATO counter-attacks at 1.6×.
+  - Attrition is Lanchester-style, and a prepared defence in good terrain takes fewer losses.
+  - Ground gained is 5 km per 1.0 of odds above 0.8, capped at 8 km per turn.
+  - A supply-by-depth stand-in limits deep advances until step 4.
+- **Visible elements:** objectives with `formation_id` move with their sector. Air kills cost the formation `unit_points × 1.5`, and elements rebuild while the formation lives. The "target list runs dry" problem is fixed.
+- **Overruns:** airbases change hands, their squadrons evacuate and lose 25% of their aircraft on the ground, and damaged aircraft are lost. Static sites and supply nodes behind the new front are lost.
+- **Reinforcements:**
+  - Warsaw Pact: 1st Guards Tank Army from turns 9 and 13, and the 20th Guards Army from turns 17 and 25 (committed where the attack is going best).
+  - NATO: 8th ID turn 7, 3rd ID turn 11, 1st AD turn 15, then REFORGER 1st Cav turn 21 and 2nd AD turn 29 (committed to the most threatened sector).
+- **First balance read**, 4 seeds × 10 days with no player:
+  - The Fulda Gap is the main axis: about 5 km by day 2, 25 km by day 4 and 50 km by day 7, stabilising around 55 km.
+  - Rhön sees small NATO counter-attacks; Göttingen and Hof hold.
+  - No airbase falls.
+  - The full balance pass is step 9. Simulated air losses currently favour the Warsaw Pact, roughly 2:1.
+- **Tooling:** `status` shows the ground war, and `autorun` shows ground power and front position per turn. Older campaigns pick up the ground war automatically through `sync_theater`.
+
 What's deliberately left for later phases: the web UI (Phase 3), the crisis phase, the MAGIC controller and kneeboards (Phase 4), and the immersion lockdown (Phase 5).
 
 **Phase 3: Web UI**
