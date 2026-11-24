@@ -28,3 +28,10 @@ syria:
   urfa:
     - {name: "Harran plain at Harran", km: 25}
     - {name: "Sanliurfa ridge", km: 45}
+golan:
+  quneitra:
+    - {name: "Nafah crossroads", km: 8}
+    - {name: "Bnot Ya'akov bridge approaches", km: 18}
+  rafid:
+    - {name: "Gamla rise at El Al", km: 8}
+    - {name: "Arik bridge approaches", km: 18}

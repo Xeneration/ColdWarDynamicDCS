@@ -1,0 +1,566 @@
+# Golan Front: a fictional Cold War war on the south of the DCS Syria map, made for short missions.
+# A NATO expeditionary force (US, with British and French squadrons) based in northern Israel holds
+# the Golan plateau against Syria and a Soviet expeditionary force. No real war is re-enacted.
+# Everything the player's squadron is sent against lies within `player_range_nm` of Ramat David,
+# the home field; deeper targets (the Damascus airfields, Kiswah) are flown by the AI.
+# Only the campaign maker builds wars here: squadrons are generated for the year and the
+# objectives below re-equipped for it (engine.generate.adapt_theatre).
+# Positions are lat/lon; airbase positions come from the DCS terrain (dcs_name must match pydcs).
+
+name: "Golan Front"
+terrain: Syria
+geometry:
+  dcs_terrain: Syria
+  blue_side: west                      # NATO holds the plateau west of the ceasefire line
+  front_shift: sector
+  lands: {blue: Israel, red: Syria}
+  border_note: "Pre-war ceasefire line on the Golan (the Purple Line). Everything west of it was held by NATO's host nation."
+  player_range_nm: 50                  # your squadron and wing only fly missions this close to home
+  advance_scale: 0.6                   # a small front: ground gains per turn at 0.6 x the usual km
+start: "1976-10-05T06:00:00"
+turn_hours: 6
+gci:
+  callsign: MAGIC
+  bullseye: { name: Quneitra, latlon: [33.125, 35.824] }
+crisis:
+  start: "1976-10-02T06:00:00"
+  turns: [8, 16]
+  tension_start: 20
+  headline: "Crisis on the Golan. Syrian armour is moving up from Damascus to the ceasefire line."
+war_news: "Syrian and Soviet forces have crossed the ceasefire line on the Golan. NATO squadrons in northern Israel are committed to holding the plateau."
+
+# The Golan ceasefire line, north (Mount Hermon) -> south (the Yarmouk). West of this line is NATO.
+front_line:
+  - [33.31, 35.78]     # 0  Mount Hermon
+  - [33.26, 35.81]     # 1  Majdal Shams
+  - [33.19, 35.86]     # 2  Mas'ada / Jubata
+  - [33.12, 35.85]     # 3  Quneitra
+  - [33.04, 35.88]     # 4
+  - [32.96, 35.91]     # 5  Rafid
+  - [32.87, 35.90]     # 6
+  - [32.78, 35.87]     # 7  Kudne
+  - [32.70, 35.84]     # 8  the Yarmouk
+
+war_plan:
+  red_main_effort: {quneitra: 0.55, rafid: 0.45}
+  arrival_jitter: {red: [-2, 2], blue: [-2, 4]}
+
+victory:
+  # Syria / USSR: the front reaches the Jordan bridges, a sector breaks through, or NATO air
+  # power is exhausted. NATO: hold the plateau, then a negotiated ceasefire.
+  red_goals:
+    - {name: "the Bnot Ya'akov bridge", latlon: [33.005, 35.628]}
+    - {name: "the Arik bridge", latlon: [32.885, 35.620]}
+  goal_text: "Syrian and Soviet armour has reached {city} on the Jordan. NATO has lost the Golan."
+  border_name: "ceasefire line"
+  breakthrough_km: 22
+  air_exhausted: 0.30
+  nato_hold_days: 7
+  max_days: 21
+
+sectors:
+  - {id: quneitra, name: "Quneitra gap (northern Golan)", front_points: [0, 1, 2, 3, 4], terrain: 1.4,
+     depots: {blue: bn_nafah, red: rn_sasa}}
+  - {id: rafid, name: "Rafid gap (southern Golan)", front_points: [5, 6, 7, 8], terrain: 1.3,
+     depots: {blue: bn_elal, red: rn_nawa}}
+
+cap_stations:
+  blue: [[33.08, 35.68], [32.82, 35.70]]
+  red: [[33.20, 36.08], [32.92, 36.12]]
+
+airbases:
+  - {id: ramat_david, dcs_name: Ramat David, name: Ramat David AB, side: blue}
+  - {id: megiddo, dcs_name: Megiddo, name: Megiddo, side: blue}
+  - {id: khalkhalah, dcs_name: Khalkhalah, name: Khalkhalah, side: red}
+  - {id: marj_ruhayyil, dcs_name: Marj Ruhayyil, name: Marj Ruhayyil, side: red}
+  - {id: damascus, dcs_name: Damascus, name: Damascus, side: red}
+
+objectives:
+  # ---------------------------------------------------------------- NATO
+  - id: b_ewr_hermon
+    name: "Mount Hermon radar station"
+    kind: ewr
+    side: blue
+    country: USA
+    latlon: [33.30, 35.77]
+    value: 2
+    units:
+      - {type: FPS-117 Dome}
+  - id: b_ewr_meron
+    name: "Mount Meron radar station"
+    kind: ewr
+    side: blue
+    country: USA
+    latlon: [32.99, 35.41]
+    value: 2
+    units:
+      - {type: FPS-117 Dome}
+  - id: b_hawk_rosh_pina
+    name: "I-HAWK battery Rosh Pina"
+    kind: sam
+    side: blue
+    country: USA
+    latlon: [32.96, 35.57]
+    value: 3
+    threat_range_km: 35
+    units:
+      - {type: Hawk pcp}
+      - {type: Hawk sr, dx: 100, dz: 50}
+      - {type: Hawk tr, dx: -100, dz: 50}
+      - {type: Hawk ln, dx: 150, dz: -120}
+      - {type: Hawk ln, dx: -150, dz: -120}
+  - id: b_hawk_nafah
+    name: "I-HAWK battery Nafah"
+    kind: sam
+    side: blue
+    country: USA
+    latlon: [33.04, 35.70]
+    value: 3
+    threat_range_km: 35
+    units:
+      - {type: Hawk pcp}
+      - {type: Hawk sr, dx: 100, dz: 50}
+      - {type: Hawk tr, dx: -100, dz: 50}
+      - {type: Hawk ln, dx: 150, dz: -120}
+      - {type: Hawk ln, dx: -150, dz: -120}
+  - id: b_3acr_fwd
+    formation: b_us_3acr
+    sector: quneitra
+    name: "3rd Armored Cavalry Regiment squadron, Quneitra"
+    kind: armor
+    side: blue
+    country: USA
+    latlon: [33.12, 35.80]
+    value: 3
+    threat_range_km: 2.5
+    units:
+      - {type: M-60}
+      - {type: M-60, dx: 40, dz: 30}
+      - {type: M-113, dx: -40, dz: 30}
+      - {type: M-113, dx: 80, dz: 60}
+      - {type: Vulcan, dx: 0, dz: -80}
+  - id: b_24id_fwd
+    formation: b_us_24id
+    sector: quneitra
+    name: "24th Infantry Division (Mech) battalion, Mas'ada"
+    kind: armor
+    side: blue
+    country: USA
+    latlon: [33.21, 35.79]
+    value: 3
+    threat_range_km: 2.5
+    units:
+      - {type: M-60}
+      - {type: M-113, dx: 40, dz: 30}
+      - {type: M-113, dx: -40, dz: 30}
+      - {type: Vulcan, dx: 0, dz: -80}
+  - id: b_1cav_fwd
+    formation: b_us_1cav
+    sector: rafid
+    name: "1st Cavalry Division battalion, Rafid road"
+    kind: armor
+    side: blue
+    country: USA
+    latlon: [32.95, 35.86]
+    value: 3
+    threat_range_km: 2.5
+    units:
+      - {type: M-60}
+      - {type: M-60, dx: 40, dz: 30}
+      - {type: M-60, dx: -40, dz: 30}
+      - {type: M-113, dx: 80, dz: 60}
+      - {type: Vulcan, dx: 0, dz: -80}
+  - id: b_uk7_fwd
+    formation: b_uk_7ab
+    sector: rafid
+    name: "7th Armoured Brigade battle group, El Al"
+    kind: armor
+    side: blue
+    country: UK
+    latlon: [32.80, 35.81]
+    value: 3
+    threat_range_km: 2.5
+    units:
+      - {type: M-60}
+      - {type: M-113, dx: 40, dz: 30}
+      - {type: M-113, dx: -40, dz: 30}
+      - {type: Vulcan, dx: 0, dz: -80}
+  - id: b_yard_haifa
+    name: "Haifa port and rail yard"
+    kind: rail
+    side: blue
+    country: USA
+    latlon: [32.82, 35.01]
+    value: 3
+    threat_range_km: 2.5
+    supply_link: l_hai_rp
+    units:
+      - {type: Railway station}
+      - {type: Warehouse, dx: 80, dz: 40}
+      - {type: Warehouse, dx: 80, dz: -40}
+      - {type: Fuel tank, dx: -80, dz: 60}
+      - {type: Vulcan, dx: 150, dz: 0}
+  - id: b_depot_rosh_pina
+    name: "Rosh Pina supply depot"
+    kind: depot
+    side: blue
+    country: USA
+    latlon: [32.98, 35.56]
+    value: 2
+    threat_range_km: 2.5
+    supply_node: bn_rosh_pina
+    units:
+      - {type: M 818}
+      - {type: M 818, dx: 25}
+      - {type: M 818, dx: 50}
+      - {type: Vulcan, dx: 40, dz: 60}
+  - id: b_depot_nafah
+    name: "Nafah supply point"
+    kind: depot
+    side: blue
+    country: USA
+    latlon: [33.06, 35.74]
+    value: 2
+    threat_range_km: 2.5
+    supply_node: bn_nafah
+    units:
+      - {type: M 818}
+      - {type: M 818, dx: 25}
+      - {type: M 818, dx: 50}
+      - {type: Vulcan, dx: 40, dz: 60}
+  - id: b_column_nafah
+    name: "Supply column on the Rosh Pina-Nafah road"
+    kind: convoy
+    side: blue
+    country: USA
+    latlon: [33.02, 35.65]
+    value: 2
+    threat_range_km: 2
+    supply_link: l_rp_naf
+    units:
+      - {type: M 818}
+      - {type: M 818, dx: 30}
+      - {type: M 818, dx: 60}
+      - {type: Vulcan, dx: 30, dz: 40}
+  - id: b_column_elal
+    name: "Supply column on the Tiberias-El Al road"
+    kind: convoy
+    side: blue
+    country: USA
+    latlon: [32.80, 35.66]
+    value: 2
+    threat_range_km: 2
+    supply_link: l_tib_elal
+    units:
+      - {type: M 818}
+      - {type: M 818, dx: 30}
+      - {type: M 818, dx: 60}
+      - {type: Vulcan, dx: 30, dz: 40}
+  # ---------------------------------------------------------------- Syria / USSR
+  - id: r_ewr_tel_hara
+    name: "Tel al-Hara radar station"
+    kind: ewr
+    side: red
+    country: Syria
+    latlon: [33.06, 36.00]
+    value: 2
+    units:
+      - {type: 55G6 EWR}
+  - id: r_sa6_khan_arnabah
+    name: "SA-6 battery Khan Arnabah"
+    kind: sam
+    side: red
+    country: Syria
+    latlon: [33.17, 35.93]
+    value: 3
+    threat_range_km: 20
+    units:
+      - {type: Kub 1S91 str}
+      - {type: Kub 2P25 ln, dx: 120, dz: 60}
+      - {type: Kub 2P25 ln, dx: -120, dz: 60}
+  - id: r_sa6_nawa
+    name: "SA-6 battery Nawa"
+    kind: sam
+    side: red
+    country: Syria
+    latlon: [32.90, 36.02]
+    value: 3
+    threat_range_km: 20
+    units:
+      - {type: Kub 1S91 str}
+      - {type: Kub 2P25 ln, dx: 120, dz: 60}
+      - {type: Kub 2P25 ln, dx: -120, dz: 60}
+  - id: r_sa3_sasa
+    name: "SA-3 site Sa'sa'"
+    kind: sam
+    side: red
+    country: Syria
+    latlon: [33.28, 36.03]
+    value: 3
+    threat_range_km: 20
+    units:
+      - {type: snr s-125 tr}
+      - {type: p-19 s-125 sr, dx: -100, dz: 60}
+      - {type: 5p73 s-125 ln, dx: 120}
+      - {type: 5p73 s-125 ln, dx: -120}
+  - id: r_sa2_kiswah
+    name: "SA-2 site Kiswah"
+    kind: sam
+    side: red
+    country: Syria
+    latlon: [33.36, 36.21]
+    value: 3
+    threat_range_km: 40
+    units:
+      - {type: SNR_75V}
+      - {type: p-19 s-125 sr, dx: -120, dz: 80}
+      - {type: S_75M_Volhov, dx: 150}
+      - {type: S_75M_Volhov, dx: -150}
+      - {type: S_75M_Volhov, dz: 150}
+      - {type: S_75M_Volhov, dz: -150}
+  - id: r_7id_fwd
+    formation: r_sy_7id
+    sector: quneitra
+    name: "7th Infantry Division tank battalion, Khan Arnabah"
+    kind: armor
+    side: red
+    country: Syria
+    latlon: [33.16, 35.88]
+    value: 4
+    threat_range_km: 2.5
+    units:
+      - {type: T-55}
+      - {type: T-55, dx: 40, dz: 30}
+      - {type: T-55, dx: -40, dz: 30}
+      - {type: BMP-1, dx: -60, dz: -40}
+      - {type: BMP-1, dx: 60, dz: -40}
+      - {type: ZSU-23-4 Shilka, dz: -80}
+  - id: r_1ad_fwd
+    formation: r_sy_1ad
+    sector: quneitra
+    name: "1st Armored Division forward regiment, Jubata"
+    kind: armor
+    side: red
+    country: Syria
+    latlon: [33.22, 35.90]
+    value: 4
+    threat_range_km: 2.5
+    units:
+      - {type: T-55}
+      - {type: T-55, dx: 40, dz: 30}
+      - {type: T-55, dx: -40, dz: 30}
+      - {type: BMP-1, dx: 60, dz: -40}
+      - {type: ZSU-23-4 Shilka, dz: -80}
+  - id: r_9id_fwd
+    formation: r_sy_9id
+    sector: rafid
+    name: "9th Infantry Division tank battalion, Rafid"
+    kind: armor
+    side: red
+    country: Syria
+    latlon: [32.97, 35.94]
+    value: 4
+    threat_range_km: 2.5
+    units:
+      - {type: T-55}
+      - {type: T-55, dx: 40, dz: 30}
+      - {type: T-55, dx: -40, dz: 30}
+      - {type: BMP-1, dx: -60, dz: -40}
+      - {type: ZSU-23-4 Shilka, dz: -80}
+  - id: r_5id_fwd
+    formation: r_sy_5id
+    sector: rafid
+    name: "5th Infantry Division battalion, Tel Kudne"
+    kind: armor
+    side: red
+    country: Syria
+    latlon: [32.81, 35.91]
+    value: 4
+    threat_range_km: 2.5
+    units:
+      - {type: T-55}
+      - {type: T-55, dx: 40, dz: 30}
+      - {type: BMP-1, dx: -60, dz: -40}
+      - {type: BMP-1, dx: 60, dz: -40}
+      - {type: ZSU-23-4 Shilka, dz: -80}
+  - id: r_arty_khan
+    formation: r_sy_7id
+    sector: quneitra
+    name: "Artillery battalion east of Quneitra"
+    kind: artillery
+    side: red
+    country: Syria
+    latlon: [33.11, 35.94]
+    value: 3
+    threat_range_km: 2.5
+    units:
+      - {type: SAU Gvozdika}
+      - {type: SAU Gvozdika, dx: 60}
+      - {type: SAU Gvozdika, dx: 120}
+      - {type: Ural-375, dx: 60, dz: -80}
+      - {type: Strela-1 9P31, dz: 90}
+  - id: r_arty_rafid
+    formation: r_sy_9id
+    sector: rafid
+    name: "Artillery battalion east of Rafid"
+    kind: artillery
+    side: red
+    country: Syria
+    latlon: [32.92, 35.98]
+    value: 3
+    threat_range_km: 2.5
+    units:
+      - {type: SAU Gvozdika}
+      - {type: SAU Gvozdika, dx: 60}
+      - {type: SAU Gvozdika, dx: 120}
+      - {type: Ural-375, dx: 60, dz: -80}
+      - {type: Strela-1 9P31, dz: 90}
+  - id: r_cmd_miskin
+    name: "Golan Front headquarters, Sheikh Miskin"
+    kind: command
+    side: red
+    country: Syria
+    latlon: [32.85, 36.12]
+    value: 4
+    threat_range_km: 2.5
+    units:
+      - {type: Ural-375 PBU}
+      - {type: ZIL-131 KUNG, dx: 40, dz: 20}
+      - {type: ZIL-131 KUNG, dx: -40, dz: 20}
+      - {type: ZSU-23-4 Shilka, dz: -90}
+  - id: r_yard_kiswah
+    name: "Kiswah rail yard"
+    kind: rail
+    side: red
+    country: Syria
+    latlon: [33.36, 36.23]
+    value: 3
+    threat_range_km: 2.5
+    supply_link: l_dam_kis
+    units:
+      - {type: Railway station}
+      - {type: Warehouse, dx: 80, dz: 40}
+      - {type: Warehouse, dx: 80, dz: -40}
+      - {type: Fuel tank, dx: -80, dz: 60}
+      - {type: ZSU-23-4 Shilka, dx: 150}
+  - id: r_depot_nawa
+    name: "Nawa depot"
+    kind: depot
+    side: red
+    country: Syria
+    latlon: [32.89, 36.04]
+    value: 2
+    threat_range_km: 2.5
+    supply_node: rn_nawa
+    units:
+      - {type: Ural-375}
+      - {type: Ural-375, dx: 25}
+      - {type: Ural-375, dx: 50}
+      - {type: ZSU-23-4 Shilka, dx: 40, dz: 60}
+  - id: r_depot_sasa
+    name: "Sa'sa' depot"
+    kind: depot
+    side: red
+    country: Syria
+    latlon: [33.30, 36.03]
+    value: 2
+    threat_range_km: 2.5
+    supply_node: rn_sasa
+    units:
+      - {type: Ural-375}
+      - {type: Ural-375, dx: 25}
+      - {type: Ural-375, dx: 50}
+      - {type: ZSU-23-4 Shilka, dx: 40, dz: 60}
+  - id: r_column_quneitra
+    name: "Supply column on the Damascus-Quneitra road"
+    kind: convoy
+    side: red
+    country: Syria
+    latlon: [33.19, 35.94]
+    value: 2
+    threat_range_km: 2
+    supply_link: l_kis_sas
+    units:
+      - {type: Ural-375}
+      - {type: Ural-375, dx: 30}
+      - {type: Ural-375, dx: 60}
+      - {type: Ural-375, dx: 90}
+      - {type: Ural-375 ZU-23, dx: 45, dz: 40}
+  - id: r_column_nawa
+    name: "Supply column on the Sheikh Miskin-Nawa road"
+    kind: convoy
+    side: red
+    country: Syria
+    latlon: [32.87, 36.08]
+    value: 2
+    threat_range_km: 2
+    supply_link: l_kis_naw
+    units:
+      - {type: Ural-375}
+      - {type: Ural-375, dx: 30}
+      - {type: Ural-375, dx: 60}
+      - {type: Ural-375, dx: 90}
+      - {type: Ural-375 ZU-23, dx: 45, dz: 40}
+
+supply_nodes:
+  # NATO
+  - {id: bn_haifa, name: "Haifa port", side: blue, latlon: [32.82, 35.01], stock: 400, capacity: 1000, production: 230}
+  - {id: bn_rosh_pina, name: "Rosh Pina depot", side: blue, latlon: [32.98, 35.56], stock: 200, capacity: 400}
+  - {id: bn_tiberias, name: "Tiberias depot", side: blue, latlon: [32.79, 35.53], stock: 200, capacity: 400}
+  - {id: bn_nafah, name: "Nafah supply point", side: blue, latlon: [33.06, 35.74], stock: 150, capacity: 300}
+  - {id: bn_elal, name: "El Al supply point", side: blue, latlon: [32.80, 35.73], stock: 150, capacity: 300}
+  # Syria / USSR
+  - {id: rn_damascus, name: "Damascus rail head", side: red, latlon: [33.51, 36.29], stock: 500, capacity: 1200, production: 330}
+  - {id: rn_kiswah, name: "Kiswah depot", side: red, latlon: [33.36, 36.23], stock: 300, capacity: 600}
+  - {id: rn_sasa, name: "Sa'sa' depot", side: red, latlon: [33.30, 36.03], stock: 150, capacity: 300}
+  - {id: rn_nawa, name: "Nawa depot", side: red, latlon: [32.89, 36.04], stock: 150, capacity: 300}
+supply_links:
+  - {id: l_hai_rp, a: bn_haifa, b: bn_rosh_pina, mode: road, capacity: 70}
+  - {id: l_hai_tib, a: bn_haifa, b: bn_tiberias, mode: road, capacity: 70}
+  - {id: l_rp_naf, a: bn_rosh_pina, b: bn_nafah, mode: road, capacity: 60}
+  - {id: l_tib_elal, a: bn_tiberias, b: bn_elal, mode: road, capacity: 55}
+  - {id: l_dam_kis, a: rn_damascus, b: rn_kiswah, mode: rail, capacity: 250}
+  - {id: l_kis_sas, a: rn_kiswah, b: rn_sasa, mode: road, capacity: 90}
+  - {id: l_kis_naw, a: rn_kiswah, b: rn_nawa, mode: road, capacity: 80}
+
+map_labels:
+  countries:
+    - {name: "ISRAEL", note: "NATO host nation", latlon: [32.70, 35.30]}
+    - {name: "SYRIA", note: "Soviet ally", latlon: [33.15, 36.35]}
+    - {name: "LEBANON", note: "neutral", latlon: [33.55, 35.55]}
+    - {name: "JORDAN", note: "neutral", latlon: [32.45, 36.10]}
+  places:
+    - {name: Haifa, latlon: [32.82, 35.00], rank: 1}
+    - {name: Tiberias, latlon: [32.79, 35.53], rank: 2}
+    - {name: Rosh Pina, latlon: [32.97, 35.57], rank: 2}
+    - {name: Kiryat Shmona, latlon: [33.21, 35.57], rank: 2}
+    - {name: Quneitra, latlon: [33.125, 35.824], rank: 1}
+    - {name: Nafah, latlon: [33.06, 35.74], rank: 2}
+    - {name: Sa'sa', latlon: [33.30, 36.03], rank: 2}
+    - {name: Nawa, latlon: [32.89, 36.04], rank: 2}
+    - {name: Kiswah, latlon: [33.36, 36.23], rank: 2}
+    - {name: Damascus, latlon: [33.51, 36.29], rank: 1}
+
+# Campaign maker (era generator): airfields by nation and squadrons per side.
+generator:
+  theatre: golan
+  title: "Golan Front"
+  lead: {west: USA, east: Syria}
+  weights: {USA: 5, UK: 1.5, France: 1, Syria: 5, USSR: 2}   # who flies most squadrons
+  squadrons:
+    west: {fighter: 2, strike: 2}
+    east: {fighter: 3, strike: 2}
+  bases:
+    west:                              # the first that fits is the player's home field
+      - {id: ramat_david, dcs_name: Ramat David, name: Ramat David AB, nations: [USA, UK, France]}
+      - {id: megiddo, dcs_name: Megiddo, name: Megiddo, nations: [USA, UK, France]}
+      - {id: haifa, dcs_name: Haifa, name: Haifa, nations: [UK, France, USA]}
+      - {id: eyn_shemer, dcs_name: Eyn Shemer, name: Eyn Shemer, nations: [USA, France]}
+    east:
+      - {id: khalkhalah, dcs_name: Khalkhalah, name: Khalkhalah, nations: [Syria, USSR]}
+      - {id: marj_ruhayyil, dcs_name: Marj Ruhayyil, name: Marj Ruhayyil, nations: [Syria]}
+      - {id: damascus, dcs_name: Damascus, name: Damascus, nations: [Syria, USSR]}
+      - {id: mezzeh, dcs_name: Mezzeh, name: Mezzeh, nations: [Syria]}
+      - {id: al_dumayr, dcs_name: Al-Dumayr, name: Al-Dumayr, nations: [Syria, USSR]}
+      - {id: sayqal, dcs_name: Sayqal, name: Sayqal, nations: [USSR, Syria]}
+      - {id: thalah, dcs_name: "Tha'lah", name: "Tha'lah", nations: [Syria]}

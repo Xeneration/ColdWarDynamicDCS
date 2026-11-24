@@ -5,10 +5,10 @@ import { symbolSVG } from "./symbols.js";
 
 const KEY = "cwdc.guide.v1";
 
-const pages = (who, when, aircraft, wing) => [
+const pages = (who, when, aircraft, wing, setting) => [
   {
     title: "Welcome to the Cold War",
-    body: `<p>It is ${when}. Warsaw Pact forces are massing on the inner German border. You fly the
+    body: `<p>It is ${when}. ${setting} You fly the
       ${aircraft} in the <b>${who}</b>.${wing ? ` Your wing also flies the ${wing} - their sorties are yours to fly too.` : ""}</p>
       <p>The campaign opens in a <b>crisis</b>: you fly QRA and border patrols, weapons tight, while
       tension rises - firing first has consequences. Within a few days the Warsaw Pact attacks, and the
@@ -55,7 +55,8 @@ export function showGuide(force = false, overview = null) {
   const when = overview ? new Date(overview.time).toLocaleString("en-GB", { month: "long", year: "numeric", timeZone: "UTC" })
     : "August 1976";
   const PAGES = pages(p0 ? esc(`${p0.squadron} at ${p0.base}`) : "your squadron", esc(when),
-    esc((p0 && p0.aircraft) || "F-4E Phantom II"), p0 && p0.wing && p0.wing.length ? esc(p0.wing.join(" and ")) : "");
+    esc((p0 && p0.aircraft) || "F-4E Phantom II"), p0 && p0.wing && p0.wing.length ? esc(p0.wing.join(" and ")) : "",
+    esc((overview && overview.setting) || "Warsaw Pact forces are massing on the inner German border."));
   const render = () => {
     const p = PAGES[i];
     dlg.querySelector(".guide-body").innerHTML = `<h2>${p.title}</h2>${p.body}`;

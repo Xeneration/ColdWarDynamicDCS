@@ -11,7 +11,8 @@ from cwdc.model import (Airbase, Airframe, Campaign, Formation, ObjUnit, Objecti
                         Pilot, Pos, Sector, Side, Squadron, SupplyLink, SupplyNode, Task)
 
 THEATERS = {"fulda_1976": ("theater_fulda_1976.yaml", "oob_fulda_1976.yaml"),   # campaign.theater ->
-            "syria": ("theater_syria.yaml", "oob_syria.yaml")}                 # (theatre, OOB) files
+            "syria": ("theater_syria.yaml", "oob_syria.yaml"),
+            "golan": ("theater_golan.yaml", "oob_golan.yaml")}                 # (theatre, OOB) files
 
 
 def slug(name: str) -> str:

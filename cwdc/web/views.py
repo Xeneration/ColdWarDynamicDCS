@@ -26,6 +26,12 @@ def _person(c: Campaign, pid: str) -> dict:
             "air_kills": p.air_kills, "ground_kills": p.ground_kills, "is_player": p.is_player}
 
 
+def _setting() -> str:
+    """The theatre's opening line for the first-run guide (its crisis headline)."""
+    th = T.load_data(T.THEATRE_FILES[T.active()])
+    return (th.get("crisis") or {}).get("headline", "Warsaw Pact forces are massing on the inner German border.")
+
+
 def overview(c: Campaign) -> dict:
     from cwdc.actions import result_status
     from cwdc.engine import airbases, ground, logistics, outcome
@@ -63,6 +69,7 @@ def overview(c: Campaign) -> dict:
                     key=lambda f: f.arrival_turn)
     return {
         "version": version(c), "id": c.id, "name": c.name, "turn": c.turn, "time": c.time.isoformat(),
+        "setting": _setting(),
         "period": period(c), "war_day": outcome.war_day(c),
         "phase": c.phase, "tension": round(c.tension), "roe": "weapons free" if c.at_war else "weapons tight",
         "weather": {"kind": c.weather.kind, "text": _weather_text(c)},

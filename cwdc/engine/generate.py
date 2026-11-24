@@ -22,8 +22,9 @@ from cwdc import era
 from cwdc import theater as T
 from cwdc.engine import rng
 
-THEATRE_FILES = {"germany": "theater_fulda_1976.yaml", "syria": "theater_syria.yaml"}
-CAMPAIGN_THEATER = {"germany": "fulda_1976", "syria": "syria"}      # Setup.theatre -> Campaign.theater
+THEATRE_FILES = {"germany": "theater_fulda_1976.yaml", "syria": "theater_syria.yaml",
+                 "golan": "theater_golan.yaml"}
+CAMPAIGN_THEATER = {"germany": "fulda_1976", "syria": "syria", "golan": "golan"}      # Setup.theatre -> Campaign.theater
 NATION_WEIGHT = {"USA": 4, "USSR": 5, "West Germany": 2, "UK": 2, "GDR": 2, "France": 1.5}
 FIGHTER_ROLES = ("fighter", "interceptor", "multirole")
 STRIKE_ROLES = ("attack", "bomber", "multirole")

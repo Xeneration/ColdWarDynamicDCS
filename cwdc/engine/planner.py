@@ -98,6 +98,18 @@ def _flyable(sq: Squadron) -> bool:
     return bool(T.airframe_catalogue().get(sq.aircraft_type, {}).get("flyable"))
 
 
+NM = 1852.0
+
+
+def player_in_range(c: Campaign, sq: Squadron, at: Pos | None) -> bool:
+    """Is `at` within the theatre's player range (`geometry.player_range_nm`) of the squadron's
+    base? Only the player's squadron and wing are limited; no limit in most theatres."""
+    limit = T.geometry().get("player_range_nm")
+    if not limit or at is None or not (sq.player_squadron or sq.player_wing):
+        return True
+    return c.airbases[sq.base_id].pos.dist(at) <= limit * NM
+
+
 def player_can_fly(c: Campaign, sq: Squadron) -> bool:
     """Flights of the player's home squadron and of the rest of the wing are offered to the player,
     when the type is flyable (and, in a campaign-maker war, a module the player owns)."""
@@ -214,6 +226,8 @@ class _Pool:
             if n <= 0 or sq_id in exclude:
                 continue
             sq = self.c.squadrons[sq_id]
+            if not player_in_range(self.c, sq, near):            # the AI flies the deep ones
+                continue
             # role discipline: only a need's first two acceptable tasks (no strike squadron on CAS)
             options = [t for t in tasks[:2] if t in sq.tasks]
             if not options:
@@ -615,7 +629,8 @@ def _flight(c: Campaign, pool: _Pool, sq: Squadron, task: Task, pkg: Package,
                pilot_ids=[p.id for p in pls], wso_ids=[p.id for p in wsos], target_id=target.id if target else None, area=area,
                loadout=loadouts.get(task.value) or loadouts.get(
                    "CAP" if task in (Task.ESCORT, Task.QRA, Task.RECON) else ""),
-               player_eligible=player_can_fly(c, sq), supports=supports)
+               player_eligible=player_can_fly(c, sq)
+               and player_in_range(c, sq, target.pos if target else area), supports=supports)
     c.flights[fid] = f
     pkg.flight_ids.append(fid)
     return f

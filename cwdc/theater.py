@@ -18,7 +18,8 @@ def load_data(name: str) -> dict:
 
 # campaign.theater -> theatre data file. The engine works on one theatre at a time: `use(c)` (or
 # `activate`) switches the map, the coordinate conversions and which side of the front is whose.
-THEATRE_FILES = {"fulda_1976": "theater_fulda_1976.yaml", "syria": "theater_syria.yaml"}
+THEATRE_FILES = {"fulda_1976": "theater_fulda_1976.yaml", "syria": "theater_syria.yaml",
+                 "golan": "theater_golan.yaml"}
 _active = threading.local()          # per thread: the web UI serves several campaigns at once
 
 
@@ -52,7 +53,9 @@ def _geometry(theater: str) -> dict:
             "border_note": g.get("border_note", "Pre-war inner German border (1976). Everything west of "
                                                 "it was West Germany (NATO)."),
             "blue_zones": [[tuple(p) for p in z] for z in g.get("blue_zones", [])],
-            "front_shift": g.get("front_shift", "point")}
+            "front_shift": g.get("front_shift", "point"),
+            "player_range_nm": g.get("player_range_nm"),      # None = no limit
+            "advance_scale": g.get("advance_scale", 1.0)}     # ground gains per turn x this
 
 
 @lru_cache(maxsize=None)

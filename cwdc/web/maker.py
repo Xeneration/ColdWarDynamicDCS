@@ -17,6 +17,8 @@ THEATRES = [
      "blurb": "The Fulda Gap: NATO against the Warsaw Pact across the inner German border."},
     {"id": "syria", "name": "Southern Flank", "map": "Syria", "terrain": "Syria", "enemy": "Syria and USSR",
      "blurb": "Turkey, the USAF at Incirlik and the RAF on Cyprus against Syria and a Soviet expeditionary force."},
+    {"id": "golan", "name": "Golan Front", "map": "Syria", "terrain": "Syria", "enemy": "Syria and USSR",
+     "blurb": "Quick missions: a NATO force in northern Israel holds the Golan. Your targets are all within 50 nm of home."},
 ]
 ROLE_PLAIN = {"tank": "tanks", "ifv": "infantry fighting vehicles", "apc": "personnel carriers",
               "recon": "recon vehicles", "artillery": "artillery", "mlrs": "rocket launchers", "truck": "trucks"}

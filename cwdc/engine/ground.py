@@ -129,6 +129,7 @@ def resolve_ground(c: Campaign) -> list[str]:
         gain = min(MAX_ADVANCE_KM, ADVANCE_PER_RATIO_KM * (odds - GRIND_ODDS)) if odds > GRIND_ODDS else 0.0
         if D <= 0:
             gain = MAX_ADVANCE_KM
+        gain *= T.geometry().get("advance_scale", 1.0)      # a small theatre fights at a smaller scale
         sec.offset_km += gain if attacker is Side.RED else -gain
         sec.offset_km = max(MIN_OFFSET_KM, sec.offset_km)
         for f in att:

@@ -389,3 +389,25 @@ Treat **every DCS module as available**: the user owns many more than are instal
   - Not a matter of air power: smaller AI air forces gave more stalemates (1976: 9 of 10), so that change was reverted.
   - It is the known ground-war stalemate issue, for the ground-war pass.
 - **Soak runner:** `cwdc soak --eras germany:1962,syria:1985` gives each DCS instance its own campaign-maker war (cycled; `fulda` = the preset). Simulated wars in the parent cycle through the same eras, and the report shows the eras and outcomes per era.
+
+### The Golan Front: a short-range theatre (2026-11-24)
+
+- **Why:** a campaign for quick missions. On the Central Front and the Southern Flank most sorties are long transits.
+- **Theatre** (`data/theater_golan.yaml`, `oob_golan.yaml`): the south of the Syria map.
+  - A fictional NATO expeditionary force (US, with British and French squadrons) holds the Golan from bases in northern Israel: Ramat David (the home field), Megiddo, Haifa and Eyn Shemer.
+  - Syria and the USSR fly from the Damascus airfields.
+  - Two sectors, Quneitra and Rafid. Syria's goals are the Jordan bridges (Bnot Ya'akov, Arik).
+  - SAM belt: SA-6 at Khan Arnabah and Nawa, SA-3 at Sa'sa', SA-2 at Kiswah (re-equipped by year as elsewhere).
+- **`geometry.player_range_nm: 50`:** the planner never gives the player's squadron or wing a target or patrol area beyond 50 nm of its base (`planner.player_in_range`, used in `_Pool.pick` and on `player_eligible`). The AI flies the deep ones: the Damascus airfields, Kiswah, and the OCA and runway specials.
+- **`geometry.advance_scale: 0.6`:** ground gains per turn are scaled down for a front this small. The Jordan is 20-25 km behind the line.
+- **Balance** (8 seeds x 21 days):
+
+  | Year | NATO loss / sortie | East loss / sortie | Outcomes |
+  |---|---|---|---|
+  | 1966 | 4.2% | 4.2% | stalemate 5, East victory 2, NATO holds 1 |
+  | 1976 | 2.7% | 5.1% | stalemate 5, East victory 3 |
+  | 1985 | 2.8% | 3.7% | stalemate 8 |
+
+  - Player sorties are 16-49 nm from Ramat David.
+- **The first-run guide** now opens with the theatre's crisis headline, not "the inner German border".
+- **Guard:** `tests/test_golan.py`.
