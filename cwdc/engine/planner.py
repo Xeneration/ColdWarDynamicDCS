@@ -226,8 +226,8 @@ def plan_turn(c: Campaign) -> None:
                 pkg = _package(c, side, Task.CAP, f"Barrier CAP, station {STATION_NAMES[idx % 4]}", area=st)
                 pkg.reason = "keeps enemy aircraft away from our side of the front"
                 _flight(c, pool, sq, Task.CAP, pkg, area=st)
-        if night:
-            continue                                  # the F-4E/MiGs of 1976 do little at night
+        if night or not c.at_war:
+            continue      # the F-4E/MiGs of 1976 do little at night; no strikes before the war
 
         # 2. needs, in priority order, each with its escort and SEAD
         taken: set[str] = set()

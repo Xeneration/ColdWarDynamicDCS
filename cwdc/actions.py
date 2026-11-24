@@ -65,13 +65,15 @@ def current_id() -> str | None:
     return marker.read_text(encoding="utf-8").strip() if marker.is_file() else None
 
 
-def create(name: str, seed: int = 1976, pilot: str = "Player", force: bool = False) -> Campaign:
+def create(name: str, seed: int = 1976, pilot: str = "Player", force: bool = False,
+           crisis: bool = True) -> Campaign:
+    """crisis=True (players): the campaign opens with the pre-war crisis."""
     from cwdc.engine.factory import new_campaign, slug
     if not name.strip():
         raise ActionError("the campaign needs a name")
     if (store.campaign_dir(slug(name)) / "campaign.json").exists() and not force:
         raise ActionError(f"campaign '{slug(name)}' exists - choose overwrite to replace it")
-    c = new_campaign(name, seed=seed, player_name=pilot or "Player")
+    c = new_campaign(name, seed=seed, player_name=pilot or "Player", crisis=crisis)
     old = store.campaign_dir(c.id)
     if old.exists():                           # overwrite: drop the old campaign's snapshots too
         shutil.rmtree(old)

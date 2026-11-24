@@ -6,7 +6,7 @@ import secrets
 from datetime import datetime
 
 from cwdc import theater as T
-from cwdc.engine import airbases, crews, planner, rng
+from cwdc.engine import airbases, crews, crisis as crisis_mod, planner, rng
 from cwdc.model import (Airbase, Airframe, Campaign, Formation, ObjUnit, Objective, ObjectiveKind,
                         Pilot, Pos, Sector, Side, Squadron, SupplyLink, SupplyNode, Task)
 
@@ -18,7 +18,9 @@ def slug(name: str) -> str:
 
 
 def new_campaign(name: str, seed: int = 1976, theater: str = "fulda_1976",
-                 player_name: str = "Player") -> Campaign:
+                 player_name: str = "Player", crisis: bool = False) -> Campaign:
+    """crisis=True opens with the pre-war crisis (engine.crisis); False starts on day 1 of the war
+    (tests, balance runs)."""
     th_file, oob_file = THEATERS[theater]
     th = T.load_data(th_file)
     oob = T.load_data(oob_file)
@@ -75,8 +77,11 @@ def new_campaign(name: str, seed: int = 1976, theater: str = "fulda_1976",
     c.player_name = player_name
     c.instance = secrets.token_hex(2)
     add_player_pilot(c, player_name)
-    c.add_news(f"{c.time:%d %b %Y}: Warsaw Pact forces have crossed the inner German border. "
-               "USAFE squadrons are committed to the defence of the Fulda Gap.")
+    if crisis and crisis_mod.crisis_rules(c):
+        crisis_mod.begin(c)
+    else:
+        c.add_news(f"{c.time:%d %b %Y}: Warsaw Pact forces have crossed the inner German border. "
+                   "USAFE squadrons are committed to the defence of the Fulda Gap.")
     planner.plan_turn(c)
     return c
 

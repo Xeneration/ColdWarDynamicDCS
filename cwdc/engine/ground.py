@@ -82,7 +82,7 @@ def resolve_ground(c: Campaign) -> list[str]:
     r = rng(c.seed, c.turn, "ground")
     lines = []
     for f in c.formations.values():
-        if f.arrival_turn == c.turn and c.turn > 1:
+        if f.arrival_turn == c.turn and c.turn > c.war_start_turn:
             if f.sector_id == "auto":
                 f.sector_id = _commit_sector(c, f.side)
             c.add_news(f"{f.name} has arrived at the front ({c.sectors[f.sector_id].name}).")

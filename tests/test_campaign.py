@@ -1,4 +1,4 @@
-import json
+﻿import json
 import time
 
 import dcs
@@ -172,7 +172,7 @@ def test_cli_end_to_end(tmp_path, monkeypatch, capsys):
     from cwdc import dcs_paths
     monkeypatch.setenv("CWDC_CAMPAIGNS_DIR", str(tmp_path / "campaigns"))
     monkeypatch.setenv("CWDC_DCS_WRITEDIR", str(tmp_path / "dcs"))
-    main(["new", "--name", "E2E", "--seed", "3", "--pilot", "Capt Test"])
+    main(["new", "--name", "E2E", "--seed", "3", "--pilot", "Capt Test", "--no-crisis"])
     main(["ato"])
     c = store.load()
     f = _flight(c, Task.STRIKE)
@@ -299,7 +299,7 @@ def test_cli_autorun(tmp_path, monkeypatch, capsys):
     from cwdc.cli import main
     monkeypatch.setenv("CWDC_CAMPAIGNS_DIR", str(tmp_path / "campaigns"))
     monkeypatch.setenv("CWDC_DCS_WRITEDIR", str(tmp_path / "dcs"))
-    main(["new", "--name", "Auto", "--seed", "5"])
+    main(["new", "--name", "Auto", "--seed", "5", "--no-crisis"])
     main(["autorun", "4"])
     out = capsys.readouterr().out
     assert "Totals:" in out and store.load().turn == 5

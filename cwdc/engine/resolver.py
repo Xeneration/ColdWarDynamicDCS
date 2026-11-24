@@ -197,5 +197,6 @@ class _Sim:
 
 def resolve(c: Campaign, flights: list[Flight]) -> list[SortieResult]:
     sim = _Sim(c, flights, rng(c.seed, c.turn, "resolve"))
-    sim.run()
+    if c.at_war:                     # before the war nobody shoots (crisis incidents: engine.crisis)
+        sim.run()
     return sim.results()

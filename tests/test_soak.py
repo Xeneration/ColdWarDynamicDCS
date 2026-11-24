@@ -118,7 +118,7 @@ def test_worker_flies_records_and_ingests(soak_env):
     inst, fakes = _instance(soak_env)
     run_dir = soak_env / "run"
     runner.run_worker(1, run_dir, until=time.time() + 1e6, cap_s=1800, seed=3,
-                      instance=inst, max_missions=3)
+                      instance=inst, max_missions=3, crisis=False)
     rows = [json.loads(x) for x in (run_dir / "i1" / "missions.jsonl").read_text().splitlines()]
     ms = [r for r in rows if r["kind"] == "mission"]
     assert len(ms) == 3 and all(m["status"] == "ok" for m in ms)

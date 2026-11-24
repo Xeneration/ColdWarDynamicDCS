@@ -607,6 +607,24 @@ What's deliberately left for later phases: the web UI (Phase 3), the crisis phas
   - **Likely needs a stronger NATO order of battle,** or a REFORGER air deployment, so OCA isn't paid for by the land battle.
   - **Validate in DCS** that static parked aircraft and their destruction are detected (the exists / life ≤ 0 check from step 6).
 
+**Progress (2026-11-24): Phase 4 step 1 done: crisis phase** (`engine/crisis.py`)
+- **Campaign state:** `phase` (crisis or war), `tension` (0–100), `war_start_turn`, `crisis_deadline_turn`, `war_turn`. The schema is now v2; older saves load as already at war.
+- **How new campaigns start:**
+  - Player campaigns (`actions.create`, `cwdc new`) open at the theater's `crisis.start` (11 Aug 06:00).
+  - The war starts at the start of a turn once tension reaches 100, or at the rolled deadline (8–16 turns). So it always comes, on 13–15 Aug.
+  - `new_campaign(crisis=False)` and `cwdc new --no-crisis` start straight at war, for tests and balance runs.
+- **Tension:** it drifts up 3–7 per turn, and crisis events add or remove a few points and post news.
+  - `raise_tension` and `bring_forward` are the hooks for air incidents (Step 2).
+- **During the crisis:**
+  - no ground war or logistics;
+  - no outcome check;
+  - CAP only in the planner;
+  - nobody shoots in the resolver.
+- **When the war starts,** `start_war`:
+  - shifts the formations' arrival turns so the mobilisation timetables run from the war's start;
+  - posts the war news;
+  - makes `war_day` count from day 1.
+
 **Phase 5: Polish**
 - Balance passes, campaign presets (start date 1974–79, other squadrons), packaging into a one-click launcher, multiplayer client slots.
 - **Immersion lockdown, once all phases are finished** (requested 2026-11-23; kept on for now to help testing):

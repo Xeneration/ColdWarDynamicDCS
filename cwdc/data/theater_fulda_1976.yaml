@@ -6,6 +6,12 @@ name: "Fulda Gap 1976"
 terrain: GermanyCW
 start: "1976-08-14T06:00:00"
 turn_hours: 6
+# Pre-war crisis (engine.crisis): the campaign opens here; the war starts once tension reaches
+# 100 or after `turns` turns at the latest (rolled per campaign), i.e. 13-15 Aug.
+crisis:
+  start: "1976-08-11T06:00:00"
+  turns: [8, 16]
+  tension_start: 20
 
 # Inner German Border (+ Czechoslovak border), north -> south. West of this line is NATO.
 front_line:

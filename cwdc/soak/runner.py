@@ -175,7 +175,8 @@ def stop_file(run_dir: Path) -> Path:
 
 def run_worker(n: int, run_dir: Path, until: float, cap_s: int, seed: int,
                instance: Instance | None = None, clock=time.time,
-               max_missions: int | None = None, timeout_s: int | None = None) -> None:
+               max_missions: int | None = None, timeout_s: int | None = None,
+               crisis: bool = True) -> None:
     import traceback
     from cwdc import actions
     from cwdc.engine import outcome
@@ -201,7 +202,7 @@ def run_worker(n: int, run_dir: Path, until: float, cap_s: int, seed: int,
 
     try:
         while time_left():
-            c = actions.create(f"Soak {n}-{seed}", seed=seed, force=True)
+            c = actions.create(f"Soak {n}-{seed}", seed=seed, force=True, crisis=crisis)
             say(f"campaign seed {seed}")
             errors_in_row = 0
             while c.outcome is None and time_left() and errors_in_row < 3:

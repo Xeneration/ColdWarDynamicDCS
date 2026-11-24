@@ -3,8 +3,8 @@ from __future__ import annotations
 
 from datetime import timedelta
 
-from cwdc.engine import (airbases, apply, crews, factory, ground, logistics, outcome, planner,
-                         resolver, stats)
+from cwdc.engine import (airbases, apply, crews, crisis, factory, ground, logistics, outcome,
+                         planner, resolver, stats)
 from cwdc.model import (Airframe, AirframeStatus, Campaign, CrewRole, Debrief, FlightStatus, Pilot,
                         PilotStatus, SortieResult)
 from cwdc.engine import rng
@@ -35,12 +35,15 @@ def end_turn(c: Campaign, dcs_results: list[SortieResult] | None = None,
                  if f.id not in flown and f.status is not FlightStatus.DONE]
     sim = resolver.resolve(c, remaining)
     debrief += ["-- Rest of the air war --", *apply.apply_results(c, sim)]
-    supply_lines = logistics.logistics_turn(c)
-    if supply_lines:
-        debrief += ["-- Logistics --", *supply_lines]
-    ground_lines = ground.ground_turn(c)
-    if ground_lines:
-        debrief += ["-- Ground war --", *ground_lines]
+    if c.at_war:
+        supply_lines = logistics.logistics_turn(c)
+        if supply_lines:
+            debrief += ["-- Logistics --", *supply_lines]
+        ground_lines = ground.ground_turn(c)
+        if ground_lines:
+            debrief += ["-- Ground war --", *ground_lines]
+    else:                                       # the crisis: no ground war yet
+        debrief += ["-- Crisis --", *crisis.crisis_turn(c)]
     airfield_lines = airbases.airbase_turn(c)
     if airfield_lines:
         debrief += ["-- Airfields --", *airfield_lines]
@@ -62,12 +65,15 @@ def end_turn(c: Campaign, dcs_results: list[SortieResult] | None = None,
     crews.rest(c, night=planner.period(c) == "night",
                exclude={pid for f in c.flights.values() for pid in crews.crew_of(f)})
     c.add_news(f"Turn {c.turn}: " + "; ".join(l for l in debrief if l.startswith("[")))
-    if outcome.check(c):
+    if c.at_war and outcome.check(c):
         debrief += ["", *outcome.summary(c)]
         c.packages.clear()                     # the campaign is over: nothing more to fly
         c.flights.clear()
         return debrief
     _advance(c)
+    if crisis.due(c):
+        crisis.start_war(c)
+        debrief += ["", "** WAR: the Warsaw Pact has attacked. ROE weapons free. **"]
     planner.plan_turn(c)
     return debrief
 

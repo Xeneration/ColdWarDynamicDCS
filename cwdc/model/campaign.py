@@ -347,7 +347,7 @@ class Outcome(BaseModel):
 
 
 class Campaign(BaseModel):
-    schema_version: int = 1
+    schema_version: int = 2
     id: str
     name: str
     seed: int
@@ -358,6 +358,20 @@ class Campaign(BaseModel):
     player_name: str = "Player"
     instance: str = ""                 # random tag per campaign creation; keeps mission ids unique
     main_effort: Optional[str] = None  # sector of the Warsaw Pact's main thrust (rolled per campaign)
+    # pre-war crisis (engine.crisis). Saves from before the crisis phase load as already at war.
+    phase: str = "war"                 # "crisis" | "war"
+    tension: float = 0.0               # 0-100; war breaks out at 100 (or at the deadline)
+    war_start_turn: int = 1            # first turn of the war
+    crisis_deadline_turn: int = 0      # the war starts on this turn at the latest
+
+    @property
+    def at_war(self) -> bool:
+        return self.phase == "war"
+
+    @property
+    def war_turn(self) -> int:
+        """Turns since the war started (1 = its first turn; 0 during the crisis)."""
+        return self.turn - self.war_start_turn + 1 if self.at_war else 0
 
     airbases: dict[str, Airbase] = {}
     squadrons: dict[str, Squadron] = {}

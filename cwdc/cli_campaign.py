@@ -43,7 +43,8 @@ def _next(c: Campaign, hint: str = "") -> None:
 def cmd_new(args) -> None:
     from cwdc import actions
     try:
-        c = actions.create(args.name, seed=args.seed, pilot=args.pilot, force=args.force)
+        c = actions.create(args.name, seed=args.seed, pilot=args.pilot, force=args.force,
+                           crisis=not args.no_crisis)
     except actions.ActionError as e:
         raise SystemExit(str(e).replace("choose overwrite to replace it", "use --force to overwrite"))
     print(f"New campaign '{c.name}' ({c.id}) created: {store.campaign_dir(c.id) / 'campaign.json'}")
@@ -285,6 +286,8 @@ def register(sub) -> None:
     p.add_argument("--seed", type=int, default=1976)
     p.add_argument("--pilot", default="Player", help="your pilot's name")
     p.add_argument("--force", action="store_true")
+    p.add_argument("--no-crisis", action="store_true",
+                   help="skip the pre-war crisis and start on day 1 of the war (testing)")
     p.set_defaults(func=cmd_new)
     for name, func, hlp in [("status", cmd_status, "campaign overview"),
                             ("ato", cmd_ato, "this turn's air tasking order"),

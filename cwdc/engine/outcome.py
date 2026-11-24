@@ -29,7 +29,10 @@ def rules(c: Campaign) -> dict:
 
 
 def war_day(c: Campaign) -> int:
-    return (c.turn - 1) * c.turn_hours // 24 + 1
+    """Day of the war (1 = its first day; 0 during the pre-war crisis)."""
+    if not c.at_war:
+        return 0
+    return (c.war_turn - 1) * c.turn_hours // 24 + 1
 
 
 def turns_per_day(c: Campaign) -> int:
@@ -64,11 +67,13 @@ def check(c: Campaign) -> Outcome | None:
     """Decide the war if it is over at the end of this turn; sets and returns c.outcome."""
     if c.outcome is not None:
         return c.outcome
+    if not c.at_war:
+        return None
     v = rules(c)
     if not v:
         return None
     day = war_day(c)
-    end_of_day = c.turn % turns_per_day(c) == 0
+    end_of_day = c.war_turn % turns_per_day(c) == 0
 
     def done(winner, title, reason, decisive=True):
         c.outcome = Outcome(winner=winner, decisive=decisive, title=title, reason=reason,
