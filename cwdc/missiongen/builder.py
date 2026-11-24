@@ -36,6 +36,16 @@ AIR_START_DIST = 90_000         # m from the destination for `--start air`
 EWR_RADIUS = 200_000            # radar sites this close to the destination are always spawned
 FORWARD_CAP_DIST = 30_000       # friendly CAP covering a strike orbits this far short of the target
 CAP_ENGAGE_RADIUS = 60_000      # ...and engages enemy aircraft within this radius of the target
+SAM_MARGIN = 1.15               # routes keep this multiple of a SAM's engagement radius away
+TARGET_DEFENCE_SLACK = 10_000   # m; SAM rings this close to the target defend it: no detour
+DETOUR_FACTOR = 1.25            # detour turning points sit this far out (x ring radius)
+MAX_DETOUR = 1.6                # never accept a route longer than this x the straight line
+MIN_CONTACT_DIST = 50_000       # m; enemy fighters never spawn closer than this to the player
+SWEEP_DELAY = 900               # s; a quiet CAP gets an enemy fighter sweep after this long
+SWEEP_START_DIST = 80_000       # m; ...which starts this far out on the enemy side
+SWEEP_MAX_DIST = 250_000        # m; only enemy CAP flights based this close can sweep
+ON_STATION_S = 30 * 60          # s an AI-flown focus CAP / escort orbits before going home
+ESCORT_HOLD_S = 8 * 60          # s an escort holds outside the target's SAM cover, then home
 TAXI_TIME = {"ramp": 600, "runway": 90, "air": 0}   # s before the player is en route
 FLIGHT_SPACING = 3_000          # m lateral separation between spawned flights
 UNIT_SPACING = 250              # m between aircraft of one flight
@@ -56,6 +66,7 @@ class Plan:
     flights: list[Flight] = field(default_factory=list)       # all flights to spawn (player first)
     objectives: list[Objective] = field(default_factory=list)
     delay: dict[str, int] = field(default_factory=dict)        # flight id -> spawn delay (s)
+    sweep: set[str] = field(default_factory=set)               # enemy CAP sent at the player's station
 
 
 def _base(c: Campaign, f: Flight) -> Pos:
@@ -66,11 +77,99 @@ def _dest(c: Campaign, f: Flight) -> Pos:
     return f.area if f.area else c.objectives[f.target_id].pos
 
 
-def _route(c: Campaign, f: Flight) -> list[Pos]:
+def _rings(c: Campaign, side: Side, keep_clear_of: Pos | None = None,
+           exempt: tuple[Pos, ...] = ()) -> list[tuple[Pos, float]]:
+    """Enemy SAM engagement rings (with margin) that a `side` flight should route around.
+    Rings around a point in `exempt` (the flight's target, its own base) are left out: there is
+    no way round those."""
+    out = []
+    for o in c.objectives.values():
+        if o.side is side or o.destroyed or o.kind is not ObjectiveKind.SAM or not o.threat_range_m:
+            continue
+        r = o.threat_range_m * SAM_MARGIN
+        if any(o.pos.dist(p) <= r + TARGET_DEFENCE_SLACK for p in exempt):
+            continue
+        out.append((o.pos, r))
+    return out
+
+
+def _closest_on(a: Pos, b: Pos, p: Pos) -> tuple[Pos, float]:
+    dx, dz = b.x - a.x, b.z - a.z
+    l2 = dx * dx + dz * dz
+    t = 0.0 if l2 == 0 else max(0.0, min(1.0, ((p.x - a.x) * dx + (p.z - a.z) * dz) / l2))
+    return Pos(x=a.x + dx * t, z=a.z + dz * t), t
+
+
+def _avoid(a: Pos, b: Pos, rings: list[tuple[Pos, float]], depth: int = 0) -> list[Pos]:
+    """Turning points after `a` up to and including `b` that keep the legs out of `rings`."""
+    hits = []
+    for centre, r in rings:
+        q, t = _closest_on(a, b, centre)
+        if q.dist(centre) < r and a.dist(centre) > r and b.dist(centre) > r:
+            hits.append((t, centre, r, q))
+    if not hits or depth >= 4:
+        return [b]
+    _, centre, r, q = min(hits, key=lambda h: h[0])     # the first ring along the leg
+    d = q.dist(centre)
+    if d < 1.0:                                         # dead centre: go round the left side
+        L = a.dist(b) or 1.0
+        ux, uz = -(b.z - a.z) / L, (b.x - a.x) / L
+    else:
+        ux, uz = (q.x - centre.x) / d, (q.z - centre.z) / d
+    w = Pos(x=centre.x + ux * r * DETOUR_FACTOR, z=centre.z + uz * r * DETOUR_FACTOR)
+    return _avoid(a, w, rings, depth + 1) + _avoid(w, b, rings, depth + 1)
+
+
+def _path(c: Campaign, f: Flight) -> list[Pos]:
+    """Turning points from the flight's base to its destination, bent round enemy SAM rings
+    that don't defend the destination itself. Falls back to the straight line when the
+    detour would be too long."""
     base, dest = _base(c, f), _dest(c, f)
-    n = max(1, int(base.dist(dest) // 20_000))
-    return [Pos(x=base.x + (dest.x - base.x) * i / n, z=base.z + (dest.z - base.z) * i / n)
-            for i in range(n + 1)]
+    pts = [base] + _avoid(base, dest, _rings(c, f.side, exempt=(dest, base)))
+    length = sum(p.dist(q) for p, q in zip(pts, pts[1:]))
+    if length > MAX_DETOUR * base.dist(dest):
+        return [base, dest]
+    return pts
+
+
+def _route(c: Campaign, f: Flight) -> list[Pos]:
+    """The flight's path as points about every 20 km (for 'what is near the route' checks)."""
+    pts = _path(c, f)
+    out = [pts[0]]
+    for a, b in zip(pts, pts[1:]):
+        n = max(1, int(a.dist(b) // 20_000))
+        out += [Pos(x=a.x + (b.x - a.x) * i / n, z=a.z + (b.z - a.z) * i / n) for i in range(1, n + 1)]
+    return out
+
+
+def _back_along(path: list[Pos], dist: float) -> tuple[Pos, int]:
+    """The point `dist` metres before the end of `path`, and the index of the next turning
+    point after it (so the remaining route is path[index:])."""
+    left = dist
+    for i in range(len(path) - 1, 0, -1):
+        leg = path[i - 1].dist(path[i])
+        if leg >= left:
+            return _toward(path[i], path[i - 1], left), i
+        left -= leg
+    return path[0], 1
+
+
+def _clear(p: Pos, rings: list[tuple[Pos, float]]) -> Pos:
+    """Move p out of any ring it sits in (radially, to the ring's edge)."""
+    for centre, r in rings:
+        d = p.dist(centre)
+        if d < r:
+            if d < 1.0:
+                p = Pos(x=centre.x + r, z=centre.z)
+            else:
+                p = Pos(x=centre.x + (p.x - centre.x) * r / d, z=centre.z + (p.z - centre.z) * r / d)
+    return p
+
+
+def _beyond(a: Pos, b: Pos, dist: float) -> Pos:
+    """Point `dist` metres from a in the direction of b (not clamped to b)."""
+    d = a.dist(b) or 1.0
+    return Pos(x=a.x + (b.x - a.x) * dist / d, z=a.z + (b.z - a.z) * dist / d)
 
 
 def _toward(a: Pos, b: Pos, dist: float) -> Pos:
@@ -126,6 +225,16 @@ def select(c: Campaign, player: Flight) -> Plan:
             if min(p.dist(f.area) for p in route) <= FRIENDLY_CAP_RADIUS:
                 plan.flights.append(f)
 
+    # a CAP with nobody to meet is a dull hour: the nearest enemy CAP flight sweeps the station
+    if player.task is Task.CAP and not any(f.side is enemy for f in plan.flights):
+        sweepers = sorted((f for f in c.flights.values() if f.side is enemy and f.task is Task.CAP
+                           and f.area and f.area.dist(dest) <= SWEEP_MAX_DIST),
+                          key=lambda f: f.area.dist(dest))
+        if sweepers:
+            plan.flights.append(sweepers[0])
+            plan.delay[sweepers[0].id] = SWEEP_DELAY
+            plan.sweep.add(sweepers[0].id)
+
     if player.target_id:
         objs[player.target_id] = c.objectives[player.target_id]
     for o in c.objectives.values():
@@ -149,8 +258,25 @@ def _cap_station(c: Campaign, f: Flight, player: Flight) -> Pos:
     """Where a CAP flight orbits in this mission. Friendly CAP covering a player strike moves
     forward to just short of the target; everyone else flies their planned station."""
     if f is not player and f.side is player.side and (player.target_id or player.task is Task.ESCORT):
-        return _toward(_dest(c, player), _base(c, player), FORWARD_CAP_DIST)
-    return f.area
+        station = _toward(_dest(c, player), _base(c, player), FORWARD_CAP_DIST)
+    else:
+        station = f.area
+    return _clear(station, _rings(c, f.side, exempt=(_base(c, f),)))     # orbit outside SAM cover
+
+
+def _skill(c: Campaign, f: Flight, i: int) -> Skill:
+    """AI skill: Good for NATO crews and Warsaw Pact fighter pilots, Average for Warsaw Pact
+    strike crews; veterans one level up, tired crews one level down."""
+    from cwdc.engine.crews import GROUNDED
+    sq = c.squadrons[f.squadron_id]
+    level = 1 if sq.side is Side.BLUE or f.task in (Task.CAP, Task.ESCORT) else 0
+    p = c.pilots.get(f.pilot_ids[i]) if i < len(f.pilot_ids) else None
+    if p is not None:
+        if p.sorties >= 15 or p.air_kills >= 3:
+            level += 1
+        if p.fatigue >= 0.6 * GROUNDED:
+            level -= 1
+    return [Skill.Average, Skill.Good, Skill.High][max(0, min(2, level))]
 
 
 def _unit_name(f: Flight, i: int) -> str:
@@ -199,6 +325,23 @@ def _spread_units(group, toward: Pos, alt_step: float = 30) -> None:
         u.alt += alt_step * i
 
 
+def _ahead(path: list[Pos], spawn: Pos | None) -> list[Pos]:
+    """The intermediate turning points of `path` still ahead of a flight spawning at `spawn`."""
+    if spawn is None or len(path) <= 2:
+        return []
+    leg = min(range(len(path) - 1), key=lambda i: _closest_on(path[i], path[i + 1], spawn)[0].dist(spawn))
+    return path[leg + 1:-1]
+
+
+def _wp_index(group, name: str) -> int:
+    """Index of the group's waypoint called `name` (its last waypoint if there is none)."""
+    return next((i for i, p in enumerate(group.points) if p.name == name), len(group.points) - 1)
+
+
+def _pos_of(point) -> Pos:
+    return Pos(x=point.position.x, z=point.position.y)
+
+
 BOT_TIME_LIMIT = 2 * 3600       # s; bot missions end at the latest after this much mission time
 
 
@@ -238,11 +381,14 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
     # time for the player to reach the destination: AI strikes are synchronised to it
     pspec = T.airframe_catalogue().get(c.squadrons[player.squadron_id].aircraft_type, {})
     p_speed = pspec.get("cruise_kmh", 800) / 3.6
-    p_dist = min(AIR_START_DIST, _base(c, player).dist(_dest(c, player))) if start == "air" \
-        else _base(c, player).dist(_dest(c, player))
+    paths = {f.id: _path(c, f) for f in plan.flights}
+    p_path = paths[player.id]
+    p_len = sum(a.dist(b) for a, b in zip(p_path, p_path[1:]))
+    p_dist = min(AIR_START_DIST, p_len) if start == "air" else p_len
     player_eta = TAXI_TIME[start] + p_dist / p_speed
     player_base = _base(c, player)
-    player_spawn = _toward(_dest(c, player), player_base, AIR_START_DIST) if start == "air" else player_base
+    player_spawn = _back_along(p_path, AIR_START_DIST)[0] if start == "air" else player_base
+    player_station = _cap_station(c, player, player) if player.task is Task.CAP else _dest(c, player)
 
     # --- objectives (spawn first so strike flights can target their group ids)
     for o in plan.objectives:
@@ -280,7 +426,13 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
                                        z=sum(o.pos.z + u.dz for _, u in structures) / len(structures))
 
     # --- flights
-    for k, f in enumerate(plan.flights):
+    order = list(plan.flights)
+    escorted_by_player = c.flights.get(player.supports) if player.supports else None
+    if bot and escorted_by_player in order:
+        # an AI-flown focus escort needs its package's group to exist before it can escort it
+        order.remove(escorted_by_player)
+        order.insert(0, escorted_by_player)
+    for k, f in enumerate(order):
         sq = c.squadrons[f.squadron_id]
         spec = T.airframe_catalogue().get(sq.aircraft_type, {})
         type_cls = plane_map[sq.aircraft_type]
@@ -303,7 +455,7 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
         else:
             main = c.flights.get(f.supports) if f.supports else None
             if is_player:                                   # air start en route
-                spawn = _toward(dest, base.pos, AIR_START_DIST)
+                spawn = player_spawn
             elif f.id == player.supports:
                 # the player escorts / supports this flight: it launches with the player
                 spawn = player_spawn
@@ -313,11 +465,15 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
                 spawn = spawn_at[main.id]                   # escort forms up on its package
                 if main.id in plan.delay:
                     plan.delay.setdefault(f.id, plan.delay[main.id])
+            elif f.id in plan.sweep:                        # sweep in from the enemy side
+                spawn = _beyond(player_station, f.area, SWEEP_START_DIST)
             elif f.task in (Task.CAP, Task.ESCORT):
                 spawn = _cap_station(c, f, player)
             else:                                           # AI strike: arrive with the player
                 ai_dist = (speed / 3.6) * player_eta
-                spawn = _toward(dest, base.pos, ai_dist)
+                spawn = _back_along(paths[f.id], ai_dist)[0]
+            if f.side is not player.side and spawn.dist(player_spawn) < MIN_CONTACT_DIST:
+                spawn = _beyond(player_spawn, spawn, MIN_CONTACT_DIST)   # no point-blank merges
             spawn_at[f.id] = spawn
             spawn = _offset(spawn, dest, FLIGHT_SPACING * k)
             g = m.flight_group_inflight(country, gname, type_cls, T.to_point(spawn), altitude=alt,
@@ -339,7 +495,7 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
             if sq.aircraft_type == "F-4E-45MC":
                 unit.set_property("Quality", af.quality)
             if bot or not (is_player and i == 0):
-                unit.skill = Skill.Good if sq.side is Side.BLUE else Skill.Average
+                unit.skill = _skill(c, f, i)
         if is_player and not bot:
             g.units[0].set_player()
         ai_flown = bot or not is_player      # in a bot mission the focus flight is AI as well
@@ -352,28 +508,54 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
             opts.append(dtask.OptReactOnThreat(dtask.OptReactOnThreat.Values.EvadeFire))
             opts.append(dtask.OptRestrictJettison(True))
 
-        # waypoints
+        # waypoints: SAM detours still ahead of the spawn point, then the task's own points
+        path = paths.get(f.id) or _path(c, f)
+        detours = path[1:-1] if (is_player and start in START_TYPES) else _ahead(path, spawn_at.get(f.id))
         escorted = groups.get(f.supports) if f.task is Task.ESCORT and f.supports else None
         if ai_flown and escorted is not None and (bot or c.flights[f.supports] is not player):
             # AI escort: stay with the package and engage fighters that threaten it
+            g.points[0].tasks = [t for t in g.points[0].tasks if not isinstance(t, dtask.EscortTaskAction)]
+            # ...as far as its IP; then it holds outside the target's SAM cover and goes home,
+            # instead of circling high over the SA-6 that defends the target
+            ip_i = _wp_index(escorted, "IP")
             g.points[0].tasks.append(dtask.EscortTaskAction(escorted.id, engagement_max_dist=60_000,
-                                                             lastwpt=3))
-            g.add_waypoint(T.to_point(dest), alt, speed, name="TGT")
+                                                             lastwpt=ip_i))
+            for p in detours:
+                g.add_waypoint(T.to_point(p), alt, speed, name="DETOUR")
+            hold = _clear(_pos_of(escorted.points[ip_i]), _rings(c, f.side, exempt=(_base(c, f),)))
+            hwp = g.add_waypoint(T.to_point(hold), alt, speed, name="HOLD")
+            orbit = dtask.ControlledTask(dtask.OrbitAction(alt, speed, dtask.OrbitAction.OrbitPattern.Circle))
+            orbit.stop_after_duration(ESCORT_HOLD_S)
+            hwp.tasks.append(orbit)
         elif f.task is Task.CAP or (f.task is Task.ESCORT and ai_flown):
-            station_pos = _cap_station(c, f, player)
+            station_pos = player_station if f.id in plan.sweep else _cap_station(c, f, player)
+            if f.id not in plan.sweep:
+                for p in detours:
+                    g.add_waypoint(T.to_point(p), alt, speed, name="DETOUR")
             station = T.to_point(station_pos)
             wp = g.add_waypoint(station, alt, speed, name="CAP")
+            g.points[0].tasks = [t for t in g.points[0].tasks       # pydcs' empty default escort task
+                                 if not isinstance(t, dtask.EscortTaskAction)]
+            if ai_flown and f.side is not player.side:
+                # enemy fighters in this mission are in the player's fight: they come to it
+                wp.tasks.append(dtask.EngageTargetsInZone(T.to_point(player_station),
+                                                          CAP_ENGAGE_RADIUS, [dtask.Targets.All.Air]))
             if ai_flown and f.side is player.side and (player.target_id or player.task is Task.ESCORT):
                 # covering the player's strike: engage anything approaching the target area
                 wp.tasks.append(dtask.EngageTargetsInZone(T.to_point(_dest(c, player)),
                                                           CAP_ENGAGE_RADIUS, [dtask.Targets.All.Air]))
             if is_player:
-                wp.tasks.append(dtask.OrbitAction(alt, speed, dtask.OrbitAction.OrbitPattern.RaceTrack))
-                g.add_waypoint(T.to_point(Pos(x=f.area.x + 30_000, z=f.area.z)), alt, speed, name="CAP-2")
+                orbit = dtask.OrbitAction(alt, speed, dtask.OrbitAction.OrbitPattern.RaceTrack)
+                if ai_flown:                     # AI crews go home after their time on station
+                    orbit = dtask.ControlledTask(orbit)
+                    orbit.stop_after_duration(ON_STATION_S)
+                wp.tasks.append(orbit)
+                leg2 = _clear(Pos(x=station_pos.x + 30_000, z=station_pos.z), _rings(c, f.side, exempt=(base.pos,)))
+                g.add_waypoint(T.to_point(leg2), alt, speed, name="CAP-2")
             else:
                 wp.tasks.append(dtask.OrbitAction(alt, speed, dtask.OrbitAction.OrbitPattern.Circle))
         else:
-            ip = _toward(dest, base.pos, 20_000)
+            ip = _toward(dest, detours[-1] if detours else spawn_at.get(f.id, base.pos), 20_000)
             low = alt if f.task is Task.ESCORT else spec.get("low_alt_m", 500)   # escorts stay high
             ipwp = g.add_waypoint(T.to_point(ip), low, speed, name="IP")
             twp = g.add_waypoint(T.to_point(dest), low, speed, name="TGT")
@@ -386,7 +568,9 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
             elif ai_flown and f.target_id in obj_groups:
                 twp.tasks.append(dtask.AttackGroup(obj_groups[f.target_id].id))
             g.add_waypoint(T.to_point(ip), alt, speed, name="EGRESS")
-        if not (f.task in (Task.CAP, Task.ESCORT) and ai_flown):
+        if is_player or escorted is not None or not (f.task in (Task.CAP, Task.ESCORT) and ai_flown):
+            for p in reversed(path[1:-1]):       # home the same way round the SAMs
+                g.add_waypoint(T.to_point(p), alt, speed, name="RETURN")
             g.land_at(airport)
         tracked.append(gname)
 

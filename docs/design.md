@@ -557,6 +557,35 @@ What's deliberately left for later phases: the web UI (Phase 3), the crisis phas
   - The lobby loaded in about 20 s and started paused; the hook unpaused it.
   - `net.load_mission` from the hook loaded the bot mission in about 8 s, and the runtime and results hook collected as usual.
   - It runs at 1× real time. Working set: about 4 GB in the lobby, **about 18 GB in a Cold War Germany mission** (no rendering). With 62 GB, plan on 2 instances and at most 3.
+- **First overnight run** (2026-11-24, 8 h, 2 instances):
+  - Results: 19 DCS missions, no crashes or restarts, no `dcs.log` errors, and 200 simulated wars.
+  - The focus flight lost 25–58% of its aircraft per mission in DCS, against about 4% in the resolver. Red losses were 5–20× higher too.
+- **Loss analysis.** NATO lost 32 aircraft:
+  - SA-6: 8;
+  - SA-9: 7;
+  - no hit at all below 700 m, so most likely the AI flying into terrain: 7;
+  - MiG-21: 6;
+  - ZSU-23-4: 2;
+  - MiG-27: 1.
+  - The Warsaw Pact lost 44 MiG-21s, 33 of them to AIM-7s.
+- **What caused the losses:**
+  - The SA-6 kills were escorts and covering CAPs orbiting at 4–6 km over the target's SA-6. They were not the low-level attackers.
+  - Red CAP flights sometimes spawned inside Sparrow range and died at 85–90 s.
+  - An AI focus escort was built before its package existed, so it orbited forever. AI CAPs and escorts never went home, so every Escort and many CAP missions ran to the time limit.
+  - Enemy CAPs "in contact" just orbited their own station 60+ km away, so half the CAP missions saw nothing.
+- **Fixes in `missiongen/builder.py`:**
+  - Routes bend round enemy SAM rings that don't defend the target (`_path`/`_avoid`). This includes the map's route line, the air-start point and the way home.
+  - CAP stations and escort holds stay outside SAM cover (`_clear`).
+  - Escorts stay with the package as far as the IP, hold outside the target's SAM ring for 8 min, then go home.
+  - Enemy fighters spawn at least 50 km from the player.
+  - Enemy fighters in a mission engage around the player's station or target.
+  - A CAP with no enemy at all gets a delayed sweep by the nearest enemy CAP flight.
+  - An AI-flown focus CAP or escort orbits for 30 min, then lands.
+  - **AI skill:** NATO crews and Warsaw Pact fighter pilots are Good, and Warsaw Pact strike crews are Average. Veterans (15+ sorties or 3+ kills) go up one level, and tired crews (fatigue at or above 0.6 × the grounding level) go down one.
+- **Not fixed:**
+  - The unexplained terrain crashes. These look like DCS AI behaviour.
+  - One BAI flight that turned home without reaching its target, for no clear reason.
+  - The resolver itself is not recalibrated yet. That waits for a second soak with these fixes, so the multipliers are fitted to the new missions.
 
 **Phase 4: Crisis phase and immersion**
 - Tension model, QRA/intercept/recon missions, ROE enforcement, the war-start event.

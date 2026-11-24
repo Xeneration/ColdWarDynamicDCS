@@ -38,6 +38,8 @@ The server only listens on this PC (`--host` changes that) and reads the campaig
   - `i<N>/missions.jsonl`: one row per mission.
   - `i<N>/anomalies/`: the `.miz` and result of every odd mission, for replaying.
   - `report.html` / `report.md`: anomalies, DCS against the simulation per task (loss and kill rates), pacing, war outcomes, and `dcs.log` errors.
+- The first time a profile is used, DCS may ask you to log in. This happened on instance 2 on 2026-11-24. If nobody answers the prompt, that instance's start-up times out and its worker stops, while the other instances carry on. So run a short soak once while you're at the PC, so every profile has a saved login.
+- Findings from the first run and the mission fixes they led to are in [docs/design.md](docs/design.md) (search for "First overnight run").
 - DCS servers can't accelerate time, so missions run in real time: roughly one per 30–60 min per instance. Each instance needs about 18 GB of RAM while flying a Cold War Germany mission, so run 2 instances on a 64 GB PC.
 
 ## Playing from the command line (Phase 1)
