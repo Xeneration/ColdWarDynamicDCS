@@ -39,8 +39,13 @@ const cmap = new CampaignMap("map", (id) => {
 
 // ----------------------------------------------------------------------------- header and guidance
 function renderHeader(o) {
+  const phase = o.phase === "crisis"
+    ? `<span class="crisis" title="Pre-war crisis: tension rises until the Warsaw Pact attacks. ROE weapons tight.">CRISIS</span>
+       <span class="tension" title="Tension ${o.tension}/100 - war breaks out at 100 (or within a few days anyway)"><i style="width:${o.tension}%"></i></span>`
+    : `war day <b>${o.war_day}</b>`;
   $("#clock").innerHTML = `Turn <b>${o.turn}</b> · <b>${fmtZ(o.time)}</b> <span class="muted">(${fmtLocal(o.time)} local)</span> ·
-    ${PERIOD_ICON[o.period] || ""} ${esc(o.period)} · war day <b>${o.war_day}</b>`;
+    ${PERIOD_ICON[o.period] || ""} ${esc(o.period)} · ${phase} ·
+    <span class="wx" title="${esc(o.weather.text)}">${esc(o.weather.kind)}</span>`;
   $("#btn-skip").disabled = !!o.outcome;
   const b = $("#banner");
   if (o.outcome) {
@@ -70,11 +75,15 @@ function renderNext(o, a) {
     action = `<button class="small ghost" data-go="mission">Mission details</button>`;
   } else {
     const flyable = a.flights.filter((f) => f.eligible).length;
-    title = flyable ? "Choose a sortie to fly" : "Nothing for your squadron this period";
+    const qra = a.flights.some((f) => f.eligible && f.task === "QRA");
+    title = flyable ? (qra ? "QRA: you're on alert" : "Choose a sortie to fly") : "Nothing for your squadron this period";
     body = flyable
       ? `${flyable} of today's sorties are yours - the amber cards in the ${abbr("ATO")}. Or <b>Skip turn</b> to let this period play out.`
       : "Your squadron has no sorties planned (crews resting, base damaged, or night). <b>Skip turn</b> to move on.";
+    if (qra) body = `A Warsaw Pact aircraft is heading for the border. Fly the ${abbr("QRA")} sortie: intercept it and shadow it back east. ` + body;
   }
+  if (!o.outcome) body += ` <div class="roe ${o.phase === "crisis" ? "tight" : ""}">${abbr("ROE")}: <b>${esc(o.roe)}</b>${o.phase === "crisis"
+    ? " - do not fire unless fired upon." : ""}</div>`;
   const steps = ["Choose a sortie", "Fly it in DCS", "Debrief"].map((t, i) =>
     `<li class="${i + 1 < step ? "done" : i + 1 === step ? "now" : ""}"><span>${i + 1}</span>${t}</li>`).join("");
   $("#next").innerHTML = `<ol class="stepper">${steps}</ol><div class="next-body"><b>${title}</b><div>${body}</div>${action}</div>

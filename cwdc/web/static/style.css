@@ -292,3 +292,11 @@ dialog.help { max-width: 620px; max-height: 85vh; }
   .legend { width: 220px; }
   .db-sides, .sup-row { grid-template-columns: 1fr; }
 }
+
+/* ------------------------------------------------------------------ crisis / weather (Phase 4) */
+.crisis { color: #ffb347; font-weight: 700; letter-spacing: .05em; }
+.tension { display: inline-block; width: 80px; height: 8px; background: #2a3440; border-radius: 4px;
+           vertical-align: middle; overflow: hidden; }
+.tension i { display: block; height: 100%; background: linear-gradient(90deg, #d9b23c, #d9534f); }
+.wx { text-transform: capitalize; border-bottom: 1px dotted #6b7785; cursor: help; }
+.roe { margin-top: 6px; } .roe.tight b { color: #ffb347; }

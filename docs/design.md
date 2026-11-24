@@ -703,6 +703,14 @@ What's deliberately left for later phases: the web UI (Phase 3), the crisis phas
 - **Still to check:** that destroyed static parked aircraft are detected. Soak missions now include OCA.
 - **No extra NATO squadrons yet.** That decision waits for the Step 10 balance numbers.
 
+**Progress (2026-11-24): Phase 4 step 9 done: web UI**
+- **Header:** during the crisis it shows a CRISIS badge and a tension bar instead of the war day. The weather kind is shown too, with the full description on hover.
+- **What next:**
+  - The ROE line (weapons tight or free).
+  - "QRA: you're on alert", with a short explanation, when a QRA sortie is yours.
+- **Glossary:** QRA, ROE, BRAA, Bullseye, MAGIC and Tension. The welcome guide now opens on the crisis.
+- **Task labels:** Recon is "Border probe", and QRA is new.
+
 **Phase 5: Polish**
 - Balance passes, campaign presets (start date 1974–79, other squadrons), packaging into a one-click launcher, multiplayer client slots.
 - **Immersion lockdown, once all phases are finished** (requested 2026-11-23; kept on for now to help testing):

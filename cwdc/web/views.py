@@ -64,6 +64,8 @@ def overview(c: Campaign) -> dict:
     return {
         "version": version(c), "id": c.id, "name": c.name, "turn": c.turn, "time": c.time.isoformat(),
         "period": period(c), "war_day": outcome.war_day(c),
+        "phase": c.phase, "tension": round(c.tension), "roe": "weapons free" if c.at_war else "weapons tight",
+        "weather": {"kind": c.weather.kind, "text": _weather_text(c)},
         "player": _person(c, me.id) | {"squadron": c.squadrons[me.squadron_id].name,
                                        "base": base_name(c, c.airbases[c.squadrons[me.squadron_id].base_id])},
         "pending": pending,
@@ -91,9 +93,15 @@ TASK_PLAIN = {
     "BAI": "Battlefield interdiction: hit enemy units just behind the front before they reach it",
     "SEAD": "Suppression of air defences: knock out the missile site that threatens the package",
     "Interdiction": "Interdiction: cut the enemy's supply lines (rail yards, convoys, depots)",
-    "Recon": "Reconnaissance: photograph a target area",
+    "Recon": "Border probe: a Warsaw Pact aircraft testing NATO's air defences during the crisis",
+    "QRA": "Quick Reaction Alert: scramble, intercept the intruder and shadow it - weapons tight",
     "Airlift": "Airlift: carry supplies or troops",
 }
+
+
+def _weather_text(c: Campaign) -> str:
+    from cwdc.engine import weather
+    return weather.describe(c.weather)
 
 
 def base_name(c: Campaign, ab) -> str:

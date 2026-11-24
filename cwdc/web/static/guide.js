@@ -7,9 +7,12 @@ const KEY = "cwdc.guide.v1";
 
 const pages = (who) => [
   {
-    title: "Welcome to the war",
-    body: `<p>It is August 1976. The Warsaw Pact has attacked West Germany. You are an F-4E Phantom
-      crew in the <b>${who}</b>.</p>
+    title: "Welcome to the Cold War",
+    body: `<p>It is August 1976. Warsaw Pact forces are massing on the inner German border. You are an
+      F-4E Phantom crew in the <b>${who}</b>.</p>
+      <p>The campaign opens in a <b>crisis</b>: you fly QRA and border patrols, weapons tight, while
+      tension rises - firing first has consequences. Within a few days the Warsaw Pact attacks, and the
+      war begins.</p>
       <p>The campaign runs in <b>6-hour turns</b>. Each turn both air forces plan their sorties. You may fly
       one of yours in DCS; everything else is simulated, and the results shape the next turn.</p>`,
   },
