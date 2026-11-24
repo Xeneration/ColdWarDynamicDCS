@@ -21,6 +21,8 @@ REPORT_DAYS = (1, 3, 7, 14, 21)
 
 def run(seed: int, days: int, stats: dict, crisis: bool = False) -> dict:
     c = new_campaign(f"Balance {seed}", seed=seed, crisis=crisis)
+    stats.setdefault("crisis", [])
+    stats.setdefault("oca", Counter())
     crisis_info = None
     if crisis:
         while not c.at_war:
