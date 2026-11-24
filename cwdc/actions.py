@@ -95,7 +95,7 @@ def fly(c: Campaign, flight_id: str, start: str = "runway", bot: bool = False,
     check_not_over(c)
     fid = flight_id.upper()
     if fid not in c.flights:
-        raise ActionError(f"no flight {fid} this turn")
+        raise ActionError(f"no flight {fid} this turn in {c.name}")
     if start not in builder.TAXI_TIME:
         raise ActionError(f"unknown start {start!r} (runway, ramp or air)")
     notes = []

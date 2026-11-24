@@ -201,7 +201,7 @@ def ato(c: Campaign) -> dict:
                          "reason": pk.reason, "flights": members,
                          "flyable": any(m["eligible"] for m in members)})
     packages.sort(key=lambda p: (not p["flyable"], p["id"]))
-    return {"turn": c.turn, "time": c.time.isoformat(), "period": period(c), "packages": packages,
+    return {"campaign": c.id, "turn": c.turn, "time": c.time.isoformat(), "period": period(c), "packages": packages,
             "flights": rows,
             "enemy_expected": sum(1 for f in c.flights.values() if f.side is Side.RED)}
 

@@ -174,7 +174,7 @@ def create_app(auto_ingest: bool = True, watcher: bool = True, installed=None) -
     def flight_preview(cid: str, fid: str):
         c = load(cid)
         if fid.upper() not in c.flights:
-            raise HTTPException(404, f"no flight {fid} this turn")
+            raise HTTPException(404, f"no flight {fid} this turn in {c.name}")
         return views.flight_preview(c, fid.upper())
 
     @app.get("/api/campaigns/{cid}/history")

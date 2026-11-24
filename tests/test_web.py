@@ -41,6 +41,7 @@ def test_create_list_and_read_a_campaign(client):
     assert all(-90 <= ll[0] <= 90 for ll in m["front"])
     a = client.get(f"/api/campaigns/{cid}/ato").json()
     assert any(f["eligible"] for f in a["flights"]) and all(f["side"] == "blue" for f in a["flights"])
+    assert a["campaign"] == cid          # the ATO's buttons act on the campaign it came from
     s = client.get(f"/api/campaigns/{cid}/squadron").json()
     assert s["pilots"] and s["wsos"] and s["airframes"]
     # same name again without overwrite is refused
@@ -67,7 +68,8 @@ def test_fly_writes_mission_and_briefing(client):
 
 def test_bad_requests_are_400(client):
     cid = _new(client)
-    assert client.post(f"/api/campaigns/{cid}/fly", json={"flight_id": "F999"}).status_code == 400
+    r = client.post(f"/api/campaigns/{cid}/fly", json={"flight_id": "F999"})
+    assert r.status_code == 400 and "no flight F999 this turn in Web Test" in r.json()["detail"]
     assert client.post(f"/api/campaigns/{cid}/rollback", json={"turn": 42}).status_code == 400
     assert client.get("/api/campaigns/nope").status_code == 404
 

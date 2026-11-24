@@ -77,10 +77,13 @@ export function renderATO(root, a, o, ctx) {
     const f = a.flights.find((x) => x.id === card.dataset.id);
     ctx.selectFlight(f.id, f.threats);
   }));
+  // The campaign this ATO belongs to: the buttons act on what you see, even if the page has
+  // since switched campaign (another tab, a refresh that hadn't landed yet).
+  const cid = a.campaign || ctx.cid;
   const startOf = (id) => (root.querySelector(`input[name="start-${id}"]:checked`) || {}).value || "runway";
   root.querySelectorAll("[data-preview]").forEach((btn) => btn.addEventListener("click", () => guarded(btn, async () => {
     const id = btn.dataset.preview;
-    const p = await api(`/api/campaigns/${ctx.cid}/flights/${id}`);
+    const p = await api(`/api/campaigns/${cid}/flights/${id}`);
     const fr = p.friendly.map((x) => `${esc(x.callsign)} <span class="muted">(${esc(x.task)}, ${esc(x.role)})</span>`).join(", ");
     const sites = p.sites.filter((s) => s.side === "red").map((s) => esc(s.name)).join(", ") || "none";
     root.querySelector(`#pv-${id}`).innerHTML = `<div class="preview-box">
@@ -93,7 +96,7 @@ export function renderATO(root, a, o, ctx) {
   })));
   const fly = (btn, bot) => guarded(btn, async () => {
     const id = btn.dataset.fly || btn.dataset.bot;
-    const r = await api(`/api/campaigns/${ctx.cid}/fly`, { method: "POST", body: { flight_id: id, start: startOf(id), bot } });
+    const r = await api(`/api/campaigns/${cid}/fly`, { method: "POST", body: { flight_id: id, start: startOf(id), bot } });
     toast(`Mission written: <b>${esc(r.file)}</b><br>Open it in DCS: Mission › My Missions › ColdWarDynamic.`, 9000);
     await ctx.refresh(true);
     ctx.showTab("mission");

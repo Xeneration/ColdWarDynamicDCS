@@ -121,7 +121,8 @@ async function refresh(force = false) {
   const [o, a, m, s, d, h] = await Promise.all([api(base), api(`${base}/ato`), api(`${base}/map`),
     api(`${base}/squadron`), api(`${base}/debriefs`), api(`${base}/history`)]);
   const turnChanged = !state.o || state.o.turn !== o.turn || state.o.id !== o.id;
-  Object.assign(state, { version: o.version, o, a, m });
+  if (o.id !== state.cid) return;                     // switched campaign while loading: that refresh wins
+  Object.assign(state, { version: null, o, a, m });   // version set below, once everything rendered
   if (turnChanged) {
     state.selected = null;
     cmap.selected = null;
@@ -136,6 +137,7 @@ async function refresh(force = false) {
   renderDebrief($("#tab-debrief"), d, ctx);
   renderNews(o);
   cmap.draw(m);
+  state.version = o.version;                          // a render that threw is retried on the next poll
   if (!state.guided) { state.guided = true; showGuide(false, o); }
 }
 
