@@ -96,6 +96,10 @@ def resolve_ground(c: Campaign) -> list[str]:
         R, B = power(c, sec.id, Side.RED), power(c, sec.id, Side.BLUE)
         if R <= 0 and B <= 0:
             continue
+        from cwdc.engine import reactive
+        stall, reaction_lines = reactive.sector_factor(c, sec)    # NATO's answers from the air
+        R *= stall
+        lines += reaction_lines
         attacker = None
         red_odds = R / max(B * defence(sec, Side.BLUE) * sec.terrain, 1e-6)
         blue_odds = B / max(R * defence(sec, Side.RED) * sec.terrain, 1e-6)
@@ -301,7 +305,9 @@ def _overrun_airbase(c: Campaign, ab, owner: Side) -> list[str]:
 def destroy_from_air(c: Campaign, o: Objective, idx: int) -> None:
     """A visible vehicle was destroyed by air power: the parent formation pays for it."""
     from cwdc.engine import logistics
+    from cwdc.engine import reactive
     airbases.on_unit_destroyed(c, o, idx)
+    reactive.note_kill(c, o, unit_points(o.units[idx].type))
     if o.formation_id and o.formation_id in c.formations:
         f = c.formations[o.formation_id]
         f.strength = max(0.0, f.strength - unit_points(o.units[idx].type) * AIR_KILL_SCALE)

@@ -1,0 +1,18 @@
+# River lines and defiles behind each sector of the Central Front. When a Warsaw Pact attack in
+# the sector comes within `HOLD_WINDOW_KM` of one (offset_km = how far the front has been pushed
+# into West Germany), the troops-in-contact mission becomes "Hold the <name>": stopping the attack
+# there counts double. Distances are game-first approximations.
+germany:
+  goettingen:
+    - {name: "Werra crossings at Witzenhausen", km: 8}
+    - {name: "Leine bridges at Goettingen", km: 25}
+  fulda:
+    - {name: "Haune valley at Huenfeld", km: 12}
+    - {name: "Fulda river at Fulda", km: 25}
+    - {name: "Kinzig valley at Schluechtern", km: 45}
+  rhoen:
+    - {name: "Saale crossings at Bad Neustadt", km: 18}
+    - {name: "Franconian Saale at Bad Kissingen", km: 35}
+  hof:
+    - {name: "Saale bridges at Hof", km: 6}
+    - {name: "Red Main at Bayreuth", km: 40}

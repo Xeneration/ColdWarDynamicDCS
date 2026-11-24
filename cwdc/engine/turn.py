@@ -34,6 +34,8 @@ def end_turn(c: Campaign, dcs_results: list[SortieResult] | None = None,
     remaining = [f for f in c.flights.values()
                  if f.id not in flown and f.status is not FlightStatus.DONE]
     sim = resolver.resolve(c, remaining)
+    from cwdc.engine import reactive
+    reactive.simulate(c, flown, rng(c.seed, c.turn, "reactive"))
     debrief += ["-- Rest of the air war --", *apply.apply_results(c, sim)]
     if c.at_war:
         supply_lines = logistics.logistics_turn(c)

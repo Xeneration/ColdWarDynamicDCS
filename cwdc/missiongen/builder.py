@@ -193,6 +193,88 @@ FAC_OFFSET = 400                  # m: the smoke goes down this far from the tar
 FAC_INTERVAL = 300                # s between marks (smoke lasts about 5 min)
 
 
+CONTACT_DIST = 2_500              # m: friendly armour in contact, this far toward our lines from the enemy
+HELO_START_DIST = 35_000          # m east of the hunt area (which is 10 km on our side) the wave starts
+HELO_LZ_DIST = 4_000              # m west of the hunt area it lands its troops
+HELO_SPEED_KMH = 200
+
+
+def _reaction_scene(m: Mission, c: Campaign, player: Flight, player_eta: float, obj_groups: dict,
+                    manifest: dict, tracked: list) -> dict | None:
+    """Set the scene for an answer to the enemy's move (engine.reactive): the enemy battalion
+    pushes on with our armour in contact, or a helicopter assault wave crosses the front."""
+    from dcs.helicopters import helicopter_map
+    from dcs.point import PointAction
+    from cwdc.engine import reactive
+    pkg = c.packages[player.package_id]
+    x = next((r for r in reactive.this_turn(c) if r.package_id == pkg.id), None)
+    if x is None:
+        return None
+    ref = player.area or (c.objectives[player.target_id].pos if player.target_id else None)
+    if ref is None:
+        return None
+    blue_home = min((ab.pos for ab in c.airbases.values() if ab.side is Side.BLUE), key=lambda p: p.dist(ref))
+    if x.kind in ("tic", "hold") and player.target_id in obj_groups:
+        g = obj_groups[player.target_id]
+        here = Pos(x=g.units[0].position.x, z=g.units[0].position.y)
+        g.add_waypoint(T.to_point(_toward(here, blue_home, CONTACT_DIST + 1_500)), PointAction.OffRoad, 20)
+        friends = [f for f in c.formations.values() if f.side is Side.BLUE and f.sector_id == x.sector_id]
+        country = max(friends, key=lambda f: f.strength).country if friends else "USA"
+        types = ["M-60", "M-60", "M-113"]
+        if c.era:
+            from cwdc import era
+            avail = era.ground_in(c.time.year, "west")
+
+            def newest(role):
+                return max((v for v in avail.values() if v["role"] == role and not v.get("requires")),
+                           key=lambda v: v["years"][0], default=None)
+            tank, ifv = newest("tank"), newest("ifv") or newest("apc")
+            types = [tank["units"][0]] * 2 if tank else types[:2]
+            types.append(ifv["units"][0] if ifv else "M-113")
+        at = _toward(here, blue_home, CONTACT_DIST)
+        vg = m.vehicle_group(m.country(country), "Friendly armour in contact", vehicle_map[types[0]],
+                             T.to_point(at), group_size=1)
+        for i, t in enumerate(types[1:], 1):
+            v = m.vehicle(f"Friendly armour in contact {i + 1}", vehicle_map[t])
+            v.position = T.to_point(Pos(x=at.x + 40 * i, z=at.z + 25 * i))
+            vg.add_unit(v)
+        tracked.append(vg.name)
+        form = c.formations.get(c.objectives[player.target_id].formation_id or "")
+        best = max(friends, key=lambda f: f.strength) if friends else None
+        return {"kind": x.kind, "name": x.name, "enemy": form.name if form else "the enemy",
+                "friends": best.name if best else "our troops"}
+    if x.kind == "helo" and player.area is not None:
+        area = player.area
+        start = Pos(x=area.x, z=area.z + HELO_START_DIST)      # the Warsaw Pact side is to the east
+        lz = Pos(x=area.x, z=area.z - HELO_LZ_DIST)
+        delay = int(player_eta - HELO_START_DIST / (HELO_SPEED_KMH / 3.6))
+        names = []
+        types = reactive.helo_types(c.time.year)
+        for k, t in enumerate(dict.fromkeys(types)):
+            n = types.count(t)
+            hg = m.flight_group_inflight(m.country("USSR"), f"Assault wave {k + 1}", helicopter_map[t],
+                                         T.to_point(Pos(x=start.x + 600 * k, z=start.z)), altitude=60,
+                                         speed=HELO_SPEED_KMH, maintask=dtask.Transport, group_size=n)
+            if delay > 0:
+                _delay(hg, delay)
+            wp = hg.add_waypoint(T.to_point(lz), 40, HELO_SPEED_KMH, name="LZ")
+            wp.tasks.append(dtask.Land(T.to_point(lz), duration=300))
+            for i, u in enumerate(hg.units):
+                u.name = f"Assault wave {k + 1}-{i + 1}"
+                manifest[u.name] = {"kind": "reactive", "reaction": x.kind}
+                names.append(u.name)
+            tracked.append(hg.name)
+        x.helos = names
+        return {"kind": "helo", "count": len(names),
+                "types": ", ".join(f"{types.count(t)}x {t}" for t in dict.fromkeys(types))}
+    return None
+
+
+def reactive_behind() -> int:
+    from cwdc.engine import reactive
+    return reactive.HUNT_BEHIND
+
+
 def _move_toward_front(c: Campaign, group, dist: float = 15_000) -> None:
     """Send a vehicle group down the road toward the nearest point of the front."""
     from dcs.point import PointAction
@@ -817,6 +899,9 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
         tracked.append(gname)
 
     rescue_cfg = _rescue_party(m, c, player, player_eta, tracked) if player.task is Task.RESCAP else None
+    scene = None
+    if c.packages[player.package_id].reaction:
+        scene = _reaction_scene(m, c, player, player_eta, obj_groups, manifest, tracked)
     fac_cfg = None
     if player.task is Task.CAS and player.target_id in obj_groups:
         fac_cfg = {"callsign": FAC_CALLSIGN, "target": obj_groups[player.target_id].name,
@@ -852,6 +937,23 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
             c.packages[player.package_id].description.startswith("Iron Hand"):
         lines.append(f"IRON HAND: hunt {c.objectives[player.target_id].name} with Shrikes. Fire while its "
                      "radar is up; it may shut down to hide - press on and it will come back up.")
+    if scene and scene["kind"] in ("tic", "hold"):
+        head = f"HOLD THE {scene['name'].upper()}" if scene["kind"] == "hold" else "TROOPS IN CONTACT"
+        lines.append(f"{head}: {scene['enemy']} is attacking {scene['friends']}. Friendly armour is "
+                     f"{CONTACT_DIST / 1000:.1f} km west of the enemy column - check your target before you "
+                     "roll in. Stop the lead battalion and the attack in this sector stalls.")
+    if scene and scene["kind"] == "helo":
+        lines.append(f"HELICOPTER HUNT: an assault wave ({scene['types']}) is crossing the front low and "
+                     f"heading for a landing zone {(HELO_LZ_DIST + reactive_behind()) // 1000} km behind our lines. Shoot down at "
+                     "least half and the assault is broken up.")
+    reaction = c.packages[player.package_id].reaction
+    if reaction in ("hunt", "bomber", "airfield"):
+        lines.append({"hunt": "HUNT THE RAID: Warsaw Pact attack aircraft are going for our troops. Catch "
+                              "them low over the battlefield before they reach the front line.",
+                      "bomber": "BOMBER INTERCEPT: a bomber raid is heading deep into our rear. Get to it "
+                                "before it reaches the target - mind its escorts.",
+                      "airfield": "AIRFIELD DEFENCE: a raid is inbound to your own airfield. Get airborne now "
+                                  "and meet it before it is over the runway."}[reaction])
     if player.task is Task.ARMED_RECON and player.target_id:
         lines.append(f"ARMED RECON: hunt along the roads within {ARMED_RECON_BOX // 1000} km of "
                      f"{c.objectives[player.target_id].name} - the column is moving up to the front. "

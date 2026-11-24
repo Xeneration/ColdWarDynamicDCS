@@ -24,6 +24,7 @@ P_SAM = 0.05                     # per aircraft per covering SAM site (full stre
 P_AAA = 0.015                    # per aircraft per AAA gun at the target
 P_WEAPON = 0.45
 P_SEAD_HIT = 0.4
+FAC_AAA = 0.5                    # flak's chance against a FAC-directed attack (troops in contact)
 P_CAPTURED = 0.5                 # crews down over enemy territory taken at once (else evading)
 FIGHTER_TASKS = (Task.CAP, Task.INTERCEPT, Task.SWEEP)   # fly an area and fight what comes
 AAA_TYPES = ("ZSU", "Vulcan", "Gepard", "Strela", "Chaparral", "ZU-23",
@@ -115,7 +116,11 @@ class _Sim:
 
     # ------------------------------------------------------------------ phases
     def run(self) -> None:
-        caps = {s: [f for f in self.flights if f.side is s and f.task in FIGHTER_TASKS] for s in Side}
+        def hunting_helos(f: Flight) -> bool:            # low over our side, not looking for MiGs
+            pkg = self.c.packages.get(f.package_id)
+            return pkg is not None and pkg.reaction == "helo"
+        caps = {s: [f for f in self.flights if f.side is s and f.task in FIGHTER_TASKS and not hunting_helos(f)]
+                for s in Side}
         strikes = [f for f in self.flights if f.target_id]
         engaged: set[str] = set()
 
@@ -164,9 +169,10 @@ class _Sim:
                     if self.r.random() < p:
                         self.lose(f, s, None, tgt.pos, sam.name)
             aaa = [u for u in tgt.units if u.alive and any(a in u.type for a in AAA_TYPES)]
+            fac = self.c.packages[f.package_id].reaction in ("tic", "hold") if f.package_id in self.c.packages                 else False                       # a FAC talk-on: one quick pass, not a long search
             for _ in aaa:
                 for s in list(self.alive[f.id]):
-                    if self.r.random() < P_AAA:
+                    if self.r.random() < P_AAA * (FAC_AAA if fac else 1.0):
                         self.lose(f, s, None, tgt.pos, "AAA")
 
             # 4. weapons effects

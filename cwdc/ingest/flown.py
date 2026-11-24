@@ -45,7 +45,7 @@ def results_from_dcs(c: Campaign, rec: MissionRecord, data: dict) -> tuple[list[
         if ev in LOSS_EVENTS and iname in man:
             if man[iname]["kind"] == "airframe":
                 lost.add(iname)
-            else:
+            elif man[iname]["kind"] == "objective":
                 obj_dead.add(iname)
         if ev == "S_EVENT_EJECTION" and iname in man:
             ejected[iname] = _pos(ini)
@@ -65,6 +65,8 @@ def results_from_dcs(c: Campaign, rec: MissionRecord, data: dict) -> tuple[list[
                 continue                      # fratricide: no credit
             if k_entry and k_entry["kind"] == "airframe":
                 target, ttype, air = k_entry["airframe"], c.airframes[k_entry["airframe"]].type, True
+            elif k_entry and k_entry["kind"] == "reactive":      # e.g. an assault helicopter
+                target, ttype, air = tname, tgt.get("type"), True
             elif k_entry:
                 target, ttype, air = f"{k_entry['objective']}#{k_entry['unit']}", tgt.get("type"), False
             else:
@@ -154,7 +156,7 @@ def _fate(c: Campaign, pilot_id: str, uname: str, ejected, landed: Pos | None,
 def _side_of(c: Campaign, entry: dict | None, obj: dict) -> Side | None:
     if entry and entry["kind"] == "airframe":
         return c.squadrons[c.airframes[entry["airframe"]].squadron_id].side
-    if entry:
+    if entry and entry["kind"] == "objective":
         return c.objectives[entry["objective"]].side
     return {1: Side.RED, 2: Side.BLUE}.get((obj or {}).get("coalition"))
 

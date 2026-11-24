@@ -13,8 +13,9 @@ results back after you fly, so the war moves on.
 >
 > **Next stage: the Cold War campaign maker (1950–1991).** Pick a year, and the war is built
 > with the aircraft, weapons, SAMs and tanks of that year, flown by every West and East nation.
-> The Fulda 1976 concept is frozen as the tag `v0.4-fulda-1976`. Phases A–D (era data, the generator,
-> flying several airframes, the year-slider screen) are done; next come the enemy-turn missions (Phase E). See
+> The Fulda 1976 concept is frozen as the tag `v0.4-fulda-1976`. Phases A–E (era data, the generator,
+> flying several airframes, the year-slider screen, missions in the enemy's turn) are done; next is the
+> Syria theatre (Phase F). See
 > [docs/design_era.md](docs/design_era.md).
 
 ## The campaign in brief (Phase 4)
@@ -68,6 +69,16 @@ Your squadron (496th TFS, F-4E) flies 4 sorties a turn. One is held back as an a
 | Precision strike | Radar or command post | 2x GBU-8 HOBOS (TV-guided), Pave Spike, 3x AIM-7E-2 |
 | Iron Hand (SEAD) | Hunt a SAM site with Shrikes | 4x AGM-45A, 3x AIM-7E-2 |
 | RESCAP | Cover Dustoff 1 (UH-1H) picking up a downed crew; a search party closes in | 12x Rockeye, 2x AIM-7E-2 |
+
+**Missions in the enemy's turn.** When the Warsaw Pact attacks somewhere on the front, the plan answers it, and these go to your wing first:
+
+| Mission | What you do | What it changes |
+|---|---|---|
+| Troops in contact | CAS on the lead battalion of the attack. A FAC talks you on, and friendly armour is 2.5 km away. | Stop it and that sector's attack stalls this turn. |
+| Hold the (river) | The same, where the attack is about to force a river line, e.g. *Hold the Fulda river at Fulda*. | Counts for more. |
+| Counter-battery | Silence the guns firing the attack in. | Weakens the attack. |
+| Helicopter hunt | A Mi-24/Mi-8 assault wave crosses the front low, heading for a landing zone behind our lines. Shoot down half. | If it gets through, the attack gets a lift. |
+| Hunt the raid / Bomber intercept / Airfield defence | Scrambles named by what they meet: attack aircraft over the front, bombers going deep, or a raid on your own field. | |
 
 ## Playing in the browser (Phase 3)
 ```powershell

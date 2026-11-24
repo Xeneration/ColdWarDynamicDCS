@@ -20,7 +20,7 @@ from dataclasses import dataclass
 from typing import Optional
 
 from cwdc import theater as T
-from cwdc.engine import airbases, crews, rng, weather
+from cwdc.engine import airbases, crews, reactive, rng, weather
 from cwdc.model import (Campaign, CrewRole, Flight, FlightStatus, Objective, ObjectiveKind, Package,
                         PilotStatus, Pos, Side, Squadron, Task)
 
@@ -73,6 +73,9 @@ class Need:
     score: float
     label: Optional[str] = None        # e.g. "OCA" for a strike on an airfield
     reason: str = ""                   # plain words for the player: why this target
+    reaction: Optional[str] = None     # engine.reactive: an answer to the enemy's attack
+    sector_id: Optional[str] = None
+    chokepoint: str = ""
 
 
 # ----------------------------------------------------------------------------- helpers
@@ -224,6 +227,7 @@ def plan_turn(c: Campaign) -> None:
     """Replace the current ATO with a fresh plan for this turn."""
     c.packages.clear()
     c.flights.clear()
+    c.reactions = [x for x in c.reactions if x.turn != c.turn]     # a re-plan answers afresh
     r = rng(c.seed, c.turn, "plan")
     night = period(c) == "night"
     pools: dict[Side, _Pool] = {}
@@ -285,6 +289,8 @@ def plan_turn(c: Campaign) -> None:
             if columns:                               # the daily road hunt is flown, not out-scored
                 side_needs.remove(columns[0])
                 side_needs.insert(player_busy, columns[0])     # after the OCA and the special
+        if side is Side.BLUE:                         # answer the Warsaw Pact's attack first
+            reactive.promote(c, side_needs, insert_at=player_busy)
         wx = weather.strike_factor(c.weather)
         for need in side_needs:
             if need.target.id in taken:
@@ -308,6 +314,12 @@ def plan_turn(c: Campaign) -> None:
                 psq, ptask = pool.pick(CAN_FLY[need.task], near=need.target.pos, exclude=set(own))
                 if psq is not None:
                     sq, task = psq, ptask
+            if need.reaction:                         # the answer is flown by the player's wing
+                own = {s.id for s in c.squadrons.values() if s.side is side
+                       and not (s.player_squadron or s.player_wing)}
+                wsq, wtask = pool.pick(CAN_FLY[need.task], near=need.target.pos, exclude=own)
+                if wsq is not None:
+                    sq, task = wsq, wtask
             if sq is None:
                 continue
             if wx < 1.0 and r.random() > wx:
@@ -332,6 +344,9 @@ def plan_turn(c: Campaign) -> None:
             pkg = _package(c, side, task, f"{need.label or task.value} - {need.target.name}",
                            target=need.target)
             pkg.reason = need.reason
+            if need.reaction:
+                pkg.reaction = need.reaction
+                reactive.register(c, need.reaction, need.sector_id, pkg.id, need.target.id, need.chokepoint)
             main = _flight(c, pool, sq, task, pkg, target=need.target)
             if variant:
                 fits = T.airframe_catalogue().get(sq.aircraft_type, {}).get("loadouts", {})
@@ -364,6 +379,7 @@ def plan_turn(c: Campaign) -> None:
 INTERCEPT_LEAD = 60_000      # m: scramble to meet a raid this far short of its target
 INTERCEPT_REACH = 60_000     # m: raids on targets this close to one of our airfields are intercepted
 MAX_INTERCEPTS = 2
+AIRFIELD_LEAD = 30_000       # m: a raid on our own field is met this far out
 P_ESCORT_NOT_SWEEP = 0.5     # the released alert sortie escorts a bare package rather than sweeping
 P_INTERCEPT = 0.6            # chance a battlefield raid is intercepted rather than a sweep flown
 
@@ -387,7 +403,27 @@ def _fighter_ops(c: Campaign, pools: dict, r) -> None:
         pkg.reason = f"{p.rank} {p.name} is down behind enemy lines and evading capture"
         f = _flight(c, pool, sq, Task.RESCAP, pkg, area=p.down_pos)
         f.rescue_of = p.id
+    helo_sec = reactive.helo_assault(c, r)
+    if helo_sec is not None:                       # a helicopter assault wave crosses the front
+        pts = [T.latlon_to_pos(*c.front_line[i]) for i in helo_sec.front_points if i < len(c.front_line)]
+        mid = pts[len(pts) // 2] if pts else None
+        if mid is not None:                        # hunt over our own side, where they are heading
+            home = min((ab.pos for ab in c.airbases.values() if ab.side is side), key=lambda b: b.dist(mid))
+            mid = _toward_pos(mid, home, reactive.HUNT_BEHIND)
+        x = reactive.register(c, "helo", helo_sec.id)
+        if mid is not None:
+            own = {s.id for s in c.squadrons.values() if s.side is side and not (s.player_squadron or s.player_wing)}
+            sq, _ = pool.pick([Task.CAP], near=mid, exclude=own)
+            sq = sq or pool.pick([Task.CAP], near=mid)[0]
+            if sq is not None:
+                types = reactive.helo_types(c.time.year)
+                pkg = _package(c, side, Task.CAP, f"Helicopter hunt - {len(types)} helicopters crossing in the "
+                               f"{helo_sec.name}", area=mid)
+                pkg.reason = "an assault wave of Warsaw Pact helicopters is lifting troops over the front"
+                pkg.reaction, x.package_id = "helo", pkg.id
+                _flight(c, pool, sq, Task.CAP, pkg, area=mid)
     bases = [ab.pos for ab in c.airbases.values() if ab.side is side]
+    home_bases = {s.base_id for s in c.squadrons.values() if s.side is side and (s.player_squadron or s.player_wing)}
     raids = []
     for p in c.packages.values():
         if p.side is side.enemy and p.target_id and p.flight_ids:
@@ -403,13 +439,24 @@ def _fighter_ops(c: Campaign, pools: dict, r) -> None:
     for p, tgt in raids[:MAX_INTERCEPTS]:
         raid = c.flights[p.flight_ids[0]]
         red_base = c.airbases[c.squadrons[raid.squadron_id].base_id].pos
-        area = _toward_pos(tgt.pos, red_base, INTERCEPT_LEAD)
-        sq, _ = pool.pick([Task.CAP], near=area)
+        kind = reactive.raid_label(c, raid, tgt, home_bases)
+        area = _toward_pos(tgt.pos, red_base, INTERCEPT_LEAD if kind != "airfield" else AIRFIELD_LEAD)
+        sq = None
+        if kind == "airfield":                        # the squadrons on that field scramble
+            on_field = {s.id for s in c.squadrons.values() if s.side is side and s.base_id != tgt.airbase_id}
+            sq, _ = pool.pick([Task.CAP], near=area, exclude=on_field)
+        sq = sq or pool.pick([Task.CAP], near=area)[0]
         if sq is None:
             break
-        pkg = _package(c, side, Task.INTERCEPT, f"Scramble - intercept {raid.callsign} raiding {tgt.name}",
+        label = reactive.LABEL.get(kind, "Scramble")
+        rtype = c.squadrons[raid.squadron_id].aircraft_type
+        pkg = _package(c, side, Task.INTERCEPT, f"{label} - intercept {raid.callsign} ({rtype}) raiding {tgt.name}",
                        area=area)
-        pkg.reason = "a Warsaw Pact raid is inbound: meet it before it reaches the target"
+        pkg.reason = {"airfield": "a raid is inbound to your own airfield: get airborne and meet it",
+                      "bomber": "Warsaw Pact bombers are heading deep into our rear: stop them",
+                      "hunt": "Warsaw Pact attack aircraft are going for our troops at the front"}.get(
+            kind, "a Warsaw Pact raid is inbound: meet it before it reaches the target")
+        pkg.reaction = kind or None
         f = _flight(c, pool, sq, Task.INTERCEPT, pkg, area=area)
         f.intercepts = raid.id
     if raids:

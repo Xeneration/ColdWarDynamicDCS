@@ -95,10 +95,15 @@ def test_planner_flies_interdiction_against_logistics(camp):
 
 
 def test_rail_yard_spawns_statics_and_ingest_reads_them(camp, tmp_path):
-    _at_war(camp)
-    f = next(fl for fl in camp.flights.values()
-             if fl.side is Side.BLUE and fl.task is Task.INTERDICTION
-             and camp.objectives[fl.target_id].kind.value == "rail")
+    f = None
+    for _ in range(4):                  # some turns the battlefield (troops in contact) comes first
+        _at_war(camp)
+        f = next((fl for fl in camp.flights.values()
+                  if fl.side is Side.BLUE and fl.task is Task.INTERDICTION
+                  and camp.objectives[fl.target_id].kind.value == "rail"), None)
+        if f is not None:
+            break
+    assert f is not None
     rec = builder.build(camp, f.id, tmp_path, bot=True)
     statics = [n for n, e in rec.manifest.items() if e.get("static")]
     assert statics and all(n.startswith(f.target_id) for n in statics)

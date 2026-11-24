@@ -274,6 +274,22 @@ class Package(BaseModel):
     target_id: Optional[str] = None
     area: Optional[Pos] = None
     reason: str = ""                   # why the air commander tasked it, in plain words
+    reaction: Optional[str] = None     # an answer to the enemy's move (engine.reactive): tic, hold, ...
+
+
+class Reaction(BaseModel):
+    """A move of the enemy that our air power answers this turn (engine.reactive): troops in
+    contact, a river line to hold, a battery to silence, a helicopter assault to break up."""
+    kind: str
+    turn: int
+    sector_id: str
+    package_id: Optional[str] = None
+    target_id: Optional[str] = None
+    name: str = ""                     # e.g. the chokepoint held
+    needed: float = 0.0                # score that counts as success
+    score: float = 0.0                 # vehicle points destroyed / share of helicopters downed
+    helos: list[str] = Field(default_factory=list)    # DCS unit names spawned for a helicopter hunt
+    flown: bool = False                # the player flew it in DCS (DCS decides the score)
 
 
 # ----------------------------------------------------------------------------- results (principle 2)
@@ -423,6 +439,7 @@ class Campaign(BaseModel):
     history: list[TurnStats] = []      # one per closed turn
     news: list[NewsItem] = []
     counters: dict[str, int] = Field(default_factory=dict)
+    reactions: list[Reaction] = Field(default_factory=list)
 
     def next_id(self, prefix: str) -> str:
         n = self.counters.get(prefix, 0) + 1

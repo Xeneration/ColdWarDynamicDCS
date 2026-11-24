@@ -231,3 +231,52 @@ Treat **every DCS module as available**: the user owns many more than are instal
   - 1985: F-4E, A-10A and F-5E.
 - **Stale browser modules fixed:** the page now loads its scripts and styles from `/v/<build>/`, a path keyed on a hash of the static files. A browser can no longer pair a new page with old cached modules (found while testing: it kept serving the old guide.js). `/` is sent `no-cache`.
 - **Checked in the browser** at 1440x900: the chart, dragging the year, expanding rows, presets, creating a 1975 war, and the guide text. No console errors.
+
+### Phase E: missions in the enemy's turn (2026-11-24, done)
+
+- **`cwdc/engine/reactive.py`:** NATO answers what the Warsaw Pact does. Each answer is a `Reaction` on the campaign (`Campaign.reactions`; `Package.reaction` marks its package).
+  - **Troops in contact / Hold the (river):**
+    - Where the Warsaw Pact attacked last turn (the main effort first, then the deepest push), its lead battalion in that sector is promoted to the head of NATO's battlefield needs, right after the forced OCA and the special of the day.
+    - It is flown by the player's wing when it has a sortie.
+    - When the attack is within 6 km of a chokepoint (`data/era/chokepoints.yaml`: Werra, Leine, Haune, Fulda, Kinzig, Saale, Main crossings), it becomes "Hold the ...".
+  - **Counter-battery:** the guns of an attacking sector, when no troops-in-contact mission was found. Only one battlefield answer a turn, so the wing keeps its escorts.
+  - **Helicopter hunt:**
+    - From 1967 (Mi-8; Mi-24 gunships from 1972), with a 50% chance a turn, the deepest attack gets an assault wave.
+    - A NATO patrol (wing first) hunts it 10 km on our side of the front. The hunters stay out of the simulation's fighter-versus-fighter phase, because they are low and looking for helicopters.
+    - Unflown hunts are decided on the hunter's air rating.
+  - **Scramble names:** `raid_label` names intercepts "Hunt the raid" (attack aircraft on our troops), "Bomber intercept" (bomber-role types) or "Airfield defence" (a raid on the field of your wing). An airfield defence scrambles the squadrons on that field, met 30 km out.
+- **Effect on the ground war:**
+  - `note_kill` (from `ground.destroy_from_air`, both simulated and DCS) adds the vehicle points destroyed on the target.
+  - `sector_factor` multiplies the Warsaw Pact's attack power in the sector that turn, with a debrief line:
+
+    | Answer succeeds | Warsaw Pact attack power |
+    |---|---|
+    | Troops in contact (≥ 2 points) | × 0.8 |
+    | Hold the (river) | × 0.65 |
+    | Counter-battery (≥ 1.5 points) | × 0.9 |
+    | Helicopter assault not broken up | × 1.1 |
+
+- **The DCS mission:**
+  - **Troops in contact:** the enemy column drives on toward our lines, and "Friendly armour in contact" (the year's newest NATO tank ×2 and IFV, of the formation holding the sector) is 2.5 km ahead of it. Briefing: "TROOPS IN CONTACT" / "HOLD THE ...". The existing FAC (Wildcat 21) marks for CAS.
+  - **Helicopter hunt:**
+    - The assault wave (Mi-24V/Mi-8MT per year) starts 35 km east, flies at 60 m and lands 4 km beyond the hunt area. It is timed to arrive with you.
+    - Its units go in the manifest as `reactive`.
+    - `reactive.dcs_results` scores the share shot down (gone from the final snapshot, or dead/crash events), and the ingest credits the kills.
+  - Briefing lines for Hunt the raid / Bomber intercept / Airfield defence.
+- **Simulation:** a FAC-directed troops-in-contact attack meets half the flak (`FAC_AAA`, a single quick pass).
+- **Balance:**
+  - Blue losses over 7 days, 8 seeds: 4.6% with these missions, 4.4% without.
+  - Over 21 days, 6 seeds:
+
+    | | NATO loss / sortie | WP loss / sortie |
+    |---|---|---|
+    | Preset | 3.2% | 4.7% |
+    | 1966 | 3.4% | 4.8% |
+    | 1985 | 4.2% | 3.6% |
+
+  - The balance guard test now averages 4 seeds instead of 2; 2 were within noise of its 6% band.
+  - Outcomes moved a little: the preset's 6 seeds now give 2 Warsaw Pact gains. That needs a bigger sample in Phase G.
+- **Still open:**
+  - The FROG/Scud hunt: DCS has only `Scud_B`, too big and late for most eras. Counter-battery covers the guns.
+  - Bridges as targets (unverified on the map).
+  - UH-1H missions you fly yourself (helicopter squadrons in the wing).
