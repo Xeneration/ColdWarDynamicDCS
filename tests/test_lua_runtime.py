@@ -283,3 +283,29 @@ def test_fac_checks_in_marks_and_remarks_on_request():
     assert lua.eval("#MSGS") == n                                # no new mark before the interval
     lua.execute("MENU[1].fn(MENU[1].arg)")
     assert "New mark" in lua.eval("MSGS[#MSGS]")
+
+
+def test_bombs_from_watched_groups_are_tracked_to_impact():
+    cfg = config_lua("t-007", ["BLUE-Hawk1"], impacts={"groups": ["BLUE-Hawk1"]})
+    lua = mission_runtime(cfg, None, pre_runtime=UNITS + """
+      function mkbomb(cat, x, z)
+        local b = { _alive = true, _p = { x = x, y = 300, z = z } }
+        function b:isExist() return self._alive end
+        function b:getPoint() return self._p end
+        function b:getTypeName() return "M117" end
+        function b:getDesc() return { category = cat } end
+        return b
+      end
+    """)
+    lua.execute("""
+      B = mkbomb(3, 100, 200); MSL = mkbomb(1, 0, 0)
+      fire({ id = world.event.S_EVENT_SHOT, time = 10, initiator = P, weapon = B })
+      fire({ id = world.event.S_EVENT_SHOT, time = 10, initiator = P, weapon = MSL })
+      fire({ id = world.event.S_EVENT_SHOT, time = 10, initiator = M, weapon = mkbomb(3, 0, 0) })
+      run_due(0.2)
+      B._p = { x = 150, y = 0, z = 260 }; run_due(0.4)
+      B._alive = false; run_due(0.6)
+    """)
+    events = json.loads(lua.eval("CWDC_export()"))["events"]
+    impacts = [e for e in events if e["event"] == "CWDC_IMPACT"]
+    assert len(impacts) == 1 and impacts[0]["pos"] == {"x": 150, "z": 260} and impacts[0]["weapon"] == "M117"

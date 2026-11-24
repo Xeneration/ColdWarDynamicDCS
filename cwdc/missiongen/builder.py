@@ -23,6 +23,7 @@ from dcs.vehicles import vehicle_map
 
 from cwdc import theater as T
 from cwdc.engine import rng
+from cwdc.engine.airbases import RUNWAY_LOADOUT
 from cwdc.missiongen import coalitions, kneeboard, loadouts
 from cwdc.missiongen.runtime_inject import inject_runtime
 from cwdc.model import Campaign, Flight, MissionRecord, Objective, ObjectiveKind, Pos, Side, Task
@@ -183,6 +184,7 @@ def _kneeboard_info(c: Campaign, player: Flight, plan: Plan, group, lines: list[
         bullseye=bull, target=c.objectives[player.target_id].pos if player.target_id else None)
 
 
+PRECISION_LOADOUT = "PRECISION_GBU8"
 ARMED_RECON_BOX = 30_000          # m: the road-hunting box around the column
 FAC_CALLSIGN = "Wildcat 21"       # airborne forward air controller (fictional callsign)
 FAC_RANGE = 27_800                # m (15 nm): the FAC checks the flight in and marks from here
@@ -832,6 +834,16 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
                      f"{c.squadrons[raid.squadron_id].aircraft_type}) inbound"
                      + (f" to {rtgt.name}" if rtgt else "") + ". Meet it at the scramble point; "
                      "MAGIC (F10) will vector you.")
+    if player.loadout == RUNWAY_LOADOUT and player.target_id:
+        lines.append(f"RUNWAY ATTACK: crater the runway at {c.objectives[player.target_id].name}. Cross it "
+                     "at an angle and string your M117s along it; every hit near the runway counts.")
+    if player.loadout == PRECISION_LOADOUT and player.target_id:
+        lines.append(f"PRECISION STRIKE: GBU-8 HOBOS (TV-guided) on {c.objectives[player.target_id].name}. "
+                     "The WSO locks the target on the scope before release; the Pave Spike pod is carried.")
+    if player.task is Task.SEAD and player.target_id and \
+            c.packages[player.package_id].description.startswith("Iron Hand"):
+        lines.append(f"IRON HAND: hunt {c.objectives[player.target_id].name} with Shrikes. Fire while its "
+                     "radar is up; it may shut down to hide - press on and it will come back up.")
     if player.task is Task.ARMED_RECON and player.target_id:
         lines.append(f"ARMED RECON: hunt along the roads within {ARMED_RECON_BOX // 1000} km of "
                      f"{c.objectives[player.target_id].name} - the column is moving up to the front. "
@@ -920,7 +932,8 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
     inject_runtime(m, mission_id, tracked, end_when=end_when, tracked_statics=tracked_statics,
                    roe="weapons_free" if c.at_war else "weapons_tight", intercept=intercept, magic=magic,
                    rescue=rescue_cfg and {k: rescue_cfg[k] for k in ("helo", "x", "z", "radius", "hold")},
-                   fac=fac_cfg)
+                   fac=fac_cfg,
+                   impacts={"groups": [f"{player.id} {player.callsign}"]} if player.loadout == RUNWAY_LOADOUT else None)
     out_dir.mkdir(parents=True, exist_ok=True)
     path = out_dir / mission_filename(c, player, bot)
     with tempfile.TemporaryDirectory() as tmp:

@@ -31,6 +31,26 @@ DCS World. **ColdWarDynamic overnight soak** runs the 8-hour, 2-instance soak te
 The shortcuts are created with `.\.venv\Scripts\python.exe -m cwdc shortcuts`; run it again if you
 move the project folder. `cwdc start [--dcs]` does the same from a terminal.
 
+## Missions you can fly
+Your squadron (496th TFS, F-4E) flies 4 sorties a turn. One is held back as an alert reserve for scrambles, escorts and sweeps. Each war day it also gets one "special", in rotation: an airfield attack, Iron Hand, a runway attack, then a precision strike.
+
+| Mission | What you do | Loadout |
+|---|---|---|
+| Barrier CAP | Guard a patrol station | 4x AIM-7E-2, 4x AIM-9J, 3 tanks |
+| QRA (crisis) | Intercept a border probe and shadow it, weapons tight | 4x AIM-7E, 4x AIM-9E, centreline tank |
+| Scramble intercept | Meet an inbound raid; MAGIC vectors you | as QRA |
+| Fighter sweep | Clear a MiG patrol ahead of a strike | as CAP |
+| Escort | Protect a strike package | as CAP |
+| CAS (with FAC) | Wildcat 21 marks the target with smoke and talks you on | 12x Mk-20 Rockeye, 2x AIM-7E-2 |
+| BAI | Units just behind the front | 4x AGM-65A Maverick, 2x AIM-7E-2 |
+| Armed recon | Hunt a moving supply column in a 30 km box | 12x Rockeye, 2x AIM-7E-2 |
+| Interdiction | Rail yards, depots, columns | 12x Mk-82, 2x AIM-7E-2 |
+| Strike / OCA | Radars, command posts, parked aircraft | 11x M117, 2x AIM-7E-2 |
+| Runway attack | Crater a Warsaw Pact runway (bomb impacts are counted) | 11x M117 string |
+| Precision strike | Radar or command post | 2x GBU-8 HOBOS (TV-guided), Pave Spike, 3x AIM-7E-2 |
+| Iron Hand (SEAD) | Hunt a SAM site with Shrikes | 4x AGM-45A, 3x AIM-7E-2 |
+| RESCAP | Cover Dustoff 1 (UH-1H) picking up a downed crew; a search party closes in | 12x Rockeye, 2x AIM-7E-2 |
+
 ## Playing in the browser (Phase 3)
 ```powershell
 .\.venv\Scripts\python.exe -m cwdc serve        # opens http://127.0.0.1:8076 in your browser

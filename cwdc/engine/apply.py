@@ -55,6 +55,11 @@ def apply_results(c: Campaign, results: Iterable[SortieResult],
                 seat = " (WSO)" if p.role is CrewRole.WSO else ""
                 lines.append(f"  {p.rank} {p.name}{seat} ({c.squadrons[p.squadron_id].name}): "
                              f"{fate.status.value.upper()} - {fate.note}")
+        if r.craters and f.target_id:
+            from cwdc.engine import airbases
+            o = c.objectives.get(f.target_id)
+            if o is not None and o.airbase_id in c.airbases:
+                lines.append("  " + airbases.crater(c, c.airbases[o.airbase_id], r.craters))
         for k in r.kills:
             if k.pilot_id:                     # the crew shares the credit (USAF practice)
                 for pid in filter(None, (k.pilot_id, crews.wso_for(f, k.pilot_id))):

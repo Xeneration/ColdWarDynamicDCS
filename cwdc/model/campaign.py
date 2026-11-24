@@ -298,6 +298,7 @@ class SortieResult(BaseModel):
     pilot_fates: list[PilotFate] = []
     kills: list[Kill] = []
     objective_units_destroyed: list[str] = []   # "objective_id#unit_index"
+    craters: int = 0                   # runway attack: bomb hits on the target airfield's runway
     summary: str = ""
 
 

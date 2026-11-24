@@ -131,3 +131,71 @@ def test_cas_missions_get_a_fac():
     cfg = str(next(a.dict() for t in m.triggerrules.triggers for a in t.actions if "CWDC_CONFIG" in str(a.dict())))
     assert f'callsign = "{builder.FAC_CALLSIGN}"' in cfg and "menu = true" in cfg
     assert any(l.startswith("FAC:") for l in rec.briefing)
+
+
+def _special_day(name, seed=2):
+    """A war campaign on a daytime turn of the day whose player special is `name`."""
+    from cwdc.engine import planner
+    c = new_campaign("Var", seed=seed)
+    for _ in range(4 * 6):
+        if planner.player_special(c) == name and planner.period(c) in ("dawn", "day"):
+            from cwdc.model import WeatherState
+            c.weather = WeatherState(kind="clear", cloud_base_m=0)     # no weather scrubs
+            c.counters = {k: v for k, v in c.counters.items()
+                          if not k.startswith(("special:", "oca:", "recon:"))}
+            planner.plan_turn(c)
+            return c
+        turn.end_turn(c)
+    pytest.skip(f"no {name} day reached")
+
+
+def test_player_special_rotates_daily():
+    from cwdc.engine import planner
+    c = new_campaign("Var", seed=1)
+    seen = []
+    for _ in range(16):
+        seen.append(planner.player_special(c))
+        turn.end_turn(c)
+    assert seen[0] == "oca" and set(seen) == set(planner.SPECIALS)
+
+
+@pytest.mark.parametrize("special,label,loadout", [("iron_hand", "Iron Hand", "SEAD_SHRIKE"),
+                                                   ("precision", "Precision strike", "PRECISION_GBU8")])
+def test_special_of_the_day_goes_to_the_player(special, label, loadout):
+    for seed in range(2, 8):
+        c = _special_day(special, seed)
+        pkg = next((p for p in c.packages.values() if p.description.startswith(label)), None)
+        if pkg is None:
+            continue
+        main = c.flights[pkg.flight_ids[0]]
+        assert main.player_eligible and main.loadout == loadout
+        rec = builder.build(c, main.id, Path(tempfile.mkdtemp()), start="air")
+        key = "IRON HAND:" if special == "iron_hand" else "PRECISION STRIKE:"
+        assert any(l.startswith(key) for l in rec.briefing)
+        return
+    pytest.skip(f"no {label} package in the sample")
+
+
+def test_runway_attack_craters_the_field():
+    from cwdc.engine import airbases
+    from cwdc.model import MissionRecord
+    for seed in range(2, 8):
+        c = _special_day("runway", seed)
+        f = next((x for x in c.flights.values() if x.loadout == airbases.RUNWAY_LOADOUT), None)
+        if f is None:
+            continue
+        assert f.player_eligible
+        rec = builder.build(c, f.id, Path(tempfile.mkdtemp()), start="air")
+        assert any(l.startswith("RUNWAY ATTACK:") for l in rec.briefing)
+        m, _ = _groups(rec)
+        cfg = str(next(a.dict() for t in m.triggerrules.triggers for a in t.actions if "CWDC_CONFIG" in str(a.dict())))
+        assert "impacts" in cfg
+        ab = c.airbases[c.objectives[f.target_id].airbase_id]
+        before = ab.damage
+        near = {"event": "CWDC_IMPACT", "pos": {"x": ab.pos.x + 300, "z": ab.pos.z}}
+        far = {"event": "CWDC_IMPACT", "pos": {"x": ab.pos.x + 5000, "z": ab.pos.z}}
+        mission = MissionRecord(mission_id="m", turn=c.turn, player_flight_id=f.id, miz_path="x", generated_at=0)
+        lines = airbases.dcs_craters(c, mission, {"events": [near, near, far]})
+        assert abs(ab.damage - before - 2 * airbases.CRATER_DAMAGE) < 1e-9 and "2 bomb hit" in lines[0]
+        return
+    pytest.skip("no runway attack in the sample")

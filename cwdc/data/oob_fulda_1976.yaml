@@ -17,7 +17,7 @@ squadrons:
     aircraft_type: F-4E-45MC
     base: rheinmain
     callsign: Colt
-    tasks: [CAP, Strike, CAS, BAI]
+    tasks: [CAP, Strike, CAS, BAI, SEAD]
     airframes: 18
     pilots: 20
     tail_prefix: "HR 68-"

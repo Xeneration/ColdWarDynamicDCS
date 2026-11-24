@@ -128,6 +128,42 @@ def on_unit_destroyed(c: Campaign, o: Objective, idx: int) -> None:
         news.headline(c, "parked_lost", "air", sq=c.squadrons[a.squadron_id].name, tail=a.id, base=ab.dcs_name)
 
 
+RUNWAY_LOADOUT = "RUNWAY_M117"   # the loadout that marks a runway attack
+CRATER_DAMAGE = 0.15         # per runway hit
+RUNWAY_RADIUS = 1_200        # m from the airfield reference point that counts as the runway area
+
+
+def crater(c: Campaign, ab: Airbase, hits: int) -> str:
+    """Runway attack: each hit adds damage (closes the field at CLOSED)."""
+    ab.damage = min(1.0, ab.damage + CRATER_DAMAGE * hits)
+    ab.hit_turn = c.turn
+    from cwdc.engine import news
+    text = f"{ab.dcs_name}: {hits} bomb hit(s) on the runway - the airfield is " \
+           + ("closed." if ab.damage >= CLOSED else f"{ab.damage:.0%} damaged.")
+    news.post(c, text, "air")
+    return text
+
+
+def dcs_craters(c: Campaign, mission, data: dict) -> list[str]:
+    """A runway attack flown in DCS: bomb impacts (CWDC_IMPACT) on the target airfield."""
+    if mission is None:
+        return []
+    f = c.flights.get(mission.player_flight_id)
+    if f is None or f.loadout != RUNWAY_LOADOUT or not f.target_id:
+        return []
+    o = c.objectives.get(f.target_id)
+    ab = c.airbases.get(o.airbase_id) if o is not None and o.airbase_id else None
+    if ab is None:
+        return []
+    hits = 0
+    for e in data.get("events", []) or []:
+        p = e.get("pos") or {}
+        if e.get("event") == "CWDC_IMPACT" and "x" in p and \
+                ((p["x"] - ab.pos.x) ** 2 + (p["z"] - ab.pos.z) ** 2) ** 0.5 <= RUNWAY_RADIUS:
+            hits += 1
+    return [crater(c, ab, hits)] if hits else [f"No bombs hit the runway at {ab.dcs_name}."]
+
+
 def overrun(c: Campaign, ab: Airbase, owner: Side) -> None:
     """The base changed hands: the new owner inherits a wrecked airfield."""
     ab.damage, ab.hit_turn = max(ab.damage, CLOSED), c.turn

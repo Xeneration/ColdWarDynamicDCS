@@ -20,6 +20,8 @@ F-4E-45MC:
     Sweep: CAP
     RESCAP: CAS_ROCKEYE
     Armed Recon: CAS_ROCKEYE
+    Runway: RUNWAY_M117            # OCA variant: crater the runway
+    Precision: PRECISION_GBU8      # guided-bomb strike on a point target
     Strike: STRIKE_M117
     CAS: CAS_ROCKEYE
     BAI: BAI_MAVERICK

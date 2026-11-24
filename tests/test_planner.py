@@ -79,10 +79,14 @@ def test_escort_reduces_strike_losses():
         main = c.flights[pkg.flight_ids[0]]
         escort = next(c.flights[f] for f in pkg.flight_ids if c.flights[f].task is Task.ESCORT)
         red_cap = [f for f in c.flights.values() if f.side is Side.RED and f.task is Task.CAP]
-        for with_escort in (True, False):
-            flights = [main] + ([escort] if with_escort else []) + red_cap
-            res = resolver.resolve(c, flights)
-            lost[with_escort] += sum(len(r.airframes_lost) for r in res if r.flight_id == main.id)
+        base = c.turn
+        for roll in range(5):                     # several resolver rolls per campaign
+            c.turn = base + roll
+            for with_escort in (True, False):
+                flights = [main] + ([escort] if with_escort else []) + red_cap
+                res = resolver.resolve(c, flights)
+                lost[with_escort] += sum(len(r.airframes_lost) for r in res if r.flight_id == main.id)
+        c.turn = base
     assert lost[True] < lost[False]
 
 

@@ -257,13 +257,26 @@ def plan_turn(c: Campaign) -> None:
                 forced_oca = oca[0].target.id
                 side_needs.remove(oca[0])
                 side_needs.insert(0, oca[0])
+        special = player_special(c) if side is Side.BLUE else None
+        special_need = None
+        if special in ("iron_hand", "precision", "runway") and not c.counters.get(f"special:{c.time:%Y%m%d}") \
+                and not (special == "runway" and forced_oca):
+            cand = [n for n in side_needs if n.task is Task.SEAD] if special == "iron_hand" else \
+                [n for n in side_needs if n.label == "OCA"] if special == "runway" else \
+                [n for n in side_needs if n.task is Task.STRIKE
+                 and n.target.kind in (ObjectiveKind.EWR, ObjectiveKind.COMMAND)]
+            if cand:
+                special_need = cand[0].target.id
+                side_needs.remove(cand[0])
+                side_needs.insert(1 if forced_oca else 0, cand[0])
         player_left = sum(n for sq_id, n in pool.left.items() if c.squadrons[sq_id].player_squadron)
+        player_busy = (1 if forced_oca else 0) + (1 if special_need else 0)
         if side is Side.BLUE and c.counters.get(f"recon:{c.time:%Y%m%d}", 0) < ARMED_RECON_PER_DAY \
-                and player_left - (1 if forced_oca else 0) >= 2:
+                and player_left - player_busy >= 2:
             columns = [n for n in side_needs if n.target.kind is ObjectiveKind.CONVOY]
             if columns:                               # the daily road hunt is flown, not out-scored
                 side_needs.remove(columns[0])
-                side_needs.insert(1 if forced_oca else 0, columns[0])
+                side_needs.insert(player_busy, columns[0])     # after the OCA and the special
         wx = weather.strike_factor(c.weather)
         for need in side_needs:
             if need.target.id in taken:
@@ -281,7 +294,8 @@ def plan_turn(c: Campaign) -> None:
                     sq, task = rsq, Task.ARMED_RECON
                     need.label = "Armed recon"
                     need.reason = "hunt the supply columns on the roads behind their front"
-            if need.target.id == forced_oca:          # the player's squadron takes its turn on OCA
+            if need.target.id == forced_oca and special in ("oca", "runway") \
+                    or need.target.id == special_need:   # the player's squadron's special of the day
                 own = [s.id for s in c.squadrons.values() if s.side is side and not s.player_squadron]
                 psq, ptask = pool.pick(CAN_FLY[need.task], near=need.target.pos, exclude=set(own))
                 if psq is not None:
@@ -298,10 +312,22 @@ def plan_turn(c: Campaign) -> None:
             if need.target.id == forced_oca:
                 key = f"oca:{side.value}:{c.time:%Y%m%d}"
                 c.counters[key] = c.counters.get(key, 0) + 1
+            variant = None
+            if sq.player_squadron and special == "runway" and need.target.id in (forced_oca, special_need):
+                need.label, variant = "Runway attack", "Runway"
+                need.reason = "crater their runway: a closed field launches nothing"
+                c.counters[f"special:{c.time:%Y%m%d}"] = 1
+            elif sq.player_squadron and need.target.id == special_need:
+                need.label = "Iron Hand" if special == "iron_hand" else "Precision strike"
+                variant = "Precision" if special == "precision" else None
+                c.counters[f"special:{c.time:%Y%m%d}"] = 1
             pkg = _package(c, side, task, f"{need.label or task.value} - {need.target.name}",
                            target=need.target)
             pkg.reason = need.reason
             main = _flight(c, pool, sq, task, pkg, target=need.target)
+            if variant:
+                fits = T.airframe_catalogue().get(sq.aircraft_type, {}).get("loadouts", {})
+                main.loadout = fits.get(variant, main.loadout)
             if task is Task.SEAD:
                 continue
             if doc["sead_support"]:
@@ -313,7 +339,7 @@ def plan_turn(c: Campaign) -> None:
             if (doc["escort"] or need.target.value >= 4) and _enemy_fighters_near(c, need.target.pos, side.enemy):
                 # a forced OCA flown by the player's squadron is escorted by someone else, so the
                 # squadron keeps a sortie for the battlefield
-                spare = {sq.id} if need.target.id == forced_oca and sq.player_squadron else set()
+                spare = {sq.id} if sq.player_squadron and pool.left[sq.id] < 2 else set()
                 esq, _ = pool.pick([Task.ESCORT, Task.CAP], near=need.target.pos, exclude=spare)
                 if esq:
                     _flight(c, pool, esq, Task.ESCORT, pkg, area=need.target.pos, supports=main.id)
@@ -330,6 +356,7 @@ def plan_turn(c: Campaign) -> None:
 INTERCEPT_LEAD = 60_000      # m: scramble to meet a raid this far short of its target
 INTERCEPT_REACH = 60_000     # m: raids on targets this close to one of our airfields are intercepted
 MAX_INTERCEPTS = 2
+P_ESCORT_NOT_SWEEP = 0.5     # the released alert sortie escorts a bare package rather than sweeping
 P_INTERCEPT = 0.6            # chance a battlefield raid is intercepted rather than a sweep flown
 
 
@@ -383,6 +410,16 @@ def _fighter_ops(c: Campaign, pools: dict, r) -> None:
                and _enemy_fighters_near(c, c.objectives[p.target_id].pos, side.enemy)]
     if not strikes:
         return
+    bare = [p for p in strikes if not any(c.flights[f].task is Task.ESCORT for f in p.flight_ids)]
+    if bare and r.random() < P_ESCORT_NOT_SWEEP:      # escort an unprotected package instead
+        p = bare[0]
+        main = c.flights[p.flight_ids[0]]
+        sq, _ = pool.pick([Task.ESCORT, Task.CAP], near=c.objectives[p.target_id].pos)
+        if sq is not None:
+            _flight(c, pool, sq, Task.ESCORT, p, area=c.objectives[p.target_id].pos, supports=main.id)
+            if "(with" not in p.description:
+                _describe(c, p)
+            return
     tgt = c.objectives[strikes[0].target_id]
     station = min(c.cap_stations.get(side.enemy, []), key=lambda s: s.dist(tgt.pos), default=None)
     if station is None:
@@ -402,6 +439,15 @@ def _toward_pos(a: Pos, b: Pos, dist: float) -> Pos:
     if d <= dist:
         return b
     return Pos(x=a.x + (b.x - a.x) * dist / d, z=a.z + (b.z - a.z) * dist / d)
+
+
+SPECIALS = ("oca", "iron_hand", "runway", "precision")   # the player's squadron rotates daily
+
+
+def player_special(c: Campaign) -> str | None:
+    """Which special strike the player's squadron flies today (rotates with the war day)."""
+    from cwdc.engine import outcome
+    return SPECIALS[(outcome.war_day(c) - 1) % len(SPECIALS)] if c.at_war else None
 
 
 OCA_OPENING_TURNS = 8        # the first two days of the war: hit back at their airfields

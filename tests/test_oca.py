@@ -31,9 +31,11 @@ def test_nato_flies_a_counter_air_package_a_day_in_the_opening_days():
             hits += 1
             main = c.flights[oca[0].flight_ids[0]]
             assert c.objectives[main.target_id].kind.value == "airbase"
-            assert main.player_eligible                          # the player's squadron gets it
-            rec = builder.build(c, main.id, Path(tempfile.mkdtemp()), start="air")
-            assert any("airfield attack (OCA)" in l for l in rec.briefing)
+            # the player's squadron flies it on its OCA / runway days, the 23rd TFS otherwise
+            assert main.player_eligible == (planner.player_special(c) in ("oca", "runway"))
+            if main.player_eligible:
+                rec = builder.build(c, main.id, Path(tempfile.mkdtemp()), start="air")
+                assert any("airfield attack (OCA)" in l for l in rec.briefing)
             planner.plan_turn(c)                                 # same day: no second one
             assert not _blue_oca(c) or c.counters[f"oca:blue:{c.time:%Y%m%d}"] >= 1
     assert hits >= 4

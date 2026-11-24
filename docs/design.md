@@ -722,6 +722,31 @@ What's deliberately left for later phases: the web UI (Phase 3), the crisis phas
   - This is in line with Phase 2, so no extra NATO squadrons are needed.
 - **Still open, for the Phase 5 balance work:** too many stalemates, since the ground war rarely gives a decisive result.
 
+**Progress (2026-11-24): mission variety**
+- **The player's squadron:** 4 sorties a turn, with an alert reserve of 1 held back until both sides have planned.
+- **A daily special,** rotating with the war day (`planner.player_special`):
+  1. OCA (parked aircraft);
+  2. Iron Hand (the 496th TFS gained SEAD);
+  3. Runway attack (`RUNWAY_M117`: hits become `SortieResult.craters`, then `airbases.crater`; in DCS, `CWDC_IMPACT` events within 1.2 km of the field count);
+  4. Precision strike on an EWR or command post (`PRECISION_GBU8`).
+- **Loadouts must be Heatblur-shipped combinations** (`loadouts.unseen_pairs`). The Mk-84 and GBU-10 fits failed that check, so the runway attack uses the M117 string and the precision strike uses the shipped GBU-8 HOBOS + Pave Spike layout.
+- **Scramble intercept / sweep / escort** (`_fighter_ops`): the released reserve meets Warsaw Pact raids 60 km short of their target. Deep raids are always met, battlefield raids 60% of the time. Otherwise it escorts an unescorted package or sweeps the MiG patrol nearest a NATO strike. Intercepts and sweeps count as fighters in the resolver.
+- **RESCAP** (`engine/rescue.py`):
+  - Crews down over enemy territory are captured at once (50%) or evade, with their position recorded as MIA.
+  - An evader risks capture at 25% per turn and is caught after 4 turns.
+  - A RESCAP mission adds UH-1H Dustoff 1 and a BRDM-2/ZU-23 search party. The survivor pops green smoke near the helicopter, and `CWDC_PICKUP` is recorded after 20 s on the ground.
+  - A simulated rescue succeeds 60% of the time, minus 15% per covering SAM and 10% if enemy fighters are near.
+- **Armed recon:** three Warsaw Pact supply columns (Eisenach, Meiningen, Schleusingen). Once a day one is hunted while it drives toward the front.
+- **FAC:** on CAS missions, Wildcat 21 checks in within 15 nm, marks with white smoke 400 m off the target, talks the flight on, re-marks every 5 min, and offers an F10 request.
+- **Balance, 12 seeds with the crisis:** stalemate 11, NATO holds 1. NATO 3.2% and the Warsaw Pact 5.2% per sortie. NATO flies 23% more sorties. This is slightly better for NATO than Phase 4.
+- **Not done:**
+  - Laser-guided bridge strikes. Bridges on the map are unverified as targets, and no shipped GBU-10/12 payload exists.
+- **To check in DCS:**
+  - FAC smoke.
+  - The UH-1H landing.
+  - Runway impact capture.
+  - The GBU-8 fit.
+
 **Phase 5: Polish**
 - Balance passes, campaign presets (start date 1974–79, other squadrons), packaging into a one-click launcher, multiplayer client slots.
 - **Immersion lockdown, once all phases are finished** (requested 2026-11-23; kept on for now to help testing):

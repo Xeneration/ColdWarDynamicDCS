@@ -504,6 +504,52 @@ if CWDC.config.fac then
 end
 
 ------------------------------------------------------------------------
+-- Bomb impacts (runway attacks): every bomb released by the watched groups
+-- is followed until it hits; its last position is a CWDC_IMPACT event.
+--   CWDC_CONFIG.impacts = { groups = { ... } }
+------------------------------------------------------------------------
+CWDC.impact_watch = {}
+local function watched_group(name)
+  for _, g in ipairs(((CWDC.config.impacts or {}).groups) or {}) do
+    if g == name then return true end
+  end
+  return false
+end
+
+function CWDC.track_bomb(weapon, shooter)
+  local last = safe(function() return weapon:getPoint() end)
+  local function step(_, t)
+    if safe(function() return weapon:isExist() end) then
+      last = safe(function() return weapon:getPoint() end) or last
+      return t + 0.1
+    end
+    if last then
+      CWDC.seq = CWDC.seq + 1
+      local rec = { seq = CWDC.seq, t = timer.getTime(), id = -3, event = "CWDC_IMPACT",
+                    initiator = shooter, pos = { x = last.x, z = last.z },
+                    weapon = safe(function() return weapon:getTypeName() end) }
+      CWDC.events[#CWDC.events + 1] = rec
+      CWDC.emit("EV", rec)
+    end
+    return nil
+  end
+  timer.scheduleFunction(step, nil, timer.getTime() + 0.1)
+end
+
+if CWDC.config.impacts then
+  local impact_handler = {}
+  function impact_handler:onEvent(e)
+    if not e or e.id ~= world.event.S_EVENT_SHOT or not e.weapon or not e.initiator then return end
+    local gname = safe(function() return e.initiator:getGroup():getName() end)
+    if not gname or not watched_group(gname) then return end
+    local cat = safe(function() return e.weapon:getDesc().category end)
+    if cat ~= 3 then return end                     -- Weapon.Category.BOMB
+    CWDC.track_bomb(e.weapon, object_info(e.initiator))
+  end
+  world.addEventHandler(impact_handler)
+end
+
+------------------------------------------------------------------------
 -- MAGIC: ground-controlled intercept over the F10 radio menu
 --   CWDC_CONFIG.magic = { callsign = "MAGIC", side = 2, groups = {player groups},
 --                         radars = {friendly EWR / SAM / fighter groups},
