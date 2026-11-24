@@ -3,7 +3,8 @@ from __future__ import annotations
 
 from datetime import timedelta
 
-from cwdc.engine import airbases, apply, crews, factory, ground, logistics, planner, resolver
+from cwdc.engine import (airbases, apply, crews, factory, ground, logistics, outcome, planner,
+                         resolver)
 from cwdc.model import (Airframe, AirframeStatus, Campaign, CrewRole, FlightStatus, Pilot,
                         PilotStatus, SortieResult)
 from cwdc.engine import rng
@@ -16,10 +17,13 @@ REPLACEMENT_PILOTS = 2
 def end_turn(c: Campaign, dcs_results: list[SortieResult] | None = None,
              dcs_destroyed: list[str] | None = None) -> list[str]:
     """Close the current turn. Returns debrief lines."""
+    if c.outcome is not None:
+        raise ValueError(f"the war is over ({c.outcome.title})")
     debrief = [f"=== Turn {c.turn} debrief - {c.time:%d %b %Y %H:%M} ==="]
     flown = set()
     if dcs_results is not None:
         flown = {r.flight_id for r in dcs_results}
+        c.counters["flown_in_dcs"] = c.counters.get("flown_in_dcs", 0) + 1
         debrief += ["-- Flown in DCS --",
                     *apply.apply_results(c, dcs_results, dcs_destroyed or [])]
 
@@ -49,6 +53,11 @@ def end_turn(c: Campaign, dcs_results: list[SortieResult] | None = None,
     crews.rest(c, night=planner.period(c) == "night",
                exclude={pid for f in c.flights.values() for pid in crews.crew_of(f)})
     c.add_news(f"Turn {c.turn}: " + "; ".join(l for l in debrief if l.startswith("[")))
+    if outcome.check(c):
+        debrief += ["", *outcome.summary(c)]
+        c.packages.clear()                     # the campaign is over: nothing more to fly
+        c.flights.clear()
+        return debrief
     _advance(c)
     planner.plan_turn(c)
     return debrief

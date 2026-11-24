@@ -423,6 +423,38 @@ Testing is by `cwdc autorun N` (abstract turns in seconds) plus occasional `cwdc
   - Aircraft losses are unchanged from step 6 (NATO 39–57).
   - NATO aircrew losses rose to 46–74, because a Phantom now costs two people.
 
+**Progress (2026-11-24): step 8 done** (`engine/outcome.py`)
+- **Victory conditions** live in the theater's `victory` block and are checked at the end of every turn.
+- **Warsaw Pact victory** comes in three ways:
+  - **The Main is reached:** Frankfurt, Aschaffenburg or Würzburg falls into Warsaw Pact territory.
+  - **Breakthrough:** a sector breaks through 100 km deep.
+  - **Air exhaustion:** NATO's serviceable aircraft drop below 30% of establishment.
+- **Front geometry note:** the "Fulda Gap" sector (the Hersfeld stretch) pushes west toward Giessen. The drive on the Main comes through Rhön: Schweinfurt falls at 45 km, Würzburg at 80 and Aschaffenburg at 95. So the breakthrough rule covers a deep Fulda push.
+- **NATO victory:** after 7 days, every sector is back on or beyond the border.
+- **Ceasefire** at day 21, judged by mean Warsaw Pact penetration:
+  - 20 km or more: Warsaw Pact gains;
+  - 5 km or less: NATO holds;
+  - otherwise a stalemate.
+- **Once decided:**
+  - `Campaign.outcome` is set and the ATO is cleared.
+  - `end_turn` refuses further turns.
+  - `ato`, `fly`, `skip` and `autorun` say the war is over, and `autorun` stops on the deciding turn.
+- **`status` while the war lasts:**
+  - war day;
+  - distance from the front to the nearest Main city;
+  - deepest penetration against the breakthrough depth;
+  - both sides' air strength.
+- **`status` once it's over:** the war summary, including:
+  - outcome, reason and duration;
+  - the final front;
+  - per side: sorties, aircraft lost, air kills, aircrew killed/missing/captured, ground strength and objectives lost;
+  - the player's record, including missions flown in DCS (a new `flown_in_dcs` counter).
+- **Balance read** (4 seeds, full wars):
+  - **Seed 1:** stalemate ceasefire on day 21, with Fulda at +40 km.
+  - **Seeds 2–4:** Warsaw Pact victory by NATO air exhaustion on days 15–21. NATO loses 82–99 aircraft against 38–67.
+  - **NATO never wins:** the Fulda front stalls at about +40 km and never returns to the border.
+  - **For step 9:** NATO's per-sortie attrition, and its thin order of battle (two F-4E squadrons), are the obvious levers. So is a NATO counter-offensive once Warsaw Pact formations wear down.
+
 What's deliberately left for later phases: the web UI (Phase 3), the crisis phase, the MAGIC controller and kneeboards (Phase 4), and the immersion lockdown (Phase 5).
 
 **Phase 3: Web UI**

@@ -25,6 +25,20 @@ def _load(args) -> Campaign:
     return c
 
 
+def _war_over(c: Campaign) -> bool:
+    """True (with a message) once the campaign has been decided."""
+    if c.outcome is None:
+        return False
+    print(f"The war is over: {c.outcome.title}. `cwdc status` shows the war summary; "
+          "`cwdc new --force` starts a new campaign.")
+    return True
+
+
+def _next(c: Campaign, hint: str = "") -> None:
+    if not _war_over(c):
+        print(f"\nNow turn {c.turn}, {c.time:%d %b %H:%M}.{hint}")
+
+
 def cmd_new(args) -> None:
     from cwdc.engine.factory import new_campaign, slug
     if (store.campaign_dir(slug(args.name)) / "campaign.json").exists() and not args.force:
@@ -46,6 +60,11 @@ def cmd_status(args) -> None:
     from cwdc.engine.planner import period
     c = _load(args)
     print(f"{c.name} - turn {c.turn}, {c.time:%a %d %b %Y %H:%M} ({period(c)})")
+    from cwdc.engine import outcome
+    if c.outcome:
+        print("\n" + "\n".join(outcome.summary(c)))
+    else:
+        print("\nWar situation:\n" + "\n".join(outcome.situation(c)))
     if c.pending_mission:
         pm = c.pending_mission
         print(f"PENDING MISSION: {pm.mission_id} -> fly it, then `cwdc ingest` (or `cwdc skip`)")
@@ -98,6 +117,8 @@ def cmd_status(args) -> None:
 
 def cmd_ato(args) -> None:
     c = _load(args)
+    if _war_over(c):
+        return
     print(f"Air tasking order - turn {c.turn}, {c.time:%d %b %Y %H:%M}\n")
     print("  ID    Callsign   Squadron        Task     Mission")
     for f in sorted(c.flights.values(), key=lambda f: (not f.player_eligible, f.id)):
@@ -117,6 +138,8 @@ def cmd_fly(args) -> None:
     from cwdc.engine import planner
     from cwdc.missiongen import builder
     c = _load(args)
+    if _war_over(c):
+        return
     fid = args.flight.upper()
     if fid not in c.flights:
         raise SystemExit(f"no flight {fid} this turn - see `cwdc ato`")
@@ -194,19 +217,21 @@ def cmd_ingest(args) -> None:
     lines = turn.end_turn(c, dcs_results, destroyed)
     store.save(c, snapshot=True)
     print("\n".join(lines))
-    print(f"\nNow turn {c.turn}, {c.time:%d %b %H:%M}. `cwdc ato` for new tasking.")
+    _next(c, " `cwdc ato` for new tasking.")
 
 
 def cmd_skip(args) -> None:
     from cwdc.engine import planner, turn
     c = _load(args)
+    if _war_over(c):
+        return
     if c.pending_mission:
         planner.release_player(c, c.pending_mission.player_flight_id)
         print(f"(discarding pending mission {c.pending_mission.mission_id})")
     lines = turn.end_turn(c)
     store.save(c, snapshot=True)
     print("\n".join(lines))
-    print(f"\nNow turn {c.turn}, {c.time:%d %b %H:%M}.")
+    _next(c)
 
 
 def _tally(c: Campaign) -> dict:
@@ -224,8 +249,10 @@ def _tally(c: Campaign) -> dict:
 
 def cmd_autorun(args) -> None:
     """Play N turns with every sortie simulated (no DCS) - for testing the strategic layer."""
-    from cwdc.engine import planner, turn
+    from cwdc.engine import outcome, planner, turn
     c = _load(args)
+    if _war_over(c):
+        return
     if c.pending_mission:
         planner.release_player(c, c.pending_mission.player_flight_id)
         print(f"(discarding pending mission {c.pending_mission.mission_id})")
@@ -247,12 +274,16 @@ def cmd_autorun(args) -> None:
         if args.verbose:
             for line in lines[1:]:
                 print("        " + line)
+        if c.outcome:
+            print("\n".join(outcome.summary(c)))
+            break
     end = _tally(c)
     tot = {k: end[k] - start[k] for k in end}
     print(f"Totals: aircraft lost B {tot[(Side.BLUE, 'aircraft')]} / R {tot[(Side.RED, 'aircraft')]}, "
           f"aircrew B {tot[(Side.BLUE, 'aircrew')]} / R {tot[(Side.RED, 'aircrew')]}, "
           f"ground power now B {end[(Side.BLUE, 'ground')]:.0f} / R {end[(Side.RED, 'ground')]:.0f}")
-    print(f"Now turn {c.turn}, {c.time:%d %b %Y %H:%M}. `cwdc rollback <turn>` to go back.")
+    if not c.outcome:
+        print(f"Now turn {c.turn}, {c.time:%d %b %Y %H:%M}. `cwdc rollback <turn>` to go back.")
 
 
 def cmd_roster(args) -> None:

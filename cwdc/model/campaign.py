@@ -314,6 +314,16 @@ class NewsItem(BaseModel):
 
 # ----------------------------------------------------------------------------- campaign root
 
+class Outcome(BaseModel):
+    """How the war ended (engine.outcome). Once set, the campaign is over."""
+    winner: Optional[Side] = None      # None = stalemate
+    decisive: bool = True
+    title: str                         # e.g. "Warsaw Pact victory"
+    reason: str
+    turn: int
+    time: datetime
+
+
 class Campaign(BaseModel):
     schema_version: int = 1
     id: str
@@ -342,6 +352,7 @@ class Campaign(BaseModel):
     packages: dict[str, Package] = {}             # current turn ATO
     flights: dict[str, Flight] = {}
     pending_mission: Optional[MissionRecord] = None
+    outcome: Optional[Outcome] = None
     news: list[NewsItem] = []
     counters: dict[str, int] = Field(default_factory=dict)
 

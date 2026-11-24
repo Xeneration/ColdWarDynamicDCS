@@ -38,6 +38,21 @@ front_line:
   - [49.60, 12.55]
   - [49.30, 12.90]
 
+# How the war is won (engine.outcome).
+victory:
+  # Warsaw Pact: the front reaches the Main (any of these taken), a sector breaks through to
+  # operational depth, or NATO air power is exhausted.
+  red_goals:
+    - {name: Frankfurt am Main, latlon: [50.11, 8.68]}
+    - {name: Aschaffenburg, latlon: [49.97, 9.15]}
+    - {name: Wuerzburg, latlon: [49.79, 9.93]}
+  breakthrough_km: 100
+  air_exhausted: 0.30      # NATO serviceable aircraft / establishment below this = exhausted
+  # NATO: after holding nato_hold_days, every sector is back on (or beyond) the border.
+  nato_hold_days: 7
+  # Then a negotiated ceasefire, judged by how much of the FRG the Warsaw Pact holds.
+  max_days: 21
+
 # Front sectors: stretches of the border above (indices into front_line, 0 = north).
 # terrain = defender multiplier. The ground war moves each sector's front independently.
 sectors:
