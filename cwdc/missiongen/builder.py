@@ -203,7 +203,7 @@ BOT_TIME_LIMIT = 2 * 3600       # s; bot missions end at the latest after this m
 
 
 def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runway",
-          bot: bool = False) -> MissionRecord:
+          bot: bool = False, time_limit: int = BOT_TIME_LIMIT) -> MissionRecord:
     """Build the mission around `player_flight_id`.
 
     bot=True: an AI-only mission. The focus flight is flown by its AI crew, there is no
@@ -394,7 +394,7 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
     sq = c.squadrons[player.squadron_id]
     lines = (["BOT MISSION (AI only): spectate with F10 / F2 and speed up with Ctrl+Z. It ends "
               f"itself when {player.callsign} has landed or been lost, or after "
-              f"{BOT_TIME_LIMIT // 3600} h.", ""] if bot else [])
+              f"{time_limit // 60} min.", ""] if bot else [])
     lines += [f"{c.name} - turn {c.turn}, {c.time:%d %b %Y %H:%M} local",
              f"Flight: {player.callsign} ({sq.name}), {len(player.airframe_ids)}x {sq.aircraft_type}"
              f" from {c.airbases[sq.base_id].dcs_name} ({start} start)",
@@ -428,7 +428,7 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
     briefing = list(lines)
     m.set_description_bluetask_text(c.packages[player.package_id].description)
 
-    end_when = {"groups": [f"{player.id} {player.callsign}"], "time_limit": BOT_TIME_LIMIT}         if bot else None
+    end_when = {"groups": [f"{player.id} {player.callsign}"], "time_limit": time_limit}         if bot else None
     inject_runtime(m, mission_id, tracked, end_when=end_when, tracked_statics=tracked_statics)
     out_dir.mkdir(parents=True, exist_ok=True)
     path = out_dir / mission_filename(c, player, bot)

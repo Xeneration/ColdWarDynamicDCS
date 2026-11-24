@@ -533,6 +533,31 @@ What's deliberately left for later phases: the web UI (Phase 3), the crisis phas
 - Mission checklist with copy-file-name / open-folder (local only); War tab gauges, history charts (`Campaign.history`), sector cards, supply bars; crew cards; visual debriefs (`Debrief.stats`). Rhein-Main shown by its real name (theater `name`).
 - Not yet: checked only at 800 px pane width and against a throwaway campaign; the dense Fulda area at zoom 7 still overlaps.
 
+**Progress (2026-11-24): unattended soak testing (`cwdc soak`)**
+- **Goal:** collect many AI-only DCS missions overnight, to find generation bugs and immersion problems and to calibrate the resolver against DCS.
+- **Approach:** DCS in server mode with no rendering (`DCS.exe --server --norender -w DCS.cwdc_soak<N>`), using the normal install. No binary mod is involved.
+  - `net.load_mission` (server only, per `API/Sim_ControlAPI.html`) lets a hook rotate missions forever.
+  - `CWDC-soak-hook.lua` talks to the runner through `CWDC\soak\command.json` / `heartbeat.json`. Between missions it waits in an empty `CWDC_Lobby.miz`, and it unpauses the server on every mission start.
+- **Ruled out:**
+  - **Time acceleration:** there's no API for it, and none on servers.
+  - **Single-player with Ctrl+Z keypresses** (the `dcs-unit-tester` fallback): it needs window focus and runs as one instance.
+  - **A DLL mod:** undocumented, risks the integrity check, and breaks with every patch.
+- **Runner** (`cwdc/soak/runner.py`):
+  - The parent starts one worker subprocess per instance, each with its own `CWDC_DCS_WRITEDIR` and `CWDC_CAMPAIGNS_DIR`, and plays simulated wars meanwhile.
+  - Each worker plays whole scratch campaigns, one bot mission per turn: an air start, a cap, and the least-sampled task first.
+  - Watchdog: crashed, stalled or failed loads lead to a restart and a skipped turn. Past the cap, the mission is aborted to the lobby.
+- **Data** (`record.py`):
+  - The DCS outcome against the resolver's mean over 40 draws on a copy of the campaign;
+  - timings;
+  - flags: `early_loss`, `no_weapons_released`, `never_near_target`, `nothing_happened`, `time_limit`, `not_final`;
+  - `dcs.log` errors since the mission loaded.
+  - The report goes to `report.html` / `report.md`.
+- **Spike** (2026-11-24, 1 instance):
+  - The server started with no login or firewall prompt, and both hooks loaded.
+  - The lobby loaded in about 20 s and started paused; the hook unpaused it.
+  - `net.load_mission` from the hook loaded the bot mission in about 8 s, and the runtime and results hook collected as usual.
+  - It runs at 1× real time. Working set: about 4 GB in the lobby, **about 18 GB in a Cold War Germany mission** (no rendering). With 62 GB, plan on 2 instances and at most 3.
+
 **Phase 4: Crisis phase and immersion**
 - Tension model, QRA/intercept/recon missions, ROE enforcement, the war-start event.
 - Briefings, kneeboards, news and weather.

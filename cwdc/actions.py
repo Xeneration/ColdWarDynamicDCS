@@ -79,7 +79,8 @@ def create(name: str, seed: int = 1976, pilot: str = "Player", force: bool = Fal
     return c
 
 
-def fly(c: Campaign, flight_id: str, start: str = "runway", bot: bool = False) -> Flown:
+def fly(c: Campaign, flight_id: str, start: str = "runway", bot: bool = False,
+        time_limit: int | None = None) -> Flown:
     from cwdc.engine import planner
     from cwdc.missiongen import builder
     check_not_over(c)
@@ -102,7 +103,8 @@ def fly(c: Campaign, flight_id: str, start: str = "runway", bot: bool = False) -
     if not dcs_paths.hook_is_current():
         notes.append(f"hook installed/updated: {dcs_paths.install_hook()}")
     previous = c.pending_mission
-    rec = builder.build(c, fid, dcs_paths.missions_dir(), start=start, bot=bot)
+    rec = builder.build(c, fid, dcs_paths.missions_dir(), start=start, bot=bot,
+                        time_limit=time_limit or builder.BOT_TIME_LIMIT)
     if previous and previous.miz_path != rec.miz_path:
         Path(previous.miz_path).unlink(missing_ok=True)     # superseded, never flown
     c.pending_mission = rec

@@ -25,6 +25,21 @@ results back after you fly, so the war moves on.
 
 The server only listens on this PC (`--host` changes that) and reads the campaign from disk on every request, so the CLI below keeps working alongside it. `--no-auto-ingest` and `--no-browser` are available. The map tiles come from OpenStreetMap, so the background needs an internet connection; everything else is local.
 
+## Overnight soak testing (unattended AI missions)
+```powershell
+.\.venv\Scripts\python.exe -m cwdc soak --hours 8 --instances 2   # leave it running, read the report in the morning
+.\.venv\Scripts\python.exe -m cwdc soak-report                    # rebuild the latest run's report
+```
+- Each instance is a DCS server in no-render mode (`DCS.exe --server --norender -w DCS.cwdc_soak<N>`) with its own profile in `Saved Games\DCS.cwdc_soak<N>`. Your `Saved Games\DCS` and your campaigns are never used.
+- Each instance plays scratch campaigns turn after turn. Every turn, a player-squadron flight is flown as an AI-only mission (air start, capped at `--cap-min`, 75 by default), the result is ingested, and the war moves on. Tasks are rotated so all of them get sampled.
+- Meanwhile the main process plays fully simulated wars (`--sim-wars`).
+- A watchdog restarts DCS if it crashes, hangs or fails to load a mission. That turn is skipped and logged.
+- Results go to `Saved Games\CWDC-soak\<run>\`:
+  - `i<N>/missions.jsonl`: one row per mission.
+  - `i<N>/anomalies/`: the `.miz` and result of every odd mission, for replaying.
+  - `report.html` / `report.md`: anomalies, DCS against the simulation per task (loss and kill rates), pacing, war outcomes, and `dcs.log` errors.
+- DCS servers can't accelerate time, so missions run in real time: roughly one per 30–60 min per instance. Each instance needs about 18 GB of RAM while flying a Cold War Germany mission, so run 2 instances on a 64 GB PC.
+
 ## Playing from the command line (Phase 1)
 ```powershell
 .\.venv\Scripts\python.exe -m cwdc new --pilot "Your Name"   # start a campaign

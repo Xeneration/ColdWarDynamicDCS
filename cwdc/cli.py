@@ -94,6 +94,8 @@ def main(argv=None) -> None:
     p.set_defaults(func=cmd_serve)
     from cwdc import cli_campaign
     cli_campaign.register(sub)
+    from cwdc.soak import cli as soak_cli
+    soak_cli.register(sub)
     args = ap.parse_args(argv)
     args.func(args)
 
