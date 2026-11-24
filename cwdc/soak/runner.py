@@ -173,10 +173,28 @@ def stop_file(run_dir: Path) -> Path:
     return run_dir / "STOP"
 
 
+def parse_era(era: str | None) -> tuple[str, int] | None:
+    """'syria:1985' -> ('syria', 1985); None / '' / 'fulda' -> None (the Fulda 1976 preset)."""
+    if not era or era == "fulda":
+        return None
+    theatre, _, year = era.partition(":")
+    return theatre, int(year)
+
+
+def era_setup(era: str | None):
+    """The campaign-maker Setup for an era string, with the modules this DCS profile has."""
+    parsed = parse_era(era)
+    if parsed is None:
+        return None
+    from cwdc.engine import generate
+    from cwdc.era import modules
+    return generate.setup_from_installed(modules.detect(), theatre=parsed[0], year=parsed[1])
+
+
 def run_worker(n: int, run_dir: Path, until: float, cap_s: int, seed: int,
                instance: Instance | None = None, clock=time.time,
                max_missions: int | None = None, timeout_s: int | None = None,
-               crisis: bool = True) -> None:
+               crisis: bool = True, era: str | None = None) -> None:
     import traceback
     from cwdc import actions
     from cwdc.engine import outcome
@@ -202,8 +220,9 @@ def run_worker(n: int, run_dir: Path, until: float, cap_s: int, seed: int,
 
     try:
         while time_left():
-            c = actions.create(f"Soak {n}-{seed}", seed=seed, force=True, crisis=crisis)
-            say(f"campaign seed {seed}")
+            c = actions.create(f"Soak {n}-{seed}", seed=seed, force=True, crisis=crisis,
+                               setup=era_setup(era))
+            say(f"campaign seed {seed}" + (f", era {era}" if era else ""))
             errors_in_row = 0
             while c.outcome is None and time_left() and errors_in_row < 3:
                 fid = choose_flight(c, counts, r)
@@ -282,11 +301,11 @@ def run_worker(n: int, run_dir: Path, until: float, cap_s: int, seed: int,
 
 # ---------------------------------------------------------------------------- parent
 
-def sim_war(seed: int) -> dict:
+def sim_war(seed: int, era: str | None = None) -> dict:
     from cwdc.engine import outcome, turn
     from cwdc.engine.factory import new_campaign
     from cwdc.model import AirframeStatus, Side
-    c = new_campaign(f"Sim {seed}", seed=seed)
+    c = new_campaign(f"Sim {seed}", seed=seed, setup=era_setup(era))
     limit = 30 * outcome.turns_per_day(c)
     for _ in range(limit):
         turn.end_turn(c)
@@ -294,27 +313,32 @@ def sim_war(seed: int) -> dict:
             break
     lost = Counter(c.squadrons[a.squadron_id].side.value for a in c.airframes.values()
                    if a.status is AirframeStatus.DESTROYED)
-    return {"kind": "sim_war", "seed": seed, "outcome": c.outcome.title if c.outcome else "unfinished",
+    return {"kind": "sim_war", "seed": seed, "era": era or "fulda",
+            "outcome": c.outcome.title if c.outcome else "unfinished",
             "day": outcome.war_day(c), "main_effort": c.main_effort,
             "air": {s.value: round(outcome.air_strength(c, s), 3) for s in Side},
             "lost": dict(lost), "front": {s.id: round(s.offset_km, 1) for s in c.sectors.values()}}
 
 
 def run(hours: float, instances: int, cap_min: int, seed: int, out: Path | None = None,
-        sim_wars: int = 200, timeout_min: int | None = None) -> Path:
+        sim_wars: int = 200, timeout_min: int | None = None, eras: list[str] | None = None) -> Path:
+    """eras: one per instance, cycled ('germany:1962', 'syria:1985', 'fulda' = the preset)."""
+    eras = eras or ["fulda"]
     run_dir = (out or runs_root()) / time.strftime("%Y%m%d-%H%M")
     run_dir.mkdir(parents=True, exist_ok=True)
     until = time.time() + hours * 3600
     (run_dir / "run.json").write_text(json.dumps(
         {"started": time.time(), "until": until, "instances": instances, "cap_min": cap_min,
-         "seed": seed}), encoding="utf-8")
+         "seed": seed, "eras": [eras[(n - 1) % len(eras)] for n in range(1, instances + 1)]}),
+        encoding="utf-8")
     procs = []
     for n in range(1, instances + 1):
         env = dict(os.environ, CWDC_DCS_WRITEDIR=str(prof.profile_dir(n)),
                    CWDC_CAMPAIGNS_DIR=str(run_dir / f"i{n}" / "campaigns"))
         cmd = [sys.executable, "-u", "-m", "cwdc", "soak-worker", "--instance", str(n), "--run-dir",
                str(run_dir), "--until", str(until), "--cap-min", str(cap_min),
-               "--seed", str(seed + 1000 * n)] + (["--timeout-min", str(timeout_min)] if timeout_min else [])
+               "--seed", str(seed + 1000 * n), "--era", eras[(n - 1) % len(eras)]] \
+            + (["--timeout-min", str(timeout_min)] if timeout_min else [])
         logf = (run_dir / f"worker{n}.log").open("w", encoding="utf-8")
         procs.append(subprocess.Popen(cmd, env=env, stdout=logf, stderr=subprocess.STDOUT))
         print(f"instance {n} started (worker pid {procs[-1].pid})")
@@ -322,7 +346,7 @@ def run(hours: float, instances: int, cap_min: int, seed: int, out: Path | None 
     s = seed
     while (time.time() < until and s - seed < sim_wars and not stop_file(run_dir).exists()
            and any(p.poll() is None for p in procs)):
-        _append(run_dir / "sim_wars.jsonl", sim_war(s))
+        _append(run_dir / "sim_wars.jsonl", sim_war(s, eras[(s - seed) % len(eras)]))
         s += 1
     for p in procs:
         p.wait()

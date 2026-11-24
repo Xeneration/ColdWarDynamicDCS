@@ -194,3 +194,22 @@ def test_stuck_missions_time_out(soak_env, monkeypatch, mode, expected):
     assert inst.fly("x.miz", lambda: False, cap_s=10**6, timeout_s=1) == expected
     assert fakes[0].aborts == 1 and time.time() - t0 < 10
     inst.kill()
+
+
+def test_worker_flies_a_campaign_maker_era(soak_env, monkeypatch):
+    from cwdc.era import modules
+    fake = modules.Installed(terrains={"Syria", "GermanyColdWar"})
+    for t in ("F-4E-45MC", "F-14A-135-GR", "A-10A", "F-5E-3"):
+        fake.flyable[t] = t
+    monkeypatch.setattr(modules, "detect", lambda *a, **k: fake)
+    assert runner.parse_era("syria:1985") == ("syria", 1985) and runner.parse_era("fulda") is None
+    inst, fakes = _instance(soak_env)
+    run_dir = soak_env / "run"
+    runner.run_worker(1, run_dir, until=time.time() + 1e6, cap_s=1800, seed=3,
+                      instance=inst, max_missions=2, crisis=False, era="syria:1985")
+    rows = [json.loads(x) for x in (run_dir / "i1" / "missions.jsonl").read_text().splitlines()]
+    ms = [r for r in rows if r["kind"] == "mission"]
+    assert len(ms) == 2 and all(m["status"] == "ok" for m in ms)
+    assert all(m["time"].startswith("1985") for m in ms)
+    w = runner.sim_war(1, "germany:1962")
+    assert w["era"] == "germany:1962" and w["outcome"]

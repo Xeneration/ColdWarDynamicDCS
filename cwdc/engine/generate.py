@@ -306,12 +306,13 @@ def oob(setup: Setup, seed: int) -> dict:
     used_af = {pick.airframe.id}
     slots = {side: dict(gen["squadrons"][side]) for side in era.SIDES}
     add(pick, setup.side, _group(pick.airframe), player=True, dcs_type=ptype)
-    for s, t in wing_choice(setup, pick, ptype):
+    enemy = "east" if setup.side == "west" else "west"
+    for k, (s, t) in enumerate(wing_choice(setup, pick, ptype)):
         used_af.add(s.airframe.id)
-        g = _group(s.airframe)
-        if slots[setup.side].get(g, 0) > 0:        # a wing squadron takes an AI slot of its kind
-            slots[setup.side][g] -= 1
-        add(s, setup.side, g, dcs_type=t, wing=True)
+        slots[enemy]["fighter" if k % 2 == 0 else "strike"] += 1      # the enemy matches the wing
+        # on top of the AI air force: an owned type (an F-5E in 1985, say) must not stand in for the
+        # F-15s the year would otherwise field (Phase G balance)
+        add(s, setup.side, _group(s.airframe), dcs_type=t, wing=True)
     for side in era.SIDES:
         all_in = [s for s in era.airframes_in(setup.year, nations_on, side=side, strict=setup.strict, installed=inst)
                   if not s.airframe.carrier]
@@ -327,6 +328,8 @@ def oob(setup: Setup, seed: int) -> dict:
                         break
                     used_af.add(s.airframe.id)
                     add(s, side, group)
+                    if slots[side].get(group, 0) > 0:   # the air wing replaces land-based squadrons
+                        slots[side][group] -= 1
         for group, roles in (("fighter", FIGHTER_ROLES), ("strike", STRIKE_ROLES)):
             cands = [s for s in all_in if s.airframe.role in roles
                      and (group == "fighter" or s.airframe.strike >= 0.3)]

@@ -44,6 +44,7 @@ def sections(run_dir: Path) -> list[tuple[str, list[str], list[list]]]:
         ["campaigns finished in DCS", sum(1 for c in campaigns if c["outcome"] != "unfinished")],
         ["simulated wars", len(wars)],
         ["cap (min)", meta.get("cap_min", "-")],
+        ["eras (per instance)", ", ".join(f"i{n + 1}: {e}" for n, e in enumerate(meta.get("eras", []))) or "fulda"],
     ]))
 
     flags = defaultdict(list)
@@ -92,9 +93,10 @@ def sections(run_dir: Path) -> list[tuple[str, list[str], list[list]]]:
     out.append(("Pacing (medians)", ["task", "first shot (min)", "mission length (min)",
                                      "closest to target (km)", "nothing happened"], rows))
 
-    oc = Counter(w["outcome"] for w in wars)
-    out.append(("Simulated war outcomes", ["outcome", "wars", "share"],
-                [[k, v, f"{v / len(wars):.0%}"] for k, v in oc.most_common()]))
+    oc = Counter((w.get("era", "fulda"), w["outcome"]) for w in wars)
+    per_era = Counter(w.get("era", "fulda") for w in wars)
+    out.append(("Simulated war outcomes", ["era", "outcome", "wars", "share of era"],
+                [[e, k, v, f"{v / per_era[e]:.0%}"] for (e, k), v in sorted(oc.items(), key=lambda kv: (kv[0][0], -kv[1]))]))
     out.append(("Campaigns played in DCS", ["instance", "seed", "turns", "outcome", "day"],
                 [[c["instance"], c["seed"], c["turns"], c["outcome"], c.get("day")] for c in campaigns]))
     errs = Counter(e for m in missions for e in m.get("log_errors", []))

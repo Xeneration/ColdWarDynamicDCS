@@ -144,7 +144,7 @@ airframes:
     dcs: ["F-15C"]
     player: ["F-15C"]
     service: {USA: [1977, 1991]}
-    air: 1.7
+    air: 1.8
     strike: 0.1
   F-16A:
     name: "F-16A Fighting Falcon"
@@ -369,7 +369,7 @@ airframes:
     player: ["MiG-29A", "MiG-29 Fulcrum"]
     service: {USSR: [1983, 1991], GDR: [1988, 1990], Poland: [1989, 1991], Czechoslovakia: [1989, 1991],
               Syria: [1987, 1991]}
-    air: 1.5
+    air: 1.3       # early 9.12: limited radar and range, newly fielded (Phase G)
     strike: 0.4
   Su-27:
     name: "Su-27 Flanker"
@@ -378,7 +378,7 @@ airframes:
     dcs: ["Su-27"]
     player: ["Su-27"]
     service: {USSR: [1985, 1991]}
-    air: 1.7
+    air: 1.45      # entering service 1985 (Phase G)
     strike: 0.2
   # ------------------------------------------------------------------ East: attack and bombers
   Su-7:

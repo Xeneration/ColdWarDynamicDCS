@@ -358,3 +358,34 @@ Treat **every DCS module as available**: the user owns many more than are instal
   - The carrier survives 21 days in every run checked; its escorts usually do not.
   - The Central Front preset is unchanged.
 - **Open:** submarines (Kilo) are not modelled. Carrier deck crowding (parking spots) is not checked.
+
+### Phase G (part 1): balance across eras (2026-11-24)
+
+- **Sweep:** `tools.balance --year Y [--theatre syria]`, 8 seeds x 21 days, for Central Front 1957/1966/1976/1985/1991 and Southern Flank 1957/1966/1976/1985, against the Fulda preset.
+- **Problems found:**
+  - **Late Central Front:** NATO lost more per sortie than the Warsaw Pact (1985: 4.1% vs 3.7%; NATO patrol fighters 6.4% vs 4.8%). The player's wing (an owned F-5E, say) was taking an AI fighter slot that would otherwise hold an F-15 or F-16.
+  - **Southern Flank:** the carrier air wing came on top of the land squadrons, so NATO flew about twice the East's sorties.
+- **Changes:**
+  - Wing squadrons now come on top of the AI air force, and the enemy adds one squadron per wing squadron (fighter, then strike). That keeps the preset's force ratio.
+  - The carrier air wing takes land-based NATO slots instead of adding to them.
+  - Era air ratings: MiG-29 1.5 -> 1.3 (early 9.12, newly fielded), Su-27 1.7 -> 1.45 (entering service 1985), F-15C 1.7 -> 1.8. The Fulda preset keeps its own ratings.
+- **After** (NATO / East loss per sortie, outcomes of 8 wars):
+
+  | War | NATO | East | Outcomes |
+  |---|---|---|---|
+  | Preset | 3.3% | 4.7% | stalemate 3, East gains 2, NATO holds 2, East victory 1 |
+  | 1957 | 3.3% | 4.1% | stalemate 5, NATO holds 2, East victory 1 |
+  | 1966 | 3.5% | 3.5% | stalemate 6, NATO holds 1, East gains 1 |
+  | 1976 | 3.1% | 4.3% | stalemate 6, East victory 1, East gains 1 |
+  | 1985 | 3.3% | 3.8% | NATO holds 6, stalemate 2 |
+  | 1991 | 3.0% | 4.3% | NATO holds 4, stalemate 2, East gains 1, East victory 1 |
+  | Syria 1966 | 2.8% | 4.6% | stalemate 4, East gains 2, NATO victory 1, NATO holds 1 |
+  | Syria 1976 | 2.6% | 6.4% | stalemate 3, East gains 3, East victory 1, NATO holds 1 |
+  | Syria 1985 | 2.8% | 5.1% | stalemate 3, East gains 3, NATO holds 1, East victory 1 |
+
+  - The late Cold War leans NATO, as it should; the 1950s-70s and the Southern Flank stay in doubt.
+- **Guard:** `tests/test_era_balance.py` (Central Front 1966 and 1985, Southern Flank 1976; first week, 3 seeds): loss rates 1-8%, NATO no worse than 1.15x the East's, and the East still flies.
+- **Open (ground war):** generated Central Front wars end in stalemate more often than the preset (5-6 of 8). Their fronts end 1-15 km in on average, where the preset's spread from 2 to 28 km.
+  - Not a matter of air power: smaller AI air forces gave more stalemates (1976: 9 of 10), so that change was reverted.
+  - It is the known ground-war stalemate issue, for the ground-war pass.
+- **Soak runner:** `cwdc soak --eras germany:1962,syria:1985` gives each DCS instance its own campaign-maker war (cycled; `fulda` = the preset). Simulated wars in the parent cycle through the same eras, and the report shows the eras and outcomes per era.
