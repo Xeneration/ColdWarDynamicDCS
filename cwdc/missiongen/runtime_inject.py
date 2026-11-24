@@ -17,7 +17,8 @@ def _lua_str(s: str) -> str:
 
 
 def config_lua(mission_id: str, tracked_groups: list[str], roe: str = "weapons_free",
-               end_when: dict | None = None, tracked_statics: list[str] | None = None) -> str:
+               end_when: dict | None = None, tracked_statics: list[str] | None = None,
+               intercept: dict | None = None) -> str:
     groups = ", ".join(_lua_str(g) for g in tracked_groups)
     statics = ", ".join(_lua_str(s) for s in tracked_statics or [])
     lines = ["CWDC_CONFIG = {",
@@ -25,6 +26,11 @@ def config_lua(mission_id: str, tracked_groups: list[str], roe: str = "weapons_f
              f"  roe = {_lua_str(roe)},",
              f"  tracked_groups = {{ {groups} }},",
              f"  tracked_statics = {{ {statics} }},"]
+    if intercept:
+        fg = ", ".join(_lua_str(g) for g in intercept["focus"])
+        tg = ", ".join(_lua_str(g) for g in intercept["targets"])
+        lines.append(f"  intercept = {{ focus = {{ {fg} }}, targets = {{ {tg} }},"
+                     f" range = {int(intercept.get('range', 3700))}, hold = {int(intercept.get('hold', 60))} }},")
     if end_when:
         eg = ", ".join(_lua_str(g) for g in end_when["groups"])
         lines.append(f"  end_when = {{ groups = {{ {eg} }}, time_limit = {int(end_when['time_limit'])},"
@@ -35,7 +41,7 @@ def config_lua(mission_id: str, tracked_groups: list[str], roe: str = "weapons_f
 
 def inject_runtime(mission: Mission, mission_id: str, tracked_groups: list[str],
                    roe: str = "weapons_free", end_when: dict | None = None,
-                   tracked_statics: list[str] | None = None) -> None:
+                   tracked_statics: list[str] | None = None, intercept: dict | None = None) -> None:
     """Add a mission-start trigger that defines CWDC_CONFIG and runs the runtime.
 
     With `end_when` (bot missions) a second trigger ends the mission when the
@@ -45,7 +51,7 @@ def inject_runtime(mission: Mission, mission_id: str, tracked_groups: list[str],
     # DCS runs a_do_script's "text" field verbatim (the editor never resolves it through
     # the l10n dictionary), so the code must be inline: String(code), NOT mission.string(code).
     trig.add_action(DoScript(String(config_lua(mission_id, tracked_groups, roe, end_when,
-                                               tracked_statics))))
+                                               tracked_statics, intercept))))
     key = mission.map_resource.add_resource_file(RUNTIME_LUA)
     trig.add_action(DoScriptFile(key))
     mission.triggerrules.triggers.append(trig)

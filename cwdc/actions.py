@@ -171,8 +171,12 @@ def ingest(c: Campaign, from_log: bool = False) -> tuple[list[str], list[str]]:
     if not c.pending_mission:
         raise ActionError("no pending mission - generate one first")
     data, notes = load_result(c, from_log)
+    from cwdc.engine import crisis
     dcs_results, destroyed = results_from_dcs(c, c.pending_mission, data)
+    incidents = crisis.dcs_incidents(c, c.pending_mission, data)
     lines = turn.end_turn(c, dcs_results, destroyed)
+    if incidents:
+        lines[1:1] = ["-- Crisis incidents --", *incidents]
     store.save(c, snapshot=True)
     return lines, notes
 

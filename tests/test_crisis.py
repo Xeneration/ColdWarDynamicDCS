@@ -15,7 +15,8 @@ def test_campaign_opens_in_the_crisis():
     assert c.time.strftime("%d %b") == "11 Aug"
     assert 9 <= c.crisis_deadline_turn <= 17
     assert outcome.war_day(c) == 0
-    assert c.flights and all(f.task is Task.CAP for f in c.flights.values())   # no strikes yet
+    assert c.flights and not any(f.target_id for f in c.flights.values())   # no strikes yet
+    assert {f.task for f in c.flights.values()} <= {Task.CAP, Task.QRA, Task.RECON}
     assert "Crisis" in c.news[-1].text
 
 
@@ -64,3 +65,84 @@ def test_old_saves_load_at_war():
     d["schema_version"] = 1
     old = Campaign.model_validate(d)
     assert old.at_war and old.war_turn == old.turn
+
+# ----------------------------------------------------------------------------- Step 2: air ops
+import logging
+from pathlib import Path
+
+import dcs
+
+from cwdc.engine.crews import GROUNDED
+from cwdc.missiongen import builder
+from cwdc.model import MissionRecord, Side
+
+
+def _day_crisis():
+    c = _crisis(3)                     # turn 1 is dawn: a probe and a QRA are planned
+    return c, next(f for f in c.flights.values() if f.task is Task.QRA)
+
+
+def test_crisis_plans_probes_with_qra_against_them():
+    c, q = _day_crisis()
+    probe = c.flights[q.intercepts]
+    assert probe.task is Task.RECON and probe.side is Side.RED
+    assert q.player_eligible and q.area.dist(probe.area) < 1
+    from cwdc import theater as T
+    assert T.side_at_pos(c.front_line, probe.area) is Side.BLUE        # just over the border
+
+
+def test_simulated_probes_move_tension():
+    c, q = _day_crisis()
+    t0 = c.tension
+    lines = crisis.air_ops(c, [c.flights[q.intercepts]])               # no QRA, no CAP: unopposed
+    assert c.tension == t0 + crisis.UNOPPOSED and "unopposed" in lines[0]
+
+
+def _record(c, q):
+    return MissionRecord(mission_id="m", turn=c.turn, player_flight_id=q.id, miz_path="x",
+                         generated_at=0, spawned_flights=[q.id, q.intercepts],
+                         manifest={f"{q.id}-1 {q.callsign}": {"pilot": q.pilot_ids[0]}})
+
+
+def _ev(event, side, unit=None, **kw):
+    return {"event": event, "initiator": {"coalition": side, "name": unit}, **kw}
+
+
+def test_firing_first_is_a_breach_and_a_kill_brings_the_war_forward():
+    c, q = _day_crisis()
+    probe = c.flights[q.intercepts]
+    unit = f"{q.id}-1 {q.callsign}"
+    data = {"events": [_ev("S_EVENT_SHOT", 2, unit, roe_violation=True),
+                       _ev("S_EVENT_KILL", 2, unit, target={"coalition": 1})]}
+    t0 = c.tension
+    lines = crisis.dcs_incidents(c, _record(c, q), data)
+    assert c.tension >= t0 + crisis.INCIDENT_TENSION - crisis.INTERCEPTED
+    assert c.pilots[q.pilot_ids[0]].fatigue > GROUNDED                  # grounded pending inquiry
+    assert c.crisis_deadline_turn <= c.turn + crisis.KILL_DEADLINE_TURNS
+    assert any("ROE BREACH" in l for l in lines) and c.counters["roe_breaches"] == 1
+    assert any(probe.callsign in l and "without being intercepted" in l for l in lines)
+
+
+def test_hostile_act_and_intercept_from_dcs():
+    c, q = _day_crisis()
+    probe = c.flights[q.intercepts]
+    data = {"events": [_ev("S_EVENT_SHOT", 1, "MiG"),
+                       {"event": "CWDC_INTERCEPT", "target": {"group": f"{probe.id} {probe.callsign}"}}]}
+    t0 = c.tension
+    lines = crisis.dcs_incidents(c, _record(c, q), data)
+    assert c.tension == t0 + crisis.HOSTILE_ACT + crisis.INTERCEPTED
+    assert any("HOSTILE ACT" in l for l in lines) and not c.counters.get("roe_breaches")
+
+
+def test_qra_mission_is_weapons_tight_with_intercept_watch(tmp_path):
+    c, q = _day_crisis()
+    rec = builder.build(c, q.id, tmp_path, start="air", bot=True)
+    assert q.intercepts in rec.spawned_flights
+    logging.disable(logging.CRITICAL)
+    m = dcs.Mission()
+    m.load_file(rec.miz_path)
+    probe = c.flights[q.intercepts]
+    cfg = next(a for t in m.triggerrules.triggers for a in t.actions if "CWDC_CONFIG" in str(a.dict()))
+    text = str(cfg.dict())
+    assert "weapons_tight" in text and f"{probe.id} {probe.callsign}" in text and "intercept" in text
+    assert any("WEAPONS TIGHT" in l for l in rec.briefing)

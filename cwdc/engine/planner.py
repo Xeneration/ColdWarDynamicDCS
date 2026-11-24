@@ -213,10 +213,11 @@ def plan_turn(c: Campaign) -> None:
     c.flights.clear()
     r = rng(c.seed, c.turn, "plan")
     night = period(c) == "night"
+    pools: dict[Side, _Pool] = {}
 
     for side in Side:
         doc = DOCTRINE[side]
-        pool = _Pool(c, side, r)
+        pool = pools[side] = _Pool(c, side, r)
 
         # 1. barrier CAP
         stations = c.cap_stations.get(side, [])[:doc["cap_stations"]]
@@ -255,6 +256,53 @@ def plan_turn(c: Campaign) -> None:
                 if esq:
                     _flight(c, pool, esq, Task.ESCORT, pkg, area=need.target.pos, supports=main.id)
             _describe(c, pkg)
+    if not c.at_war:
+        _crisis_ops(c, pools, r)
+
+
+PROBES = {"dawn": (1, 2), "day": (1, 3), "dusk": (0, 1), "night": (0, 1)}   # per turn, by period
+PROBE_DEPTH = 8_000          # m: probes reach this far over the border
+PROBE_FRONT_RANGE = 150_000  # m: probes stay on the stretch of border NATO's CAP stations watch
+MAX_QRA = 2
+
+
+def probe_points(c: Campaign) -> list[Pos]:
+    """Points just over the border (NATO side) along the watched stretch of it."""
+    stations = c.cap_stations.get(Side.BLUE, [])
+    out = []
+    for lat, lon in c.front_line:
+        p = T.latlon_to_pos(lat, lon)
+        if stations and min(p.dist(s) for s in stations) > PROBE_FRONT_RANGE:
+            continue
+        q = Pos(x=p.x, z=p.z - PROBE_DEPTH)                     # DCS z is east: west = NATO side
+        if T.side_at_pos(c.front_line, q) is Side.BLUE:
+            out.append(q)
+    return out
+
+
+def _crisis_ops(c: Campaign, pools: dict[Side, _Pool], r) -> None:
+    """Crisis tasking: Warsaw Pact border probes and the NATO QRA scrambled against them."""
+    points = probe_points(c)
+    if not points:
+        return
+    n = r.randint(*PROBES[period(c)])
+    for k, area in enumerate(r.sample(points, min(n, len(points)))):
+        sq, _ = pools[Side.RED].pick([Task.CAP], near=area)
+        if sq is None:
+            break
+        lat, lon = T.pos_to_latlon(area)
+        pkg = _package(c, Side.RED, Task.RECON, f"Border probe near {lat:.2f}N {lon:.2f}E", area=area)
+        pkg.reason = "tests NATO's air defence and photographs the border"
+        probe = _flight(c, pools[Side.RED], sq, Task.RECON, pkg, area=area)
+        if k >= MAX_QRA:
+            continue
+        qsq, _ = pools[Side.BLUE].pick([Task.CAP], near=area)
+        if qsq is None:
+            continue
+        q = _package(c, Side.BLUE, Task.QRA, f"QRA - intercept and shadow {probe.callsign}", area=area)
+        q.reason = "a Warsaw Pact aircraft is heading for the border: identify it and see it off"
+        qf = _flight(c, pools[Side.BLUE], qsq, Task.QRA, q, area=area)
+        qf.intercepts = probe.id
 
 
 def _package(c: Campaign, side: Side, task: Task, desc: str, target: Objective | None = None,
@@ -277,7 +325,8 @@ def _flight(c: Campaign, pool: _Pool, sq: Squadron, task: Task, pkg: Package,
     f = Flight(id=fid, package_id=pkg.id, side=sq.side, squadron_id=sq.id, task=task,
                callsign=f"{sq.callsign} {n}", airframe_ids=[a.id for a in afs],
                pilot_ids=[p.id for p in pls], wso_ids=[p.id for p in wsos], target_id=target.id if target else None, area=area,
-               loadout=loadouts.get(task.value) or loadouts.get("CAP" if task is Task.ESCORT else ""),
+               loadout=loadouts.get(task.value) or loadouts.get(
+                   "CAP" if task in (Task.ESCORT, Task.QRA, Task.RECON) else ""),
                player_eligible=sq.player_squadron and _flyable(sq), supports=supports)
     c.flights[fid] = f
     pkg.flight_ids.append(fid)

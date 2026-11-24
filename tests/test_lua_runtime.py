@@ -194,3 +194,28 @@ def test_bot_mission_time_limit():
     assert lua.eval("CWDC.end_requested") is False
     lua.execute("run_due(120)")
     assert lua.eval("CWDC.end_requested") is True
+
+
+def test_hostile_act_clears_return_fire_and_intercept_is_recorded():
+    cfg = config_lua("t-003", ["BLUE-Hawk1"], "weapons_tight",
+                     intercept={"focus": ["BLUE-Hawk1"], "targets": ["RED-Fishbed1"], "range": 3700, "hold": 60})
+    lua = mission_runtime(cfg, None, pre_runtime=UNITS + """
+      M2 = mkunit("Fishbed 1-1", "MiG-21Bis", 1, nil, "RED-Fishbed1", -437000, -946000)
+      mkgroup("RED-Fishbed1", {M2})
+    """)
+    lua.execute("""
+      HANDLER:onEvent({ id = world.event.S_EVENT_SHOT, time = 10, initiator = M2, weapon = mkweapon("R-3S") })
+      HANDLER:onEvent({ id = world.event.S_EVENT_SHOT, time = 12, initiator = P, weapon = mkweapon("AIM_9J") })
+    """)
+    events = json.loads(lua.eval("CWDC_export()"))["events"]
+    assert events[0]["hostile_act"] is True
+    assert "roe_violation" not in events[1]                 # returning fire is allowed
+    lua.execute("run_due(55)")
+    assert lua.eval("CWDC.intercepted['RED-Fishbed1']") is None      # 2 km apart, but not 60 s yet
+    lua.execute("run_due(70)")
+    events = json.loads(lua.eval("CWDC_export()"))["events"]
+    icp = [e for e in events if e["event"] == "CWDC_INTERCEPT"]
+    assert len(icp) == 1 and icp[0]["target"]["group"] == "RED-Fishbed1"
+    lua.execute("run_due(200)")
+    assert len([e for e in json.loads(lua.eval("CWDC_export()"))["events"]
+                if e["event"] == "CWDC_INTERCEPT"]) == 1          # only once per probe

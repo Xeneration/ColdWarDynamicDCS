@@ -97,3 +97,94 @@ def start_war(c: Campaign) -> None:
     c.add_news(f"{c.time:%d %b %Y %H:%M}: WAR. Warsaw Pact forces have crossed the inner German "
                "border. USAFE squadrons are committed to the defence of the Fulda Gap; "
                "ROE weapons free.")
+
+
+# ----------------------------------------------------------------------------- air incidents
+P_SIM_INTERCEPT = 0.8            # a simulated QRA finds and shadows its probe
+P_CAP_INTERCEPT = 0.4            # ...or a barrier CAP does, when no QRA was sent
+INTERCEPTED = -2.0               # tension change: probe seen off
+UNOPPOSED = 3.0                  # tension change: probe got its photographs
+P_SIM_INCIDENT = (0.02, 0.10)    # chance of a (bloodless) incident per probe, at tension 0 / 100
+SIM_INCIDENT = 8.0
+HOSTILE_ACT = 15.0               # the Warsaw Pact fired first in a DCS mission
+
+
+def air_ops(c: Campaign, flights) -> list[str]:
+    """Simulated crisis air activity for flights not flown in DCS: probes are intercepted or
+    not, and the odd incident happens. Nobody is shot down in the simulation."""
+    from cwdc.model import Side, Task
+    r = rng(c.seed, c.turn, "crisis-air")
+    flights = list(flights)
+    qra = {f.intercepts: f for f in flights if f.task is Task.QRA and f.intercepts}
+    caps = [f for f in flights if f.side is Side.BLUE and f.task is Task.CAP]
+    lines = []
+    for probe in (f for f in flights if f.task is Task.RECON):
+        q = qra.get(probe.id)
+        caught = r.random() < (P_SIM_INTERCEPT if q else P_CAP_INTERCEPT if caps else 0.0)
+        if caught:
+            c.tension = max(0.0, c.tension + INTERCEPTED)
+            who = q.callsign if q else caps[0].callsign
+            lines.append(f"{who} intercepted {probe.callsign} at the border and shadowed it back east.")
+            lo, hi = P_SIM_INCIDENT
+            if r.random() < lo + (hi - lo) * c.tension / 100:
+                c.tension = min(100.0, c.tension + SIM_INCIDENT)
+                text = (f"Incident at the border: {probe.callsign} locked up {who} with its radar and "
+                        "made a firing pass before turning away. No shots were fired.")
+                c.add_news(text)
+                lines.append(text)
+        else:
+            c.tension = min(100.0, c.tension + UNOPPOSED)
+            lines.append(f"{probe.callsign} probed the border unopposed and turned back.")
+    return lines
+
+
+def dcs_incidents(c: Campaign, mission, data: dict) -> list[str]:
+    """Consequences of a crisis mission flown in DCS: intercepts, hostile acts and ROE breaches
+    recorded by the mission runtime. Call before the turn is closed."""
+    from cwdc.engine.crews import GROUNDED
+    from cwdc.model import Task
+    if c.at_war or mission is None:
+        return []
+    lines = []
+    events = data.get("events", []) or []
+    shots = [e for e in events if e.get("event") == "S_EVENT_SHOT"]
+    first = shots[0] if shots else None
+    first_side = ((first or {}).get("initiator") or {}).get("coalition")
+    breach = next((e for e in shots if e.get("roe_violation")), None)
+    if breach is not None:
+        c.tension = min(100.0, c.tension + INCIDENT_TENSION)
+        unit = breach["initiator"].get("name")
+        pid = (mission.manifest.get(unit) or {}).get("pilot")
+        pilot = c.pilots.get(pid) if pid else None
+        if pilot is not None:
+            pilot.fatigue = max(pilot.fatigue, GROUNDED + 0.1)        # grounded pending inquiry
+        who = f"{pilot.rank} {pilot.name}" if pilot else unit
+        text = (f"ROE BREACH: {who} fired first on a Warsaw Pact aircraft while weapons tight. "
+                "Moscow protests; the pilot is grounded pending an inquiry.")
+        c.add_news(text)
+        lines.append(text)
+        c.counters["roe_breaches"] = c.counters.get("roe_breaches", 0) + 1
+        red_down = any(e.get("event") in ("S_EVENT_KILL",) and (e.get("target") or {}).get("coalition") == 1
+                       for e in events)
+        if red_down:
+            bring_forward(c, KILL_DEADLINE_TURNS)
+            text = "A Warsaw Pact aircraft was shot down. War now looks only hours away."
+            c.add_news(text)
+            lines.append(text)
+    elif first_side == 1:
+        c.tension = min(100.0, c.tension + HOSTILE_ACT)
+        text = "HOSTILE ACT: Warsaw Pact aircraft opened fire on NATO aircraft over the border."
+        c.add_news(text)
+        lines.append(text)
+    intercepted = {(e.get("target") or {}).get("group") for e in events if e.get("event") == "CWDC_INTERCEPT"}
+    for fid in mission.spawned_flights:
+        f = c.flights.get(fid)
+        if f is None or f.task is not Task.RECON:
+            continue
+        if f"{f.id} {f.callsign}" in intercepted:
+            c.tension = max(0.0, c.tension + INTERCEPTED)
+            lines.append(f"{f.callsign} was intercepted and shadowed back east.")
+        else:
+            c.tension = min(100.0, c.tension + UNOPPOSED)
+            lines.append(f"{f.callsign} probed the border without being intercepted.")
+    return lines

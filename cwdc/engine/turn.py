@@ -43,7 +43,7 @@ def end_turn(c: Campaign, dcs_results: list[SortieResult] | None = None,
         if ground_lines:
             debrief += ["-- Ground war --", *ground_lines]
     else:                                       # the crisis: no ground war yet
-        debrief += ["-- Crisis --", *crisis.crisis_turn(c)]
+        debrief += ["-- Crisis --", *crisis.air_ops(c, remaining), *crisis.crisis_turn(c)]
     airfield_lines = airbases.airbase_turn(c)
     if airfield_lines:
         debrief += ["-- Airfields --", *airfield_lines]

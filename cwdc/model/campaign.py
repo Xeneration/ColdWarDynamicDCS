@@ -30,7 +30,8 @@ class Task(str, Enum):
     CAS = "CAS"
     BAI = "BAI"
     INTERDICTION = "Interdiction"
-    RECON = "Recon"
+    RECON = "Recon"          # crisis: Warsaw Pact border probe
+    QRA = "QRA"              # crisis: NATO alert intercept of a probe
     AIRLIFT = "Airlift"
 
 
@@ -250,6 +251,7 @@ class Flight(BaseModel):
     player_eligible: bool = False
     displaced_pilot_id: Optional[str] = None   # lead pilot stood down when the player took the seat
     supports: Optional[str] = None     # escort / SEAD flight: the package's main flight it protects
+    intercepts: Optional[str] = None   # QRA flight: the enemy probe it is scrambled against
 
 
 class Package(BaseModel):

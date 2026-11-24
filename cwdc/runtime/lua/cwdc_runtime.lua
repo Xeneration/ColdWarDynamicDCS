@@ -8,6 +8,7 @@
       mission_id = "c001-t004",
       tracked_groups = { "RED-SAM-1", "BLUE-Pkg1-Strike", ... },
       roe = "weapons_free" | "weapons_tight",
+      intercept = { focus = {...}, targets = {...}, range = m, hold = s },   -- crisis QRA
     }
 
   It never touches the file system. Data leaves the mission as tagged log lines
@@ -188,11 +189,18 @@ function handler:onEvent(e)
     if e.place then
       rec.place = safe(function() return e.place:getName() end)
     end
-    -- ROE watch: weapon release by a player while weapons tight
-    if e.id == world.event.S_EVENT_SHOT and CWDC.config.roe == "weapons_tight"
-        and rec.initiator and rec.initiator.player then
-      rec.roe_violation = true
-      trigger.action.outText("ROE VIOLATION: weapons release while WEAPONS TIGHT has been logged.", 15)
+    -- ROE watch (weapons tight): the first Warsaw Pact shot is a hostile act that clears NATO
+    -- to return fire; a player firing before that is an ROE violation.
+    if e.id == world.event.S_EVENT_SHOT and CWDC.config.roe == "weapons_tight" and rec.initiator then
+      if rec.initiator.coalition == 1 and not CWDC.hostile_act then
+        CWDC.hostile_act = true
+        rec.hostile_act = true
+        trigger.action.outText("HOSTILE ACT: Warsaw Pact aircraft have opened fire. "
+          .. "You are cleared to return fire.", 20)
+      elseif rec.initiator.player and not CWDC.hostile_act then
+        rec.roe_violation = true
+        trigger.action.outText("ROE VIOLATION: weapons release while WEAPONS TIGHT has been logged.", 15)
+      end
     end
     CWDC.events[#CWDC.events + 1] = rec
     CWDC.emit("EV", rec)
@@ -291,6 +299,67 @@ timer.scheduleFunction(function(_, t)
   if not ok then log("snapshot error: " .. tostring(err)) end
   return t + CWDC.snapshot_interval
 end, nil, timer.getTime() + CWDC.snapshot_interval)
+
+------------------------------------------------------------------------
+-- Crisis QRA: an intercept counts once a focus aircraft has stayed within
+-- `range` m of a target (probe) aircraft for `hold` s. Recorded as a
+-- CWDC_INTERCEPT event (initiator = interceptor, target = probe).
+------------------------------------------------------------------------
+CWDC.intercepted = {}
+local function units_of(gname)
+  local out = {}
+  local g = Group.getByName(gname)
+  if g and g:isExist() then
+    for _, u in ipairs(g:getUnits() or {}) do
+      if u and u:isExist() then out[#out + 1] = u end
+    end
+  end
+  return out
+end
+
+function CWDC.intercept_check(step)
+  local ic = CWDC.config.intercept
+  if not ic then return end
+  local mine = {}
+  for _, gname in ipairs(ic.focus or {}) do
+    for _, u in ipairs(units_of(gname)) do mine[#mine + 1] = u end
+  end
+  CWDC.intercept_held = CWDC.intercept_held or {}
+  for _, tname in ipairs(ic.targets or {}) do
+    if not CWDC.intercepted[tname] then
+      local pair = nil
+      for _, tu in ipairs(units_of(tname)) do
+        local tp = tu:getPoint()
+        for _, mu in ipairs(mine) do
+          local mp = mu:getPoint()
+          local d = math.sqrt((tp.x - mp.x) ^ 2 + (tp.y - mp.y) ^ 2 + (tp.z - mp.z) ^ 2)
+          if d <= (ic.range or 3700) then pair = { mu, tu } end
+        end
+      end
+      local held = pair and (CWDC.intercept_held[tname] or 0) + step or 0
+      CWDC.intercept_held[tname] = held
+      if pair and held >= (ic.hold or 60) then
+        CWDC.intercepted[tname] = true
+        CWDC.seq = CWDC.seq + 1
+        local rec = { seq = CWDC.seq, t = timer.getTime(), id = -1, event = "CWDC_INTERCEPT",
+                      initiator = object_info(pair[1]), target = object_info(pair[2]) }
+        CWDC.events[#CWDC.events + 1] = rec
+        CWDC.emit("EV", rec)
+        trigger.action.outText("Intercept complete: " .. tostring(rec.target.type or tname)
+          .. " identified and shadowed.", 15)
+      end
+    end
+  end
+end
+
+if CWDC.config.intercept then
+  timer.scheduleFunction(function(_, t)
+    if CWDC.ended then return nil end
+    local ok, err = pcall(CWDC.intercept_check, 5)
+    if not ok then log("intercept error: " .. tostring(err)) end
+    return t + 5
+  end, nil, timer.getTime() + 5)
+end
 
 ------------------------------------------------------------------------
 -- Bot missions: end automatically (no player to exit the mission)

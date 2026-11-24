@@ -14,6 +14,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from dcs import task as dtask
+from dcs.mapping import Vector2
 from dcs.mission import Mission, StartType
 from dcs.planes import plane_map
 from dcs.unit import Skill
@@ -44,6 +45,11 @@ MIN_CONTACT_DIST = 50_000       # m; enemy fighters never spawn closer than this
 SWEEP_DELAY = 900               # s; a quiet CAP gets an enemy fighter sweep after this long
 SWEEP_START_DIST = 80_000       # m; ...which starts this far out on the enemy side
 SWEEP_MAX_DIST = 250_000        # m; only enemy CAP flights based this close can sweep
+PROBE_RADIUS = 80_000           # m; crisis probes this close to the player's area are in the mission
+PROBE_RUN_IN = (40_000, 150_000)  # m east of its turn point a probe starts (scaled to the QRA's ETA)
+QRA_SHADOW_S = 15 * 60          # s an AI QRA follows its probe before resuming its own route
+INTERCEPT_RANGE = 3_700         # m (2 nm) an interceptor must hold...
+INTERCEPT_HOLD = 60             # ...for this long (s) to count as an intercept
 ON_STATION_S = 30 * 60          # s an AI-flown focus CAP / escort orbits before going home
 ESCORT_HOLD_S = 8 * 60          # s an escort holds outside the target's SAM cover, then home
 TAXI_TIME = {"ramp": 600, "runway": 90, "air": 0}   # s before the player is en route
@@ -54,7 +60,7 @@ START_TYPES = {"ramp": StartType.Warm, "runway": StartType.Runway}
 
 DCS_TASK = {Task.CAP: dtask.CAP, Task.ESCORT: dtask.Escort, Task.STRIKE: dtask.GroundAttack,
             Task.BAI: dtask.GroundAttack, Task.INTERDICTION: dtask.GroundAttack,
-            Task.CAS: dtask.CAS, Task.SEAD: dtask.SEAD}
+            Task.CAS: dtask.CAS, Task.SEAD: dtask.SEAD, Task.QRA: dtask.Intercept, Task.RECON: dtask.CAP}
 
 # DCS western aircraft callsigns (index used in the unit callsign table)
 WESTERN_CALLSIGNS = {"Enfield": 1, "Springfield": 2, "Uzi": 3, "Colt": 4, "Dodge": 5,
@@ -225,8 +231,15 @@ def select(c: Campaign, player: Flight) -> Plan:
             if min(p.dist(f.area) for p in route) <= FRIENDLY_CAP_RADIUS:
                 plan.flights.append(f)
 
+    # crisis: the border probes near the player's area are what the mission is about
+    if not c.at_war:
+        for f in c.flights.values():
+            if f.side is enemy and f.task is Task.RECON and f not in plan.flights and (
+                    f.id == player.intercepts or f.area.dist(dest) <= PROBE_RADIUS):
+                plan.flights.append(f)
+
     # a CAP with nobody to meet is a dull hour: the nearest enemy CAP flight sweeps the station
-    if player.task is Task.CAP and not any(f.side is enemy for f in plan.flights):
+    if c.at_war and player.task is Task.CAP and not any(f.side is enemy for f in plan.flights):
         sweepers = sorted((f for f in c.flights.values() if f.side is enemy and f.task is Task.CAP
                            and f.area and f.area.dist(dest) <= SWEEP_MAX_DIST),
                           key=lambda f: f.area.dist(dest))
@@ -428,10 +441,12 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
     # --- flights
     order = list(plan.flights)
     escorted_by_player = c.flights.get(player.supports) if player.supports else None
-    if bot and escorted_by_player in order:
-        # an AI-flown focus escort needs its package's group to exist before it can escort it
-        order.remove(escorted_by_player)
-        order.insert(0, escorted_by_player)
+    probe_of_player = c.flights.get(player.intercepts) if player.intercepts else None
+    for first in (escorted_by_player, probe_of_player):
+        if bot and first in order:
+            # an AI-flown focus escort / QRA needs the group it escorts / follows to exist first
+            order.remove(first)
+            order.insert(0, first)
     for k, f in enumerate(order):
         sq = c.squadrons[f.squadron_id]
         spec = T.airframe_catalogue().get(sq.aircraft_type, {})
@@ -465,6 +480,13 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
                 spawn = spawn_at[main.id]                   # escort forms up on its package
                 if main.id in plan.delay:
                     plan.delay.setdefault(f.id, plan.delay[main.id])
+            elif f.task is Task.RECON:                      # border probe: runs in from the east
+                if player.task is Task.QRA:                 # already inbound when QRA scrambles
+                    run_in = min(max((speed / 3.6) * player_eta, PROBE_RUN_IN[0]), PROBE_RUN_IN[1])
+                else:
+                    run_in = 70_000
+                    plan.delay.setdefault(f.id, max(0, int(player_eta - run_in / (speed / 3.6))))
+                spawn = Pos(x=f.area.x, z=f.area.z + run_in)
             elif f.id in plan.sweep:                        # sweep in from the enemy side
                 spawn = _beyond(player_station, f.area, SWEEP_START_DIST)
             elif f.task in (Task.CAP, Task.ESCORT):
@@ -507,6 +529,8 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
             opts.append(dtask.OptROE(dtask.OptROE.Values.OpenFireWeaponFree))
             opts.append(dtask.OptReactOnThreat(dtask.OptReactOnThreat.Values.EvadeFire))
             opts.append(dtask.OptRestrictJettison(True))
+        if ai_flown and not c.at_war:                       # crisis: nobody shoots first
+            g.points[0].tasks.append(dtask.OptROE(dtask.OptROE.Values.ReturnFire))
 
         # waypoints: SAM detours still ahead of the spawn point, then the task's own points
         path = paths.get(f.id) or _path(c, f)
@@ -527,7 +551,19 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
             orbit = dtask.ControlledTask(dtask.OrbitAction(alt, speed, dtask.OrbitAction.OrbitPattern.Circle))
             orbit.stop_after_duration(ESCORT_HOLD_S)
             hwp.tasks.append(orbit)
-        elif f.task is Task.CAP or (f.task is Task.ESCORT and ai_flown):
+        elif f.task is Task.RECON:
+            # probe: up to (just over) the border, along it, and back east
+            g.add_waypoint(T.to_point(f.area), alt, speed, name="PROBE")
+            along = Pos(x=f.area.x + 20_000, z=f.area.z)
+            g.add_waypoint(T.to_point(along), alt, speed, name="PROBE-2")
+            g.add_waypoint(T.to_point(Pos(x=along.x, z=along.z + 60_000)), alt, speed, name="EXIT")
+        elif f.task in (Task.CAP, Task.QRA) or (f.task is Task.ESCORT and ai_flown):
+            probe_g = groups.get(f.intercepts) if f.task is Task.QRA and f.intercepts else None
+            if ai_flown and probe_g is not None:
+                # AI QRA: vectored onto the probe, then shadows it
+                follow = dtask.ControlledTask(dtask.Follow(probe_g.id, Vector2(-1_000, 300), 0))
+                follow.stop_after_duration(QRA_SHADOW_S)
+                g.points[0].tasks.append(follow)
             station_pos = player_station if f.id in plan.sweep else _cap_station(c, f, player)
             if f.id not in plan.sweep:
                 for p in detours:
@@ -536,7 +572,7 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
             wp = g.add_waypoint(station, alt, speed, name="CAP")
             g.points[0].tasks = [t for t in g.points[0].tasks       # pydcs' empty default escort task
                                  if not isinstance(t, dtask.EscortTaskAction)]
-            if ai_flown and f.side is not player.side:
+            if ai_flown and f.side is not player.side and c.at_war:
                 # enemy fighters in this mission are in the player's fight: they come to it
                 wp.tasks.append(dtask.EngageTargetsInZone(T.to_point(player_station),
                                                           CAP_ENGAGE_RADIUS, [dtask.Targets.All.Air]))
@@ -583,6 +619,16 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
              f"Flight: {player.callsign} ({sq.name}), {len(player.airframe_ids)}x {sq.aircraft_type}"
              f" from {c.airbases[sq.base_id].dcs_name} ({start} start)",
              f"Tasking: {c.packages[player.package_id].description}"]
+    if not c.at_war:
+        lines.append(f"CRISIS - tension {c.tension:.0f}/100. ROE: WEAPONS TIGHT. Identify and shadow; "
+                     "do NOT fire unless fired upon. If a Warsaw Pact aircraft fires, you are cleared "
+                     "to return fire. Firing first means an inquiry and could start the war.")
+        probes = [f for f in plan.flights if f.task is Task.RECON]
+        if probes:
+            lines.append("Intruders expected: " + ", ".join(
+                f"{f.callsign} ({c.squadrons[f.squadron_id].aircraft_type})" for f in probes)
+                + f". An intercept counts once you hold within {INTERCEPT_RANGE / 1852:.0f} nm "
+                  f"for {INTERCEPT_HOLD} s.")
     crew = []
     for i, pid in enumerate(player.pilot_ids):
         p = c.pilots[pid]
@@ -613,7 +659,11 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
     m.set_description_bluetask_text(c.packages[player.package_id].description)
 
     end_when = {"groups": [f"{player.id} {player.callsign}"], "time_limit": time_limit}         if bot else None
-    inject_runtime(m, mission_id, tracked, end_when=end_when, tracked_statics=tracked_statics)
+    probes = [f"{f.id} {f.callsign}" for f in plan.flights if f.task is Task.RECON]
+    intercept = ({"focus": [f"{player.id} {player.callsign}"], "targets": probes,
+                  "range": INTERCEPT_RANGE, "hold": INTERCEPT_HOLD} if probes else None)
+    inject_runtime(m, mission_id, tracked, end_when=end_when, tracked_statics=tracked_statics,
+                   roe="weapons_free" if c.at_war else "weapons_tight", intercept=intercept)
     out_dir.mkdir(parents=True, exist_ok=True)
     path = out_dir / mission_filename(c, player, bot)
     m.save(str(path))

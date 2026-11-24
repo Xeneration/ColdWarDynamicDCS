@@ -625,6 +625,29 @@ What's deliberately left for later phases: the web UI (Phase 3), the crisis phas
   - posts the war news;
   - makes `war_day` count from day 1.
 
+**Progress (2026-11-24): Phase 4 step 2 done: crisis air operations and ROE**
+- **Tasks:** `QRA` (NATO) and `RECON` (Warsaw Pact border probe). A QRA flight carries `intercepts`, the id of its probe.
+- **Planner** (`_crisis_ops`):
+  - Probes per turn by period: dawn 1–2, day 1–3, dusk 0–1, night 0–1. Each reaches 8 km over the border, on the stretch the NATO CAP stations watch.
+  - Up to 2 get a QRA scrambled against them. The QRA is player-eligible.
+- **Simulated probes** (`crisis.air_ops`):
+  - QRA intercepts 80% of the time and a barrier CAP 40%. A probe seen off brings tension −2; an unopposed probe +3.
+  - The chance of a bloodless incident (+8) rises from 2% to 10% with tension.
+- **Missions:**
+  - ROE weapons tight in `CWDC_CONFIG`, and every AI group set to return fire only.
+  - Probes run in from the east: already inbound for a QRA, timed to arrive with the player otherwise. They fly to the turn point, along the border, then out east.
+  - An AI QRA follows its probe for 15 min.
+  - The briefing gives the ROE and the intruders.
+- **Lua runtime:**
+  - The first Warsaw Pact shot is a hostile act: it shows "cleared to return fire" and stops later NATO shots counting as violations.
+  - A player shot before that is an `roe_violation`.
+  - Holding within 2 nm of a probe for 60 s records a `CWDC_INTERCEPT` event.
+- **Ingest** (`crisis.dcs_incidents`, called from `actions.ingest`):
+  - **Breach:** tension +25, news, and the shooter is grounded (fatigue set above the grounding level).
+  - **Breach with a Warsaw Pact aircraft shot down:** on top of that, the war starts within 2 turns.
+  - **Hostile act:** tension +15.
+  - **Each probe in the mission:** intercepted −2, not intercepted +3.
+
 **Phase 5: Polish**
 - Balance passes, campaign presets (start date 1974–79, other squadrons), packaging into a one-click launcher, multiplayer client slots.
 - **Immersion lockdown, once all phases are finished** (requested 2026-11-23; kept on for now to help testing):
