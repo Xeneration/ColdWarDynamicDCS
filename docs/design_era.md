@@ -1,0 +1,129 @@
+# Cold War campaign maker (1950–1991): design draft
+
+This builds on the Fulda 1976 concept, which is frozen as the git tag `v0.4-fulda-1976` and the branch `fulda-1976`. The engine stays the same: turns, the ATO, the resolver, crews, ground war, crisis, weather, news, mission builder, runtime and ingest. What changes is that the war is **assembled from a year**, not hand-written for 1976.
+
+## 1. The campaign maker (new-campaign screen)
+
+1. **Theatre:**
+   - **Central Front**: the Cold War Germany map.
+   - **Southern Flank**: the Syria map. NATO (Turkey, the USAF at Incirlik, the RAF at Akrotiri and a US/French carrier group) faces Syria and a Soviet expeditionary force. It is fictional, with no real-war re-enactment.
+2. **Year slider (1950–1991)** over the bar chart from the sketch:
+   - **One bar per airframe,** spanning its front-line service years. Bars are grouped West / East.
+   - **Bars inside each airframe bar,** one per weapon family, starting at its introduction year (for example AIM-9B 1956, AIM-7E 1963, Rockeye 1968, AGM-65A 1972, AIM-9L 1977, RB 04 1971, RB 75 1972).
+   - **Colours:**
+     - flyable and owned: bold;
+     - AI-only (you don't own the module): faded;
+     - flown by a stand-in (see §3): hatched.
+   - **The vertical line** shows exactly what exists in that year. A side panel lists:
+     - the nations, airframes and weapons in the war;
+     - the SAMs and tanks;
+     - "You can fly: F-100D, A-4E, UH-1H".
+3. **Your side**: West or East. East is flyable with the Su-25T today, and with any MiG/Su module you add later.
+4. **Nations** (toggles; defaults by year):
+   - **West:** USA, UK, West Germany, France, Netherlands, Belgium, Canada, Denmark, Norway, Italy, Turkey. "Sweden joins the West" is a fun toggle that brings in the Viggen. France is on by default, game-first, even after 1966.
+   - **East:** USSR, GDR, Poland, Czechoslovakia, Hungary; Syria on the Syria map.
+5. **Your airframes:** detected automatically from the DCS install (`Mods/aircraft`) plus Saved Games mods (the A-4E-C). You can untick any.
+6. **Start:** crisis (as at Fulda), or "bolt from the blue" (war on turn 1). Also the length, difficulty and a seed.
+7. **Presets:** "Fulda 1976" (today's campaign), "Sabre Days 1957", "Phantoms and Viggens 1975", "Hog Country 1985" and "Southern Flank 1983". Each preset is a saved slider position plus toggles.
+
+## 2. What the year drives
+
+| System | Driven by the year |
+|---|---|
+| Air order of battle | Each nation's squadron templates carry `airframe by year`. For example USAFE 36 TFW Bitburg: F-86F to 1956, F-100D to 1966, F-4E to 1977, F-15 after. Squadron counts scale by era. |
+| Loadouts | Built from each module's **shipped payloads** (parsed from DCS / the A-4E-C `UnitPayloads`), then filtered by weapon year. Anything not yet in service is dropped. The F-4E keeps its validated set. |
+| Air defence | AAA only to 1958. SA-2 from 1959, SA-3 from 1961, SA-6 from 1970, SA-8 from 1974, ZSU-23-4 from 1965, SA-11 from 1983. West: Hawk from 1960, Rapier from 1971, Roland from 1981, Gepard from 1976. |
+| Ground forces | T-34-85 then T-55, T-72B, T-80B. Leopard 1A3, M-60, Chieftain, M-1, Leopard 2. BTR-60, BMP-1 from 1966, BMP-2 from 1980. Only DCS-existing units are used, checked against pydcs. |
+| Sensors and doctrine | GCI density, AWACS (E-3 from 1977, A-50 from 1984). Night ops restricted before about 1970. Air-to-air ROE is "visual ID" in the gun era. |
+| Rescue | UH-1H from 1959 (before that, a stand-in Mi-8/UH-1H flagged as such). |
+
+## 3. Stand-ins (fun over strict realism)
+
+Many period types are not in DCS: F-84F, F-104G, F-105, Hunter, Lightning, Jaguar, Harrier, Buccaneer, A-7, F-111, MiG-17, Su-7, Il-28, Tu-16 and MiG-21 variants for AI. A **stand-in table** maps each one to the closest DCS type by role and era:
+- F-104G becomes F-5E / MiG-21Bis-class;
+- Jaguar / Harrier become the A-4E-C or AJS37;
+- MiG-17 becomes MiG-15bis / MiG-19P;
+- Il-28 / Tu-16 become Tu-22M3 / B-52H (marked).
+
+The UI marks stand-ins hatched, and a "strict" toggle removes them. Squadrons keep their real name and nation either way.
+
+## 4. Flying several airframes
+
+- Your pilot belongs to a **wing**, a base with two to four squadrons. Every squadron in the wing whose airframe you own puts its sorties on your ATO.
+  - Example, 1958 at Bitburg: F-100D CAS in the morning, then an F-86F escort in the afternoon.
+- A "mixed-wing" toggle also lets any owned airframe on your side be offered from neighbouring bases, for example the A-4E-C with a US Navy/USMC detachment.
+- Career, ranks and medals carry across airframes. Each squadron keeps its own roster, and you are cross-qualified.
+
+## 5. The enemy's turn: reactive missions
+
+The resolver already knows what the enemy plans this turn. Those plans now spawn missions for you:
+
+| Mission | Trigger | What you do |
+|---|---|---|
+| **Hunt the raid** | Enemy CAS (Su-25, Su-17, MiG-27) planned on the front | CAP or intercept over the battle area before they hit our troops. Success cuts their ground-attack bonus. |
+| **Troops in contact** | An enemy offensive moves a battalion forward | Time-critical CAS: rockets on an advancing column, with a FAC talk-on and a friendly unit in contact. The result feeds straight into the ground-war battle. |
+| **Helicopter hunt** | Mi-24/Mi-8 assault planned | Low-level CAP over the front against the helicopter wave. |
+| **Bomber intercept** | Deep raid by bombers (Tu-22M3 or a stand-in) | Long-range scramble, with escorts to get past. |
+| **Airfield defence** | Enemy OCA aimed at your base | Scramble from your own field as the raid comes in (with or without warning). |
+| **Counter-battery / FROG hunt** | Enemy artillery or missile pushes | Find and kill launchers before they fire again. |
+| **Hold the bridge** | Enemy armour reaches a river line | CAS at a chokepoint. Losing it opens the breakthrough. |
+
+Plus your own-initiative types that are still missing: **UH-1H missions you fly yourself** (CSAR pickup, insertion, resupply to a cut-off unit), **anti-ship** on the Syria coast (AJS37 RB 04, Harpoon era), **tanker and AWACS escort**, and **train busting** (if DCS trains are scriptable; to be checked).
+
+## 6. More variety on top
+
+- **Era events:** 1950s nuclear-capable bomber alerts, the first SA-2 shock (no warning gear before RWRs), carrier group arrival (Syria), a defector MiG landing at your base, a special-forces raid on your field.
+- **Squadron life:** an aircraft conversion mid-war in long campaigns (for example F-100 to F-4 in 1966), plus replacement-crew quality by era.
+- **Dynamic difficulty by era:** gun-and-AIM-9B fights in the '50s; SAM belts and EW in the '70s; look-down/shoot-down in the '80s.
+
+## 7. Build order (proposed)
+
+| Phase | Content |
+|---|---|
+| **A. Era data** | An era database: airframes with service years per nation, weapon intro years, SAMs, ground units, stand-ins. Module detection. Shipped-payload import for owned modules plus the A-4E-C (a pydcs custom type for the mod). Year filtering. Everything checked against pydcs/DCS files, with tests. |
+| **B. Generator** | Build a theatre's OOB, air defences, ground forces and airfields from (theatre, year, nations, side). The Fulda 1976 data becomes the first preset, and output must match today's campaign. |
+| **C. Multi-airframe player** | Wing model; a generic task→loadout choice per airframe/year; the builder and kneeboards are no longer F-4E-specific. |
+| **D. Campaign-maker UI** | The year slider over airframe/weapon bars, the theatre/side/nation/airframe pickers, the "what's in this war" panel and presets. |
+| **E. Reactive missions** | §5, wired into the ground war, plus UH-1H missions. |
+| **F. Syria theatre** | Fronts, bases, Turkish/Cypriot NATO side, coast and naval targets, anti-ship. |
+| **G. Balance and soak** | Per era (1957, 1966, 1975, 1985) and per theatre. |
+
+## Module policy (decided 2026-11-24)
+
+Treat **every DCS module as available**: the user owns many more than are installed. Any DCS-flyable airframe in the year window is offered as player-flyable. That includes the F-86F, MiG-15bis, MiG-19P, MiG-21bis, Mirage F1, F-5E, F-14, F-15C, F-16C, F/A-18C, MiG-29, Su-25T, Su-27, Mi-8, Mi-24P, Ka-50, SA342, AH-64D, Harrier and Mirage 2000C.
+
+- **Detection** only warns ("not installed - install it before flying this squadron"). It never hides anything.
+- **Loadouts** for modules that aren't installed come from pydcs' bundled payloads and weapon data, not from the DCS install.
+
+## Installed today (for reference, 2026-11-24)
+
+- **Flyable in the Cold War window:** F-100D, F-4E, F-5E, F-14, AJS37, A-10A, A-4E-C (mod), Su-25T (East), UH-1H.
+- **Maps:** Cold War Germany, Syria, Caucasus, Normandy.
+- The Mirage F1, MiG-21, F-86 and MiG-15 aren't owned, so they appear as AI (and flyable once you add the module).
+- Nothing you own is flyable from 1950–1955: the slider shows that stretch as "AI only".
+
+## Progress
+
+### Phase A: era data (2026-11-24, done)
+
+- **`cwdc/data/era/`:**
+  - `airframes.yaml`: 60 airframes, West and East. Each has its service years per nation, its DCS type in order of preference, its flyable variants, a stand-in flag and air/strike ratings.
+  - `weapons.yaml`: store introduction years as ordered regex rules.
+  - `ground.yaml`: SAMs, AAA and EWRs, plus tanks, IFVs, artillery and trucks by year. WWII Units pack units are flagged with `requires`.
+  - `nations.yaml`: nations, their DCS country, theatres and default years.
+- **`cwdc/data/payloads/*.json`:** shipped payloads per DCS type, harvested by `python -m tools.harvest_payloads --owned`:
+  - from every installed module's own missions, plus the A-4E-C's UnitPayloads;
+  - from DCS's MissionEditor UnitPayloads for the AI types.
+  - Every store in them has a year, which a test enforces.
+- **`cwdc/era/`:**
+  - `modules.py`: owned-module detection from each module's `entry.lua` (`make_flyable` / `MAC_flyable`), across DCS World and Saved Games mods, plus asset packs and maps. Read-only.
+  - `a4ec.py`: the A-4E-C as a pydcs plane type.
+  - `payloads.py`: harvest and load.
+  - `__init__.py`: `airframes_in`, `dcs_type` (stand-ins and mods), `player_types`, `weapon_year`, `payloads_for(type, year)`, `air_defence_in`, `ground_in`, `default_nations` and `slider`.
+- **Found on this machine:**
+  - Flyable: F-100D, F-4E, F-5E, F-14A/B, AJS37, A-10A, A-4E-C (mod), Su-25T, UH-1H.
+  - Asset packs: WWII Units and Supercarrier.
+  - Maps: GermanyColdWar, Syria, Caucasus, Normandy.
+- **Open for Phase C:**
+  - AI-only types from modules you don't own (MiG-21Bis, MiG-15bis, MiG-19P, F-86F, Mirage F1, M-2000C, AV-8B, A-6E, L-39ZA) have no payload files on this install. Planned answer: hand-written, era-filtered AI loadouts, validated against pydcs pylon data. For AI, DCS does not strip stores the way it does for the player's module.
+  - Transports, tankers and AWACS need no payloads.

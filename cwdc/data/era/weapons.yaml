@@ -1,0 +1,119 @@
+# Store introduction years (front-line service, rounded; game-first). Each rule's `match` regexes
+# are tried in order against "<CLSID> <pydcs weapon name>" (case-insensitive); first match wins,
+# so specific variants come before generic ones. Family "fuel"/"equipment" are not shown as
+# weapon bars on the year slider.
+weapons:
+  # ------------------------------------------------------------ always available
+  - {family: fuel, year: 1950, match: ['fuel', 'drop ?tank', 'gal\b', 'gallon', 'DFT-', 'PTB', '\bFPU', 'Bak-|Bak \d', 'XT_']}
+  - {family: ATGM, year: 1970, match: ['BGM-?71', '\bTOW\b']}
+  - {family: ATGM, year: 1976, match: ['9M114', 'Shturm']}
+  - {family: equipment, year: 1950, match: ['smoke', 'practice', 'BDU', 'training', 'Mk-?106', 'MK76', 'Mk-?76', 'ASQ-T50', 'travel pod', 'cargo', 'baggage', 'pilot', 'SUU-?20', 'CATM', '\bTGM', 'Trg Round', 'dummy']}
+  - {family: equipment, year: 1950, match: ['M134', 'M60', 'GAU-?8', 'AKAN', 'gun ?pod.*M61|SUU-?23', 'SUU-?16', 'GPU-?2', 'M3M|M3 ', 'door gun', 'HIPEG', 'GUV', 'ZELL', 'LYSBOMB', 'APK-?9']}
+  # ------------------------------------------------------------ countermeasures / pods
+  - {family: ECM pod, year: 1967, match: ['ALQ-?71', 'ALQ-?72']}
+  - {family: ECM pod, year: 1969, match: ['ALQ-?101']}
+  - {family: ECM pod, year: 1972, match: ['ALQ-?119']}
+  - {family: ECM pod, year: 1976, match: ['ALQ-?131']}
+  - {family: ECM pod, year: 1977, match: ['ALQ-?184']}
+  - {family: chaff/flare, year: 1970, match: ['ALE-?40', 'ALE-?39', 'SUU-?25', 'flare', 'KB ', 'BOZ', 'chaff', 'LUU-?2']}
+  - {family: ECM pod, year: 1978, match: ['U22', 'Vicon']}
+  - {family: ECM pod, year: 1982, match: ['Sky-?Shadow']}
+  - {family: ECM pod, year: 1985, match: ['MPS-?410', 'Sorbtsiya', 'L005']}
+  - {family: targeting pod, year: 1974, match: ['Pave ?Spike', 'AVQ-?23']}
+  - {family: targeting pod, year: 1981, match: ['Pave ?Tack', 'AVQ-?26']}
+  - {family: targeting pod, year: 1987, match: ['LANTIRN', 'AAQ-?14', 'AAQ-?13']}
+  - {family: recon pod, year: 1981, match: ['TARPS']}
+  # ------------------------------------------------------------ air-to-air
+  - {family: AIM-9B, year: 1956, match: ['AIM-?9B', 'GAR-?8', 'Rb ?24\b(?!J)']}
+  - {family: AIM-9D/H, year: 1965, match: ['AIM-?9D', 'AIM-?9G', 'AIM-?9H']}
+  - {family: AIM-9E, year: 1967, match: ['AIM-?9E']}
+  - {family: AIM-9J, year: 1972, match: ['AIM-?9J', 'Rb ?24J']}
+  - {family: AIM-9P, year: 1978, match: ['AIM-?9P5', 'AIM-?9P3', 'AIM-?9P', 'AIM-?9N']}
+  - {family: AIM-9L/M, year: 1977, match: ['AIM-?9L', 'Rb ?74']}
+  - {family: AIM-9L/M, year: 1983, match: ['AIM-?9M', 'AIM-?9X']}
+  - {family: AIM-7, year: 1958, match: ['AIM-?7C', 'AIM-?7D']}
+  - {family: AIM-7, year: 1963, match: ['AIM-?7E(?!-2)']}
+  - {family: AIM-7, year: 1969, match: ['AIM-?7E-?2']}
+  - {family: AIM-7, year: 1976, match: ['AIM-?7F', 'Rb ?71', 'Sky ?Flash']}
+  - {family: AIM-7, year: 1982, match: ['AIM-?7M', 'AIM-?7P', 'AIM-?7MH']}
+  - {family: AIM-54, year: 1974, match: ['AIM-?54A.*Mk-?47', 'AIM-?54A(?!.*Mk-?60)']}
+  - {family: AIM-54, year: 1982, match: ['AIM-?54A.*Mk-?60']}
+  - {family: AIM-54, year: 1986, match: ['AIM-?54C']}
+  - {family: AIM-120, year: 1991, match: ['AIM-?120']}
+  - {family: R-3S, year: 1962, match: ['R-?3S', 'R-?3R', 'K-?13']}
+  - {family: R-13M, year: 1974, match: ['R-?13M']}
+  - {family: R-60, year: 1974, match: ['R-?60(?!M)']}
+  - {family: R-60M, year: 1982, match: ['R-?60M']}
+  - {family: R-73, year: 1985, match: ['R-?73']}
+  - {family: R-23/24, year: 1974, match: ['R-?23']}
+  - {family: R-23/24, year: 1981, match: ['R-?24']}
+  - {family: R-27, year: 1985, match: ['R-?27']}
+  - {family: R-40, year: 1972, match: ['R-?40']}
+  - {family: R-55, year: 1960, match: ['\bR-55\b', 'RS-?2US', '\bK-5M']}
+  # ------------------------------------------------------------ air-to-ground guided
+  - {family: AGM-12 Bullpup, year: 1959, match: ['AGM-?12', 'Bullpup']}
+  - {family: AGM-45 Shrike, year: 1965, match: ['AGM-?45', 'Shrike']}
+  - {family: AGM-78 Standard ARM, year: 1968, match: ['AGM-?78']}
+  - {family: AGM-88 HARM, year: 1985, match: ['AGM-?88', 'HARM']}
+  - {family: AGM-62 Walleye, year: 1967, match: ['AGM-?62', 'Walleye']}
+  - {family: AGM-65 Maverick, year: 1972, match: ['AGM-?65A', 'Rb ?75']}
+  - {family: AGM-65 Maverick, year: 1975, match: ['AGM-?65B']}
+  - {family: AGM-65 Maverick, year: 1983, match: ['AGM-?65D', 'AGM-?65E', 'AGM-?65F', 'AGM-?65G']}
+  - {family: AGM-65 Maverick, year: 1995, match: ['AGM-?65H', 'AGM-?65K', 'AGM-?65L']}
+  - {family: GBU-8 HOBOS, year: 1969, match: ['GBU-?8']}
+  - {family: GBU-15, year: 1983, match: ['GBU-?15', 'AXQ-?14']}
+  - {family: laser-guided bombs, year: 1972, match: ['GBU-?10', 'GBU-?12']}
+  - {family: laser-guided bombs, year: 1976, match: ['GBU-?16']}
+  - {family: laser-guided bombs, year: 1983, match: ['GBU-?24']}
+  - {family: laser-guided bombs, year: 1988, match: ['GBU-?27']}
+  - {family: laser-guided bombs, year: 1995, match: ['GBU-?3[1-9]', 'GBU-?54', 'GBU-?38', 'JDAM']}
+  - {family: AGM-84 Harpoon, year: 1977, match: ['AGM-?84', 'Harpoon']}
+  - {family: Kormoran, year: 1977, match: ['Kormoran']}
+  - {family: anti-ship missiles, year: 1989, match: ['Penguin', 'AGM-?119', 'Rb-?15', 'RB-?15']}
+  - {family: Kh-22, year: 1967, match: ['Kh-?22']}
+  - {family: AGM-114 Hellfire, year: 1984, match: ['AGM-?114', 'Hellfire']}
+  - {family: JSOW, year: 1999, match: ['AGM-?154', 'JSOW']}
+  - {family: TALD, year: 1987, match: ['ADM-?141', 'TALD']}
+  - {family: Rb 04 anti-ship, year: 1971, match: ['Rb ?04', 'RB-?04']}
+  - {family: Rb 05, year: 1972, match: ['Rb ?05', 'RB-?05']}
+  - {family: BK 90, year: 1996, match: ['BK ?90', 'Mjolner']}
+  - {family: Kh-23, year: 1974, match: ['Kh-?23']}
+  - {family: Kh-25, year: 1975, match: ['Kh-?25ML', 'Kh-?25MR']}
+  - {family: Kh-25, year: 1981, match: ['Kh-?25MP', 'Kh-?25MPU']}
+  - {family: Kh-28, year: 1973, match: ['Kh-?28']}
+  - {family: Kh-29, year: 1980, match: ['Kh-?29']}
+  - {family: Kh-58, year: 1982, match: ['Kh-?58']}
+  - {family: Kh-31, year: 1989, match: ['Kh-?31']}
+  - {family: Kh-35/59, year: 2000, match: ['Kh-?35', 'Kh-?59', 'Kh-?41', 'Kh-?65']}
+  - {family: Vikhr, year: 1985, match: ['Vikhr', '9A4172', '9M127']}
+  - {family: KAB guided bombs, year: 1975, match: ['KAB-?500', 'KAB-?1500']}
+  - {family: Mercury/Shkval pods, year: 1985, match: ['Mercury', 'L-?081', 'Fantasmagoria', 'Kopyo']}
+  # ------------------------------------------------------------ rockets
+  - {family: 2.75in FFAR, year: 1955, match: ['FFAR', 'XM-?158', 'LAU-?3\b', 'LAU3', 'LAU-?68', 'LAU68', 'LAU-?61', 'LAU-?131', 'Hydra', 'M151', 'M156', 'Mk ?1 ', 'Mk ?5 ', 'Mk ?61', 'WTU-?1']}
+  - {family: 5in Zuni, year: 1957, match: ['Zuni', 'LAU-?10']}
+  - {family: HVAR, year: 1950, match: ['HVAR']}
+  - {family: ARAK rockets, year: 1970, match: ['ARAK', 'M70', 'M/70']}
+  - {family: S-5 rockets, year: 1955, match: ['S-?5\b', 'S-?5K', 'S-?5M', 'UB-?16', 'UB-?32']}
+  - {family: S-8 rockets, year: 1975, match: ['S-?8', 'B-?8M1', 'B8V20']}
+  - {family: S-13 rockets, year: 1983, match: ['S-?13', 'B-?13']}
+  - {family: S-24 rockets, year: 1960, match: ['S-?24']}
+  - {family: S-25 rockets, year: 1975, match: ['S-?25']}
+  # ------------------------------------------------------------ bombs
+  - {family: cluster bombs, year: 1965, match: ['CBU-?1(?![0-9])', 'CBU-?2(?![0-9])', 'SUU-?7(?![0-9])']}
+  - {family: cluster bombs, year: 1966, match: ['CBU-?24', 'CBU-?49', 'CBU-?52', 'CBU-?58', 'CBU-?71']}
+  - {family: Rockeye, year: 1968, match: ['Rockeye', 'Mk-?20', 'CBU-?99', 'CBU-?100']}
+  - {family: cluster bombs, year: 1986, match: ['CBU-?87', 'CBU-?89']}
+  - {family: cluster bombs, year: 1997, match: ['CBU-?97', 'CBU-?103', 'CBU-?105']}
+  - {family: Durandal, year: 1977, match: ['BLU-?107', 'Durandal']}
+  - {family: napalm, year: 1950, match: ['BLU-?1\b', 'BLU-?1/', 'BLU-?27', 'napalm', 'Mk-?77', 'mk77', 'ZAB']}
+  - {family: Snakeye, year: 1964, match: ['Snakeye', 'Mk-?82 ?SE', 'Mk-?81 ?SE', 'MK-?81SE', 'Mk82SNAKEYE', 'Mk-?82 ?Snake']}
+  - {family: AIR ballute, year: 1983, match: ['Mk-?82 ?AIR', 'Mk82AIR', 'BSU-?49', 'BSU-?33']}
+  - {family: GP bombs, year: 1950, match: ['M117', 'M118', 'AN-?M\d', 'AN_M', 'M-?117']}
+  - {family: GP bombs, year: 1955, match: ['Mk-?8[1-4]', 'MK-?8[1-4]', 'Mk8[1-4]', 'BLU-?111', 'BLU-?110', 'BLU-?109', 'BLU-?117']}
+  - {family: Swedish bombs, year: 1971, match: ['M/71', 'm/71', 'Bomb m71', 'SB71', 'Sprängbomb', 'Bombkapsel']}
+  - {family: FAB bombs, year: 1954, match: ['FAB-?\d', 'OFAB', 'OFZAB', 'FAB_']}
+  - {family: RBK cluster, year: 1970, match: ['RBK', 'KMGU', 'PTAB', 'AO-?2']}
+  - {family: BetAB, year: 1975, match: ['BetAB', 'BETAB']}
+  - {family: SAB flares, year: 1955, match: ['SAB-?\d']}
+  # ------------------------------------------------------------ gun pods (East)
+  - {family: gun pods, year: 1970, match: ['UPK-?23', 'SPPU-?22', 'GSh-?23']}

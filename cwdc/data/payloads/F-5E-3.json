@@ -1,0 +1,446 @@
+{
+ "unit_type": "F-5E-3",
+ "source": "module F-5E",
+ "missions_scanned": 91,
+ "payloads": [
+  {
+   "name": null,
+   "count": 92,
+   "pylons": {
+    "1": "{AIM-9P5}",
+    "3": "{0395076D-2F77-4420-9D33-087A4398130B}",
+    "4": "{0395076D-2F77-4420-9D33-087A4398130B}",
+    "5": "{0395076D-2F77-4420-9D33-087A4398130B}",
+    "7": "{AIM-9P5}"
+   }
+  },
+  {
+   "name": null,
+   "count": 63,
+   "pylons": {
+    "1": "{AIM-9P5}",
+    "4": "{0395076D-2F77-4420-9D33-087A4398130B}",
+    "7": "{AIM-9P5}"
+   }
+  },
+  {
+   "name": null,
+   "count": 23,
+   "pylons": {
+    "1": "{AIM-9P5}",
+    "4": "{PTB-150GAL}",
+    "7": "{AIM-9P5}"
+   }
+  },
+  {
+   "name": null,
+   "count": 22,
+   "pylons": {
+    "3": "{A021F29D-18AB-4d3e-985C-FC9C60E35E9E}",
+    "4": "{BCE4E030-38E9-423E-98ED-24BE3DA87C32}",
+    "5": "{A021F29D-18AB-4d3e-985C-FC9C60E35E9E}"
+   }
+  },
+  {
+   "name": null,
+   "count": 18,
+   "pylons": {
+    "1": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}",
+    "3": "{0395076D-2F77-4420-9D33-087A4398130B}",
+    "4": "{0395076D-2F77-4420-9D33-087A4398130B}",
+    "5": "{0395076D-2F77-4420-9D33-087A4398130B}",
+    "7": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}"
+   }
+  },
+  {
+   "name": null,
+   "count": 17,
+   "pylons": {
+    "1": "{AIM-9P5}",
+    "3": "{PTB-150GAL}",
+    "4": "{PTB-150GAL}",
+    "5": "{PTB-150GAL}",
+    "7": "{AIM-9P5}"
+   }
+  },
+  {
+   "name": null,
+   "count": 15,
+   "pylons": {
+    "1": "{AIM-9P5}",
+    "7": "{AIM-9P5}"
+   }
+  },
+  {
+   "name": null,
+   "count": 10,
+   "pylons": {
+    "1": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}",
+    "3": "{PTB-150GAL}",
+    "4": "{PTB-150GAL}",
+    "5": "{PTB-150GAL}",
+    "7": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}"
+   }
+  },
+  {
+   "name": null,
+   "count": 10,
+   "pylons": {
+    "1": "{AIM-9B}",
+    "7": "{AIM-9B}"
+   }
+  },
+  {
+   "name": null,
+   "count": 9,
+   "pylons": {
+    "1": "{A4BCC903-06C8-47bb-9937-A30FEDB4E741}",
+    "7": "{A4BCC903-06C8-47bb-9937-A30FEDB4E746}"
+   }
+  },
+  {
+   "name": null,
+   "count": 9,
+   "pylons": {
+    "1": "{A4BCC903-06C8-47bb-9937-A30FEDB4E742}",
+    "7": "{A4BCC903-06C8-47bb-9937-A30FEDB4E742}"
+   }
+  },
+  {
+   "name": null,
+   "count": 8,
+   "pylons": {
+    "1": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}",
+    "2": "LAU3_HE151",
+    "3": "{0395076D-2F77-4420-9D33-087A4398130B}",
+    "4": "{BCE4E030-38E9-423E-98ED-24BE3DA87C32}",
+    "5": "{0395076D-2F77-4420-9D33-087A4398130B}",
+    "6": "LAU3_HE151",
+    "7": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}"
+   }
+  },
+  {
+   "name": null,
+   "count": 6,
+   "pylons": {
+    "1": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}",
+    "2": "{A021F29D-18AB-4d3e-985C-FC9C60E35E9E}",
+    "3": "{Mk82SNAKEYE}",
+    "4": "{0395076D-2F77-4420-9D33-087A4398130B}",
+    "5": "{Mk82SNAKEYE}",
+    "6": "{A021F29D-18AB-4d3e-985C-FC9C60E35E9E}",
+    "7": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}"
+   }
+  },
+  {
+   "name": null,
+   "count": 6,
+   "pylons": {
+    "1": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}",
+    "2": "{FC85D2ED-501A-48ce-9863-49D468DDD5FC}",
+    "3": "{PTB-150GAL}",
+    "5": "{PTB-150GAL}",
+    "6": "{FC85D2ED-501A-48ce-9863-49D468DDD5FC}",
+    "7": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}"
+   }
+  },
+  {
+   "name": null,
+   "count": 6,
+   "pylons": {
+    "1": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}",
+    "7": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}"
+   }
+  },
+  {
+   "name": null,
+   "count": 6,
+   "pylons": {
+    "1": "{A4BCC903-06C8-47bb-9937-A30FEDB4E743}",
+    "7": "{A4BCC903-06C8-47bb-9937-A30FEDB4E743}"
+   }
+  },
+  {
+   "name": null,
+   "count": 6,
+   "pylons": {
+    "4": "{PTB-150GAL}"
+   }
+  },
+  {
+   "name": null,
+   "count": 5,
+   "pylons": {
+    "3": "LAU3_HE151",
+    "4": "{BCE4E030-38E9-423E-98ED-24BE3DA87C32}",
+    "5": "LAU3_HE151"
+   }
+  },
+  {
+   "name": null,
+   "count": 4,
+   "pylons": {
+    "1": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}",
+    "2": "{FC85D2ED-501A-48ce-9863-49D468DDD5FC}",
+    "3": "{FC85D2ED-501A-48ce-9863-49D468DDD5FC}",
+    "4": "{PTB-150GAL}",
+    "5": "{FC85D2ED-501A-48ce-9863-49D468DDD5FC}",
+    "6": "{FC85D2ED-501A-48ce-9863-49D468DDD5FC}",
+    "7": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}"
+   }
+  },
+  {
+   "name": null,
+   "count": 4,
+   "pylons": {
+    "1": "{AIM-9P5}",
+    "2": "{A021F29D-18AB-4d3e-985C-FC9C60E35E9E}",
+    "3": "{A021F29D-18AB-4d3e-985C-FC9C60E35E9E}",
+    "4": "{MER-5E_MK82x5}",
+    "5": "{A021F29D-18AB-4d3e-985C-FC9C60E35E9E}",
+    "6": "{A021F29D-18AB-4d3e-985C-FC9C60E35E9E}",
+    "7": "{AIM-9P5}"
+   }
+  },
+  {
+   "name": null,
+   "count": 4,
+   "pylons": {
+    "1": "{AIM-9P5}",
+    "2": "{LAU68_FFAR_WP156}",
+    "3": "{PTB-150GAL}",
+    "5": "{PTB-150GAL}",
+    "6": "{LAU68_FFAR_WP156}",
+    "7": "{AIM-9P5}"
+   }
+  },
+  {
+   "name": null,
+   "count": 4,
+   "pylons": {
+    "1": "{AIM-9P5}",
+    "3": "{PTB-150GAL}",
+    "5": "{PTB-150GAL}",
+    "7": "{AIM-9P5}"
+   }
+  },
+  {
+   "name": null,
+   "count": 3,
+   "pylons": {
+    "1": "{AIM-9B}",
+    "2": "{LAU68_FFAR_WP156}",
+    "3": "{PTB-150GAL}",
+    "5": "{PTB-150GAL}",
+    "6": "{LAU68_FFAR_WP156}",
+    "7": "{AIM-9B}"
+   }
+  },
+  {
+   "name": null,
+   "count": 3,
+   "pylons": {
+    "2": "{CAE48299-A294-4bad-8EE6-89EFC5DCDF00}",
+    "3": "LAU3_HE151",
+    "4": "{BCE4E030-38E9-423E-98ED-24BE3DA87C32}",
+    "5": "LAU3_HE151",
+    "6": "{CAE48299-A294-4bad-8EE6-89EFC5DCDF00}"
+   }
+  },
+  {
+   "name": null,
+   "count": 2,
+   "pylons": {
+    "1": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}",
+    "2": "{A021F29D-18AB-4d3e-985C-FC9C60E35E9E}",
+    "4": "{0395076D-2F77-4420-9D33-087A4398130B}",
+    "6": "{A021F29D-18AB-4d3e-985C-FC9C60E35E9E}",
+    "7": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}"
+   }
+  },
+  {
+   "name": null,
+   "count": 2,
+   "pylons": {
+    "1": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}",
+    "2": "{A021F29D-18AB-4d3e-985C-FC9C60E35E9E}",
+    "4": "{BCE4E030-38E9-423E-98ED-24BE3DA87C32}",
+    "6": "{A021F29D-18AB-4d3e-985C-FC9C60E35E9E}",
+    "7": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}"
+   }
+  },
+  {
+   "name": null,
+   "count": 2,
+   "pylons": {
+    "1": "{AIM-9B}",
+    "3": "{PTB-150GAL}",
+    "5": "{PTB-150GAL}",
+    "7": "{AIM-9B}"
+   }
+  },
+  {
+   "name": null,
+   "count": 2,
+   "pylons": {
+    "1": "{AIM-9P5}",
+    "2": "LAU3_HE151",
+    "3": "LAU3_HE151",
+    "4": "{MER-5E_MK82x5}",
+    "5": "LAU3_HE151",
+    "6": "LAU3_HE151",
+    "7": "{AIM-9P5}"
+   }
+  },
+  {
+   "name": null,
+   "count": 2,
+   "pylons": {
+    "2": "LAU3_HE151",
+    "3": "LAU3_HE151",
+    "4": "{AB8B8299-F1CC-4359-89B5-2172E0CF4A5A}",
+    "5": "LAU3_HE151",
+    "6": "LAU3_HE151"
+   }
+  },
+  {
+   "name": null,
+   "count": 2,
+   "pylons": {
+    "2": "LAU3_HE151",
+    "3": "LAU3_HE151",
+    "4": "{MER-5E_MK82x5}",
+    "5": "LAU3_HE151",
+    "6": "LAU3_HE151"
+   }
+  },
+  {
+   "name": null,
+   "count": 2,
+   "pylons": {
+    "3": "{DB769D48-67D7-42ED-A2BE-108D566C8B1E}",
+    "5": "{DB769D48-67D7-42ED-A2BE-108D566C8B1E}"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "1": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}",
+    "2": "LAU3_HE151",
+    "3": "LAU3_HE151",
+    "5": "LAU3_HE151",
+    "6": "LAU3_HE151",
+    "7": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "1": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}",
+    "2": "LAU3_HE5",
+    "3": "{CBU-52B}",
+    "4": "{MER-5E_Mk82SNAKEYEx5}",
+    "5": "{CBU-52B}",
+    "6": "LAU3_HE5",
+    "7": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "1": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}",
+    "2": "{A021F29D-18AB-4d3e-985C-FC9C60E35E9E}",
+    "3": "{A021F29D-18AB-4d3e-985C-FC9C60E35E9E}",
+    "4": "{0395076D-2F77-4420-9D33-087A4398130B}",
+    "5": "{A021F29D-18AB-4d3e-985C-FC9C60E35E9E}",
+    "6": "{A021F29D-18AB-4d3e-985C-FC9C60E35E9E}",
+    "7": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "1": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}",
+    "2": "{LAU3_FFAR_MK5HEAT}",
+    "3": "{Mk82SNAKEYE}",
+    "4": "{MER-5E_Mk82SNAKEYEx5}",
+    "5": "{Mk82SNAKEYE}",
+    "6": "{LAU3_FFAR_MK5HEAT}",
+    "7": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "1": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}",
+    "4": "{PTB-150GAL}",
+    "7": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "1": "{A4BCC903-06C8-47bb-9937-A30FEDB4E741}",
+    "7": "{A4BCC903-06C8-47bb-9937-A30FEDB4E742}"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "1": "{A4BCC903-06C8-47bb-9937-A30FEDB4E741}",
+    "7": "{A4BCC903-06C8-47bb-9937-A30FEDB4E744}"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "1": "{A4BCC903-06C8-47bb-9937-A30FEDB4E744}",
+    "7": "{A4BCC903-06C8-47bb-9937-A30FEDB4E741}"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "1": "{AIM-9B}",
+    "4": "{PTB-150GAL}",
+    "7": "{AIM-9B}"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "2": "LAU3_HE5",
+    "3": "LAU3_HE5",
+    "4": "{AB8B8299-F1CC-4359-89B5-2172E0CF4A5A}",
+    "5": "LAU3_HE5",
+    "6": "LAU3_HE5"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "2": "{A021F29D-18AB-4d3e-985C-FC9C60E35E9E}",
+    "6": "{A021F29D-18AB-4d3e-985C-FC9C60E35E9E}"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "3": "{BCE4E030-38E9-423E-98ED-24BE3DA87C32}",
+    "5": "{BCE4E030-38E9-423E-98ED-24BE3DA87C32}"
+   }
+  }
+ ]
+}

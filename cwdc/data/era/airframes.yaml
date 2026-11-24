@@ -1,0 +1,480 @@
+# Airframes of the 1950-1991 campaign maker (game-first: dates are front-line service in the
+# European / Eastern Mediterranean theatre, rounded to the year).
+#
+#   name       display name
+#   side       west | east
+#   role       fighter | interceptor | multirole | attack | bomber | helicopter | attack_helicopter
+#              | awacs | tanker | transport
+#   dcs        DCS unit types, in order of preference; the first one available is used
+#              (core types always are; mod types only when the mod is installed)
+#   player     flyable DCS variants the player can take (if the module is owned)
+#   stand_in   true when `dcs` is a different aircraft standing in for one DCS lacks
+#   service    {nation: [first year, last year]} (inclusive; 1991 = still in service)
+#   air / strike   abstract ratings for the campaign simulation (F-4E = 1.0)
+airframes:
+  # ------------------------------------------------------------------ West: fighters
+  F-86F:
+    name: "F-86F Sabre"
+    side: west
+    role: fighter
+    dcs: ["F-86F Sabre"]
+    player: ["F-86F Sabre"]
+    service: {USA: [1951, 1958], Canada: [1953, 1962], West Germany: [1957, 1966], Italy: [1956, 1965],
+              Norway: [1955, 1967], Netherlands: [1955, 1964], Belgium: [1955, 1960], Turkey: [1954, 1969],
+              Denmark: [1958, 1966]}
+    air: 0.45
+    strike: 0.25
+  F-84F:
+    name: "F-84F Thunderstreak"
+    side: west
+    role: attack
+    dcs: ["F-86F Sabre"]
+    stand_in: true
+    service: {USA: [1954, 1958], West Germany: [1956, 1966], Belgium: [1955, 1972], Netherlands: [1955, 1970],
+              France: [1955, 1966], Italy: [1956, 1973], Turkey: [1955, 1975]}
+    air: 0.35
+    strike: 0.4
+  Hunter:
+    name: "Hawker Hunter"
+    side: west
+    role: fighter
+    dcs: ["F-86F Sabre"]
+    stand_in: true
+    service: {UK: [1954, 1970], Belgium: [1956, 1963], Netherlands: [1956, 1968], Denmark: [1956, 1974]}
+    air: 0.5
+    strike: 0.3
+  Mystere:
+    name: "Dassault Super Mystere"
+    side: west
+    role: fighter
+    dcs: ["F-86F Sabre"]
+    stand_in: true
+    service: {France: [1957, 1977]}
+    air: 0.5
+    strike: 0.3
+  F-100D:
+    name: "F-100D Super Sabre"
+    side: west
+    role: attack
+    dcs: ["F-100D"]
+    player: ["F-100D"]
+    service: {USA: [1956, 1971], France: [1958, 1977], Denmark: [1959, 1982], Turkey: [1958, 1987]}
+    air: 0.55
+    strike: 0.6
+  Lightning:
+    name: "EE Lightning"
+    side: west
+    role: interceptor
+    dcs: ["F-100D"]
+    stand_in: true
+    service: {UK: [1960, 1977]}
+    air: 0.7
+    strike: 0.1
+  F-104G:
+    name: "F-104G Starfighter"
+    side: west
+    role: multirole
+    dcs: ["F-5E-3"]
+    stand_in: true
+    service: {West Germany: [1961, 1987], Netherlands: [1962, 1984], Belgium: [1963, 1983], Italy: [1963, 1991],
+              Canada: [1962, 1986], Norway: [1963, 1983], Denmark: [1965, 1986], Turkey: [1963, 1991]}
+    air: 0.6
+    strike: 0.55
+  Mirage-III:
+    name: "Mirage IIIE / 5"
+    side: west
+    role: multirole
+    dcs: ["M-2000C"]
+    stand_in: true
+    service: {France: [1961, 1991], Belgium: [1970, 1991]}
+    air: 0.65
+    strike: 0.55
+  F-5A:
+    name: "F-5A / NF-5 Freedom Fighter"
+    side: west
+    role: multirole
+    dcs: ["F-5E-3"]
+    player: ["F-5E-3"]
+    stand_in: true
+    service: {Norway: [1966, 1991], Netherlands: [1969, 1991], Turkey: [1965, 1991]}
+    air: 0.6
+    strike: 0.45
+  F-5E:
+    name: "F-5E Tiger II"
+    side: west
+    role: fighter
+    dcs: ["F-5E-3"]
+    player: ["F-5E-3"]
+    service: {USA: [1975, 1991]}
+    air: 0.7
+    strike: 0.45
+  F-4E:
+    name: "F-4E Phantom II"
+    side: west
+    role: multirole
+    dcs: ["F-4E-45MC", "F-4E"]
+    player: ["F-4E-45MC"]
+    service: {USA: [1967, 1991], Turkey: [1974, 1991]}
+    air: 1.0
+    strike: 1.0
+  F-4F:
+    name: "F-4F / FGR.2 Phantom II"
+    side: west
+    role: multirole
+    dcs: ["F-4E-45MC", "F-4E"]
+    player: ["F-4E-45MC"]
+    stand_in: true
+    service: {West Germany: [1975, 1991], UK: [1969, 1991]}
+    air: 1.0
+    strike: 0.9
+  F-14A:
+    name: "F-14A Tomcat"
+    side: west
+    role: fighter
+    dcs: ["F-14A-135-GR", "F-14A"]
+    player: ["F-14A-135-GR", "F-14A-135-GR-Early", "F-14B"]
+    service: {USA: [1974, 1991]}
+    carrier: true
+    air: 1.5
+    strike: 0.5
+  F-15C:
+    name: "F-15C Eagle"
+    side: west
+    role: fighter
+    dcs: ["F-15C"]
+    player: ["F-15C"]
+    service: {USA: [1977, 1991]}
+    air: 1.7
+    strike: 0.1
+  F-16A:
+    name: "F-16A Fighting Falcon"
+    side: west
+    role: multirole
+    dcs: ["F-16A", "F-16A MLU"]
+    player: ["F-16C_50"]
+    service: {USA: [1981, 1991], Belgium: [1979, 1991], Netherlands: [1979, 1991], Denmark: [1980, 1991],
+              Norway: [1980, 1991], Turkey: [1987, 1991]}
+    air: 1.3
+    strike: 1.0
+  Mirage-F1:
+    name: "Mirage F1C"
+    side: west
+    role: fighter
+    dcs: ["Mirage-F1C", "Mirage-F1CE"]
+    player: ["Mirage-F1CE", "Mirage-F1EE"]
+    service: {France: [1973, 1991]}
+    air: 0.9
+    strike: 0.5
+  Mirage-2000:
+    name: "Mirage 2000C"
+    side: west
+    role: fighter
+    dcs: ["M-2000C"]
+    player: ["M-2000C"]
+    service: {France: [1984, 1991]}
+    air: 1.4
+    strike: 0.5
+  Viggen:
+    name: "AJS 37 Viggen"
+    side: west
+    role: attack
+    dcs: ["AJS37"]
+    player: ["AJS37"]
+    service: {Sweden: [1971, 1991]}
+    air: 0.6
+    strike: 1.0
+  # ------------------------------------------------------------------ West: attack
+  A-4E:
+    name: "A-4E Skyhawk"
+    side: west
+    role: attack
+    dcs: ["A-4E-C"]
+    player: ["A-4E-C"]
+    service: {USA: [1962, 1975]}
+    carrier: true
+    air: 0.4
+    strike: 0.75
+  G-91:
+    name: "Fiat G.91"
+    side: west
+    role: attack
+    dcs: ["A-4E-C", "F-5E-3"]
+    player: ["A-4E-C", "F-5E-3"]
+    stand_in: true
+    service: {West Germany: [1962, 1982], Italy: [1961, 1991]}
+    air: 0.3
+    strike: 0.5
+  Jaguar:
+    name: "SEPECAT Jaguar"
+    side: west
+    role: attack
+    dcs: ["A-4E-C", "F-5E-3"]
+    player: ["A-4E-C", "F-5E-3"]
+    stand_in: true
+    service: {UK: [1975, 1991], France: [1973, 1991]}
+    air: 0.4
+    strike: 0.85
+  Harrier:
+    name: "Harrier GR.3"
+    side: west
+    role: attack
+    dcs: ["AV8BNA"]
+    player: ["AV8BNA"]
+    stand_in: true
+    service: {UK: [1970, 1991]}
+    air: 0.4
+    strike: 0.8
+  Buccaneer:
+    name: "Blackburn Buccaneer"
+    side: west
+    role: bomber
+    dcs: ["A6E"]
+    stand_in: true
+    service: {UK: [1971, 1983]}
+    air: 0.2
+    strike: 1.0
+  F-111:
+    name: "F-111E/F Aardvark"
+    side: west
+    role: bomber
+    dcs: ["Tornado IDS"]
+    stand_in: true
+    service: {USA: [1970, 1991]}
+    air: 0.3
+    strike: 1.4
+  A-10A:
+    name: "A-10A Thunderbolt II"
+    side: west
+    role: attack
+    dcs: ["A-10A"]
+    player: ["A-10A"]
+    service: {USA: [1978, 1991]}
+    air: 0.25
+    strike: 1.2
+  Tornado:
+    name: "Tornado IDS / GR1"
+    side: west
+    role: bomber
+    dcs: ["Tornado IDS"]
+    service: {West Germany: [1982, 1991], UK: [1982, 1991], Italy: [1982, 1991]}
+    air: 0.5
+    strike: 1.3
+  Alpha-Jet:
+    name: "Alpha Jet"
+    side: west
+    role: attack
+    dcs: ["L-39ZA"]
+    player: ["L-39ZA"]
+    stand_in: true
+    service: {West Germany: [1979, 1991], France: [1979, 1991], Belgium: [1979, 1991]}
+    air: 0.2
+    strike: 0.4
+  A-6E:
+    name: "A-6E Intruder"
+    side: west
+    role: bomber
+    dcs: ["A6E"]
+    service: {USA: [1971, 1991]}
+    carrier: true
+    air: 0.1
+    strike: 1.2
+  # ------------------------------------------------------------------ West: support and helicopters
+  E-3A:      {name: "E-3A Sentry",       side: west, role: awacs,     dcs: ["E-3A"],    service: {USA: [1977, 1991]}}
+  E-2C:      {name: "E-2C Hawkeye",      side: west, role: awacs,     dcs: ["E-2C"],    service: {USA: [1973, 1991]}, carrier: true}
+  KC-135:    {name: "KC-135 Stratotanker", side: west, role: tanker,  dcs: ["KC-135"],  service: {USA: [1957, 1991]}}
+  C-130:     {name: "C-130 Hercules",    side: west, role: transport, dcs: ["C-130"],   service: {USA: [1956, 1991], UK: [1967, 1991], Turkey: [1964, 1991]}}
+  UH-1H:
+    name: "UH-1 Iroquois"
+    side: west
+    role: helicopter
+    dcs: ["UH-1H"]
+    player: ["UH-1H"]
+    service: {USA: [1959, 1991], West Germany: [1967, 1991], Italy: [1962, 1991], Turkey: [1966, 1991],
+              Norway: [1964, 1991], Canada: [1968, 1991]}
+  AH-1:      {name: "AH-1 Cobra",        side: west, role: attack_helicopter, dcs: ["AH-1W"], stand_in: true, service: {USA: [1967, 1991]}}
+  AH-64A:    {name: "AH-64A Apache",     side: west, role: attack_helicopter, dcs: ["AH-64A"], service: {USA: [1986, 1991]}}
+  Gazelle:
+    name: "SA 342 Gazelle"
+    side: west
+    role: attack_helicopter
+    dcs: ["SA342M", "SA342L"]
+    player: ["SA342M", "SA342L", "SA342Mistral", "SA342Minigun"]
+    service: {France: [1973, 1991], UK: [1974, 1991]}
+  CH-47:     {name: "CH-47 Chinook",     side: west, role: transport, dcs: ["CH-47D"], service: {USA: [1962, 1991], UK: [1980, 1991]}}
+
+  # ------------------------------------------------------------------ East: fighters
+  MiG-15:
+    name: "MiG-15bis"
+    side: east
+    role: fighter
+    dcs: ["MiG-15bis"]
+    player: ["MiG-15bis"]
+    service: {USSR: [1950, 1960], GDR: [1956, 1965], Poland: [1952, 1970], Czechoslovakia: [1951, 1966],
+              Hungary: [1951, 1962], Syria: [1955, 1967]}
+    air: 0.4
+    strike: 0.2
+  MiG-17:
+    name: "MiG-17F"
+    side: east
+    role: fighter
+    dcs: ["MiG-15bis"]
+    player: ["MiG-15bis"]
+    stand_in: true
+    service: {USSR: [1952, 1965], GDR: [1957, 1985], Poland: [1955, 1990], Czechoslovakia: [1955, 1975],
+              Hungary: [1957, 1975], Syria: [1957, 1982]}
+    air: 0.45
+    strike: 0.3
+  MiG-19:
+    name: "MiG-19P"
+    side: east
+    role: interceptor
+    dcs: ["MiG-19P"]
+    player: ["MiG-19P"]
+    service: {USSR: [1955, 1966], GDR: [1959, 1969], Poland: [1957, 1974], Czechoslovakia: [1958, 1972],
+              Hungary: [1961, 1973]}
+    air: 0.55
+    strike: 0.25
+  MiG-21:
+    name: "MiG-21"
+    side: east
+    role: fighter
+    dcs: ["MiG-21Bis"]
+    player: ["MiG-21Bis"]
+    service: {USSR: [1960, 1991], GDR: [1962, 1990], Poland: [1961, 1991], Czechoslovakia: [1962, 1991],
+              Hungary: [1961, 1991], Syria: [1963, 1991]}
+    air: 0.85
+    strike: 0.3
+  MiG-23:
+    name: "MiG-23MLD"
+    side: east
+    role: fighter
+    dcs: ["MiG-23MLD"]
+    service: {USSR: [1972, 1991], GDR: [1978, 1990], Poland: [1979, 1991], Czechoslovakia: [1978, 1991],
+              Hungary: [1979, 1991], Syria: [1974, 1991]}
+    air: 0.95
+    strike: 0.4
+  MiG-25:
+    name: "MiG-25PD"
+    side: east
+    role: interceptor
+    dcs: ["MiG-25PD"]
+    service: {USSR: [1972, 1991], Syria: [1979, 1991]}
+    air: 0.9
+    strike: 0.0
+  MiG-29:
+    name: "MiG-29A Fulcrum"
+    side: east
+    role: fighter
+    dcs: ["MiG-29A"]
+    player: ["MiG-29A", "MiG-29 Fulcrum"]
+    service: {USSR: [1983, 1991], GDR: [1988, 1990], Poland: [1989, 1991], Czechoslovakia: [1989, 1991],
+              Syria: [1987, 1991]}
+    air: 1.5
+    strike: 0.4
+  Su-27:
+    name: "Su-27 Flanker"
+    side: east
+    role: fighter
+    dcs: ["Su-27"]
+    player: ["Su-27"]
+    service: {USSR: [1985, 1991]}
+    air: 1.7
+    strike: 0.2
+  # ------------------------------------------------------------------ East: attack and bombers
+  Su-7:
+    name: "Su-7B Fitter-A"
+    side: east
+    role: attack
+    dcs: ["Su-17M4"]
+    stand_in: true
+    service: {USSR: [1959, 1975], Poland: [1964, 1990], Czechoslovakia: [1965, 1990], Hungary: [1962, 1980],
+              Syria: [1967, 1980]}
+    air: 0.3
+    strike: 0.6
+  Su-17:
+    name: "Su-17/22 Fitter"
+    side: east
+    role: attack
+    dcs: ["Su-17M4"]
+    service: {USSR: [1972, 1991], Poland: [1974, 1991], GDR: [1984, 1990], Czechoslovakia: [1977, 1991],
+              Hungary: [1983, 1991], Syria: [1973, 1991]}
+    air: 0.4
+    strike: 0.85
+  MiG-27:
+    name: "MiG-27K Flogger-J"
+    side: east
+    role: attack
+    dcs: ["MiG-27K"]
+    service: {USSR: [1975, 1991]}
+    air: 0.4
+    strike: 0.9
+  Su-24:
+    name: "Su-24M Fencer"
+    side: east
+    role: bomber
+    dcs: ["Su-24M"]
+    service: {USSR: [1975, 1991]}
+    air: 0.2
+    strike: 1.4
+  Su-25:
+    name: "Su-25 Frogfoot"
+    side: east
+    role: attack
+    dcs: ["Su-25"]
+    player: ["Su-25T", "Su-25"]
+    service: {USSR: [1981, 1991], Czechoslovakia: [1984, 1991]}
+    air: 0.25
+    strike: 1.1
+  Il-28:
+    name: "Il-28 Beagle"
+    side: east
+    role: bomber
+    dcs: ["Su-24M"]
+    stand_in: true
+    service: {USSR: [1950, 1965], Poland: [1952, 1977], Czechoslovakia: [1954, 1973], Hungary: [1951, 1960]}
+    air: 0.05
+    strike: 0.7
+  Tu-16:
+    name: "Tu-16 Badger"
+    side: east
+    role: bomber
+    dcs: ["Tu-22M3"]
+    stand_in: true
+    service: {USSR: [1954, 1991]}
+    air: 0.0
+    strike: 1.0
+  Tu-22M:
+    name: "Tu-22M Backfire"
+    side: east
+    role: bomber
+    dcs: ["Tu-22M3"]
+    service: {USSR: [1974, 1991]}
+    air: 0.0
+    strike: 1.6
+  # ------------------------------------------------------------------ East: support and helicopters
+  A-50:      {name: "A-50 Mainstay",     side: east, role: awacs,     dcs: ["A-50"],    service: {USSR: [1984, 1991]}}
+  An-26:     {name: "An-26 Curl",        side: east, role: transport, dcs: ["An-26B"],  service: {USSR: [1970, 1991], GDR: [1971, 1990], Poland: [1972, 1991], Czechoslovakia: [1971, 1991], Syria: [1972, 1991]}}
+  Mi-4:
+    name: "Mi-4 Hound"
+    side: east
+    role: helicopter
+    dcs: ["Mi-8MT"]
+    stand_in: true
+    service: {USSR: [1952, 1970], GDR: [1957, 1970], Poland: [1956, 1975], Czechoslovakia: [1958, 1972],
+              Hungary: [1957, 1970]}
+  Mi-8:
+    name: "Mi-8 Hip"
+    side: east
+    role: helicopter
+    dcs: ["Mi-8MT"]
+    player: ["Mi-8MT"]
+    service: {USSR: [1967, 1991], GDR: [1968, 1990], Poland: [1968, 1991], Czechoslovakia: [1969, 1991],
+              Hungary: [1969, 1991], Syria: [1970, 1991]}
+  Mi-24:
+    name: "Mi-24 Hind"
+    side: east
+    role: attack_helicopter
+    dcs: ["Mi-24V", "Mi-24P"]
+    player: ["Mi-24P"]
+    service: {USSR: [1972, 1991], GDR: [1978, 1990], Poland: [1978, 1991], Czechoslovakia: [1978, 1991],
+              Hungary: [1978, 1991], Syria: [1981, 1991]}

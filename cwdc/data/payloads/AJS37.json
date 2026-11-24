@@ -1,0 +1,756 @@
+{
+ "unit_type": "AJS37",
+ "source": "module AJS37",
+ "missions_scanned": 119,
+ "payloads": [
+  {
+   "name": null,
+   "count": 51,
+   "pylons": {
+    "1": "{Robot24J}",
+    "2": "{M71BOMB}",
+    "3": "{M71BOMB}",
+    "4": "{VIGGEN_X-TANK}",
+    "5": "{M71BOMB}",
+    "6": "{M71BOMB}",
+    "7": "{Robot24J}"
+   }
+  },
+  {
+   "name": null,
+   "count": 35,
+   "pylons": {
+    "2": "{Rb04AI}",
+    "3": "{Robot74}",
+    "4": "{VIGGEN_X-TANK}",
+    "5": "{Robot74}",
+    "6": "{Rb04AI}"
+   }
+  },
+  {
+   "name": null,
+   "count": 24,
+   "pylons": {
+    "1": "{Robot24J}",
+    "2": "{M71BOMBD}",
+    "3": "{M71BOMBD}",
+    "4": "{VIGGEN_X-TANK}",
+    "5": "{M71BOMBD}",
+    "6": "{M71BOMBD}",
+    "7": "{Robot24J}"
+   }
+  },
+  {
+   "name": null,
+   "count": 22,
+   "pylons": {
+    "4": "{VIGGEN_X-TANK}"
+   }
+  },
+  {
+   "name": null,
+   "count": 12,
+   "pylons": {
+    "1": "{Robot24J}",
+    "2": "{ARAKM70BHE}",
+    "3": "{ARAKM70BHE}",
+    "4": "{VIGGEN_X-TANK}",
+    "5": "{ARAKM70BHE}",
+    "6": "{ARAKM70BHE}",
+    "7": "{Robot24J}"
+   }
+  },
+  {
+   "name": null,
+   "count": 12,
+   "pylons": {
+    "2": "{BK90}",
+    "3": "{Robot74}",
+    "4": "{VIGGEN_X-TANK}",
+    "5": "{Robot74}",
+    "6": "{BK90}"
+   }
+  },
+  {
+   "name": null,
+   "count": 11,
+   "pylons": {
+    "1": "{Robot24J}",
+    "2": "{KB}",
+    "3": "{M71BOMBD}",
+    "4": "{VIGGEN_X-TANK}",
+    "5": "{M71BOMBD}",
+    "6": "{U22A}",
+    "7": "{Robot24J}"
+   }
+  },
+  {
+   "name": null,
+   "count": 7,
+   "pylons": {
+    "2": "{BK90MJ1}",
+    "3": "{Robot74}",
+    "4": "{VIGGEN_X-TANK}",
+    "5": "{Robot74}",
+    "6": "{BK90MJ1}"
+   }
+  },
+  {
+   "name": null,
+   "count": 7,
+   "pylons": {
+    "2": "{Rb15AI}",
+    "3": "{Robot74}",
+    "4": "{VIGGEN_X-TANK}",
+    "5": "{Robot74}",
+    "6": "{Rb15AI}"
+   }
+  },
+  {
+   "name": null,
+   "count": 6,
+   "pylons": {
+    "1": "{Robot24J}",
+    "2": "{KB}",
+    "3": "{M71BOMB}",
+    "4": "{VIGGEN_X-TANK}",
+    "5": "{M71BOMB}",
+    "6": "{U22A}",
+    "7": "{Robot24J}"
+   }
+  },
+  {
+   "name": null,
+   "count": 6,
+   "pylons": {
+    "1": "{Robot24J}",
+    "2": "{KB}",
+    "3": "{Robot05}",
+    "4": "{VIGGEN_X-TANK}",
+    "5": "{Robot05}",
+    "6": "{U22A}",
+    "7": "{Robot24J}"
+   }
+  },
+  {
+   "name": null,
+   "count": 6,
+   "pylons": {
+    "1": "{Robot24J}",
+    "2": "{RB75}",
+    "3": "{RB75}",
+    "4": "{VIGGEN_X-TANK}",
+    "5": "{RB75}",
+    "6": "{RB75}",
+    "7": "{Robot24J}"
+   }
+  },
+  {
+   "name": null,
+   "count": 6,
+   "pylons": {
+    "1": "{Robot24J}",
+    "2": "{Robot74}",
+    "3": "{Robot74}",
+    "4": "{VIGGEN_X-TANK}",
+    "5": "{Robot74}",
+    "6": "{Robot74}",
+    "7": "{Robot24J}"
+   }
+  },
+  {
+   "name": null,
+   "count": 6,
+   "pylons": {
+    "2": "{AKAN}",
+    "3": "{Robot74}",
+    "4": "{VIGGEN_X-TANK}",
+    "5": "{Robot74}",
+    "6": "{AKAN}"
+   }
+  },
+  {
+   "name": null,
+   "count": 6,
+   "pylons": {
+    "2": "{KB}",
+    "3": "{Robot74}",
+    "4": "{VIGGEN_X-TANK}",
+    "5": "{Robot74}",
+    "6": "{U22A}"
+   }
+  },
+  {
+   "name": null,
+   "count": 6,
+   "pylons": {
+    "2": "{RB75T}",
+    "3": "{Robot24J}",
+    "4": "{VIGGEN_X-TANK}",
+    "5": "{Robot24J}",
+    "6": "{RB75T}"
+   }
+  },
+  {
+   "name": null,
+   "count": 6,
+   "pylons": {
+    "2": "{Rb04_HB}",
+    "3": "{Robot74}",
+    "4": "{VIGGEN_X-TANK}",
+    "5": "{Robot74}",
+    "6": "{Rb04_HB}"
+   }
+  },
+  {
+   "name": null,
+   "count": 6,
+   "pylons": {
+    "2": "{Rb04}",
+    "3": "{Robot74}",
+    "4": "{VIGGEN_X-TANK}",
+    "5": "{Robot74}",
+    "6": "{Rb04}"
+   }
+  },
+  {
+   "name": null,
+   "count": 6,
+   "pylons": {
+    "2": "{Robot24J}",
+    "3": "{Robot05}",
+    "4": "{VIGGEN_X-TANK}",
+    "5": "{Robot05}",
+    "6": "{Robot24J}"
+   }
+  },
+  {
+   "name": null,
+   "count": 4,
+   "pylons": {
+    "1": "{Robot24J}",
+    "2": "{KB}",
+    "3": "{RB75}",
+    "4": "{VIGGEN_X-TANK}",
+    "5": "{RB75}",
+    "6": "{U22A}",
+    "7": "{Robot24J}"
+   }
+  },
+  {
+   "name": null,
+   "count": 4,
+   "pylons": {
+    "1": "{Robot24J}",
+    "2": "{RB75T}",
+    "3": "{RB75T}",
+    "4": "{VIGGEN_X-TANK}",
+    "5": "{RB75T}",
+    "6": "{RB75T}",
+    "7": "{Robot24J}"
+   }
+  },
+  {
+   "name": null,
+   "count": 4,
+   "pylons": {
+    "1": "{Robot24J}",
+    "2": "{Rb04_HB}",
+    "3": "{Robot74}",
+    "4": "{VIGGEN_X-TANK}",
+    "5": "{Robot74}",
+    "6": "{Rb04_HB}",
+    "7": "{Robot24J}"
+   }
+  },
+  {
+   "name": null,
+   "count": 4,
+   "pylons": {
+    "1": "{Robot24J}",
+    "2": "{Rb04}",
+    "3": "{Robot74}",
+    "4": "{VIGGEN_X-TANK}",
+    "5": "{Robot74}",
+    "6": "{Rb04}",
+    "7": "{Robot24J}"
+   }
+  },
+  {
+   "name": null,
+   "count": 4,
+   "pylons": {
+    "1": "{Robot24J}",
+    "2": "{Rb15_HB}",
+    "4": "{VIGGEN_X-TANK}",
+    "6": "{Rb15_HB}",
+    "7": "{Robot24J}"
+   }
+  },
+  {
+   "name": null,
+   "count": 4,
+   "pylons": {
+    "2": "{M71BOMB}",
+    "3": "{M71BOMB}",
+    "4": "{VIGGEN_X-TANK}",
+    "5": "{M71BOMB}",
+    "6": "{M71BOMB}"
+   }
+  },
+  {
+   "name": null,
+   "count": 4,
+   "pylons": {
+    "2": "{Rb04AI}",
+    "4": "{VIGGEN_X-TANK}",
+    "6": "{Rb04AI}"
+   }
+  },
+  {
+   "name": null,
+   "count": 4,
+   "pylons": {
+    "2": "{Robot74}",
+    "3": "{Robot05}",
+    "4": "{VIGGEN_X-TANK}",
+    "5": "{Robot05}",
+    "6": "{Robot74}"
+   }
+  },
+  {
+   "name": null,
+   "count": 4,
+   "pylons": {
+    "2": "{Robot74}",
+    "3": "{Robot74}",
+    "4": "{VIGGEN_X-TANK}",
+    "5": "{Robot74}",
+    "6": "{Robot74}"
+   }
+  },
+  {
+   "name": null,
+   "count": 3,
+   "pylons": {
+    "1": "{Robot24J}",
+    "2": "{ARAKM70BHE}",
+    "3": "{ARAKM70BHE}",
+    "5": "{ARAKM70BHE}",
+    "6": "{ARAKM70BHE}",
+    "7": "{Robot24J}"
+   }
+  },
+  {
+   "name": null,
+   "count": 3,
+   "pylons": {
+    "1": "{Robot24J}",
+    "2": "{KB}",
+    "3": "{M71BOMBD}",
+    "4": "{VIGGEN_X-TANK}",
+    "5": "{M71BOMBD}",
+    "6": "{KB}",
+    "7": "{Robot24J}"
+   }
+  },
+  {
+   "name": null,
+   "count": 3,
+   "pylons": {
+    "1": "{Robot24J}",
+    "2": "{KB}",
+    "3": "{Robot05}",
+    "4": "{VIGGEN_X-TANK}",
+    "5": "{Robot05}",
+    "6": "{KB}",
+    "7": "{Robot24J}"
+   }
+  },
+  {
+   "name": null,
+   "count": 3,
+   "pylons": {
+    "2": "{ARAKM70BHE}",
+    "3": "{ARAKM70BHE}",
+    "4": "{VIGGEN_X-TANK}",
+    "5": "{ARAKM70BHE}",
+    "6": "{ARAKM70BHE}"
+   }
+  },
+  {
+   "name": null,
+   "count": 3,
+   "pylons": {
+    "2": "{KB}",
+    "3": "{Robot24J}",
+    "4": "{VIGGEN_X-TANK}",
+    "5": "{Robot24J}",
+    "6": "{KB}"
+   }
+  },
+  {
+   "name": null,
+   "count": 3,
+   "pylons": {
+    "2": "{Rb04AI}",
+    "3": "{Robot24J}",
+    "4": "{VIGGEN_X-TANK}",
+    "5": "{Robot24J}",
+    "6": "{Rb04AI}"
+   }
+  },
+  {
+   "name": null,
+   "count": 2,
+   "pylons": {
+    "1": "{Robot24J}",
+    "2": "{AKAN}",
+    "3": "{Robot05}",
+    "4": "{VIGGEN_X-TANK}",
+    "5": "{Robot05}",
+    "6": "{AKAN}",
+    "7": "{Robot24J}"
+   }
+  },
+  {
+   "name": null,
+   "count": 2,
+   "pylons": {
+    "1": "{Robot24J}",
+    "2": "{ARAKM70BAP}",
+    "3": "{ARAKM70BAP}",
+    "4": "{VIGGEN_X-TANK}",
+    "5": "{ARAKM70BAP}",
+    "6": "{ARAKM70BAP}",
+    "7": "{Robot24J}"
+   }
+  },
+  {
+   "name": null,
+   "count": 2,
+   "pylons": {
+    "1": "{Robot24J}",
+    "2": "{KB}",
+    "3": "{ARAKM70BAP}",
+    "4": "{VIGGEN_X-TANK}",
+    "5": "{ARAKM70BAP}",
+    "6": "{U22A}",
+    "7": "{Robot24J}"
+   }
+  },
+  {
+   "name": null,
+   "count": 2,
+   "pylons": {
+    "1": "{Robot24J}",
+    "2": "{KB}",
+    "3": "{ARAKM70BHE}",
+    "4": "{VIGGEN_X-TANK}",
+    "5": "{ARAKM70BHE}",
+    "6": "{U22A}",
+    "7": "{Robot24J}"
+   }
+  },
+  {
+   "name": null,
+   "count": 2,
+   "pylons": {
+    "1": "{Robot24J}",
+    "2": "{KB}",
+    "3": "{BK90MJ1}",
+    "4": "{VIGGEN_X-TANK}",
+    "5": "{BK90MJ1}",
+    "6": "{U22A}",
+    "7": "{Robot24J}"
+   }
+  },
+  {
+   "name": null,
+   "count": 2,
+   "pylons": {
+    "1": "{Robot24J}",
+    "2": "{KB}",
+    "3": "{BK90MJ2}",
+    "4": "{VIGGEN_X-TANK}",
+    "5": "{BK90MJ2}",
+    "6": "{U22A}",
+    "7": "{Robot24J}"
+   }
+  },
+  {
+   "name": null,
+   "count": 2,
+   "pylons": {
+    "1": "{Robot24J}",
+    "2": "{KB}",
+    "3": "{LYSBOMB}",
+    "4": "{VIGGEN_X-TANK}",
+    "5": "{LYSBOMB}",
+    "6": "{U22A}",
+    "7": "{Robot24}"
+   }
+  },
+  {
+   "name": null,
+   "count": 2,
+   "pylons": {
+    "1": "{Robot24J}",
+    "2": "{KB}",
+    "3": "{RB75T}",
+    "4": "{VIGGEN_X-TANK}",
+    "5": "{RB75T}",
+    "6": "{U22A}",
+    "7": "{Robot24J}"
+   }
+  },
+  {
+   "name": null,
+   "count": 2,
+   "pylons": {
+    "1": "{Robot24J}",
+    "2": "{KB}",
+    "4": "{VIGGEN_X-TANK}",
+    "6": "{U22A}",
+    "7": "{Robot24}"
+   }
+  },
+  {
+   "name": null,
+   "count": 2,
+   "pylons": {
+    "1": "{Robot24J}",
+    "2": "{RB75B}",
+    "3": "{RB75B}",
+    "4": "{VIGGEN_X-TANK}",
+    "5": "{RB75B}",
+    "6": "{RB75B}",
+    "7": "{Robot24J}"
+   }
+  },
+  {
+   "name": null,
+   "count": 2,
+   "pylons": {
+    "1": "{Robot24J}",
+    "2": "{Robot74}",
+    "3": "{Robot74}",
+    "5": "{Robot74}",
+    "6": "{Robot74}",
+    "7": "{Robot24J}"
+   }
+  },
+  {
+   "name": null,
+   "count": 2,
+   "pylons": {
+    "2": "{AKAN_NO_TRC}",
+    "3": "{Robot74}",
+    "5": "{Robot74}",
+    "6": "{AKAN_NO_TRC}"
+   }
+  },
+  {
+   "name": null,
+   "count": 2,
+   "pylons": {
+    "2": "{AKAN}",
+    "3": "{Robot05}",
+    "5": "{Robot05}",
+    "6": "{AKAN}"
+   }
+  },
+  {
+   "name": null,
+   "count": 2,
+   "pylons": {
+    "2": "{KB}",
+    "3": "{RB75}",
+    "4": "{VIGGEN_X-TANK}",
+    "5": "{RB75}",
+    "6": "{KB}"
+   }
+  },
+  {
+   "name": null,
+   "count": 2,
+   "pylons": {
+    "2": "{KB}",
+    "3": "{Robot24J}",
+    "4": "{VIGGEN_X-TANK}",
+    "5": "{Robot24J}",
+    "6": "{U22}"
+   }
+  },
+  {
+   "name": null,
+   "count": 2,
+   "pylons": {
+    "2": "{M71BOMBD}",
+    "3": "{Robot74}",
+    "4": "{VIGGEN_X-TANK}",
+    "5": "{Robot74}",
+    "6": "{M71BOMBD}"
+   }
+  },
+  {
+   "name": null,
+   "count": 2,
+   "pylons": {
+    "2": "{RB75T}",
+    "3": "{RB75T}",
+    "4": "{VIGGEN_X-TANK}",
+    "5": "{RB75T}",
+    "6": "{RB75T}"
+   }
+  },
+  {
+   "name": null,
+   "count": 2,
+   "pylons": {
+    "2": "{Robot74}",
+    "3": "{Robot74}",
+    "5": "{Robot74}",
+    "6": "{Robot74}"
+   }
+  },
+  {
+   "name": null,
+   "count": 2,
+   "pylons": {
+    "3": "{RB75}",
+    "5": "{RB75}"
+   }
+  },
+  {
+   "name": null,
+   "count": 2,
+   "pylons": {
+    "3": "{Robot74}",
+    "4": "{VIGGEN_X-TANK}",
+    "5": "{Robot74}"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "1": "{Robot24J}",
+    "2": "{KB}",
+    "3": "{Robot05}",
+    "4": "{VIGGEN_X-TANK}",
+    "5": "{Robot05}",
+    "6": "{U22}",
+    "7": "{Robot24J}"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "1": "{Robot24J}",
+    "2": "{KB}",
+    "3": "{Robot74}",
+    "5": "{Robot74}",
+    "6": "{U22A}",
+    "7": "{Robot24J}"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "1": "{Robot24J}",
+    "2": "{RB75}",
+    "3": "{RB75}",
+    "5": "{RB75}",
+    "6": "{RB75}",
+    "7": "{Robot24J}"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "1": "{Robot24J}",
+    "4": "{VIGGEN_X-TANK}",
+    "7": "{Robot24J}"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "2": "{AKAN}",
+    "3": "{Robot74}",
+    "5": "{Robot74}",
+    "6": "{AKAN}"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "2": "{KB}",
+    "4": "{VIGGEN_X-TANK}",
+    "6": "{KB}"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "2": "{KB}",
+    "4": "{VIGGEN_X-TANK}",
+    "6": "{U22A}"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "2": "{KB}",
+    "6": "{U22A}"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "2": "{Rb15_HB}",
+    "3": "{Robot74}",
+    "4": "{VIGGEN_X-TANK}",
+    "5": "{Robot74}",
+    "6": "{Rb15_HB}"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "2": "{Robot24J}",
+    "3": "{RB75T}",
+    "4": "{VIGGEN_X-TANK}",
+    "5": "{RB75T}",
+    "6": "{Robot24J}"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "3": "{Robot05}",
+    "4": "{VIGGEN_X-TANK}",
+    "5": "{Robot05}"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "3": "{Robot05}",
+    "5": "{Robot05}"
+   }
+  }
+ ]
+}

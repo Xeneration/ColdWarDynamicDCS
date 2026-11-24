@@ -1,0 +1,71 @@
+{
+ "unit_type": "AH-64A",
+ "source": "DCS MissionEditor UnitPayloads",
+ "missions_scanned": 0,
+ "payloads": [
+  {
+   "name": "8xAGM-114, 38xHYDRA-70 WP",
+   "count": 1,
+   "pylons": {
+    "1": "{88D18A5E-99C8-4B04-B40B-1C02F2018B6E}",
+    "2": "{3DFB7321-AB0E-11d7-9897-000476191836}",
+    "3": "{3DFB7321-AB0E-11d7-9897-000476191836}",
+    "4": "{88D18A5E-99C8-4B04-B40B-1C02F2018B6E}"
+   }
+  },
+  {
+   "name": "AGM-114K*16",
+   "count": 1,
+   "pylons": {
+    "1": "{88D18A5E-99C8-4B04-B40B-1C02F2018B6E}",
+    "2": "{88D18A5E-99C8-4B04-B40B-1C02F2018B6E}",
+    "3": "{88D18A5E-99C8-4B04-B40B-1C02F2018B6E}",
+    "4": "{88D18A5E-99C8-4B04-B40B-1C02F2018B6E}"
+   }
+  },
+  {
+   "name": "8xAGM-114, 38xHYDRA-70",
+   "count": 1,
+   "pylons": {
+    "1": "{88D18A5E-99C8-4B04-B40B-1C02F2018B6E}",
+    "2": "{FD90A1DC-9147-49FA-BF56-CB83EF0BD32B}",
+    "3": "{FD90A1DC-9147-49FA-BF56-CB83EF0BD32B}",
+    "4": "{88D18A5E-99C8-4B04-B40B-1C02F2018B6E}"
+   }
+  },
+  {
+   "name": "8xAGM-114",
+   "count": 1,
+   "pylons": {
+    "1": "{88D18A5E-99C8-4B04-B40B-1C02F2018B6E}",
+    "4": "{88D18A5E-99C8-4B04-B40B-1C02F2018B6E}"
+   }
+  },
+  {
+   "name": "76xHYDRA-70",
+   "count": 1,
+   "pylons": {
+    "1": "{FD90A1DC-9147-49FA-BF56-CB83EF0BD32B}",
+    "2": "{FD90A1DC-9147-49FA-BF56-CB83EF0BD32B}",
+    "3": "{FD90A1DC-9147-49FA-BF56-CB83EF0BD32B}",
+    "4": "{FD90A1DC-9147-49FA-BF56-CB83EF0BD32B}"
+   }
+  },
+  {
+   "name": "38xHYDRA-70 WP",
+   "count": 1,
+   "pylons": {
+    "2": "{3DFB7321-AB0E-11d7-9897-000476191836}",
+    "3": "{3DFB7321-AB0E-11d7-9897-000476191836}"
+   }
+  },
+  {
+   "name": "38xHYDRA-70",
+   "count": 1,
+   "pylons": {
+    "2": "{FD90A1DC-9147-49FA-BF56-CB83EF0BD32B}",
+    "3": "{FD90A1DC-9147-49FA-BF56-CB83EF0BD32B}"
+   }
+  }
+ ]
+}

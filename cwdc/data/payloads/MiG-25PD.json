@@ -1,0 +1,37 @@
+{
+ "unit_type": "MiG-25PD",
+ "source": "DCS MissionEditor UnitPayloads",
+ "missions_scanned": 0,
+ "payloads": [
+  {
+   "name": "R-40R*4",
+   "count": 1,
+   "pylons": {
+    "1": "{4EDBA993-2E34-444C-95FB-549300BF7CAF}",
+    "2": "{4EDBA993-2E34-444C-95FB-549300BF7CAF}",
+    "3": "{4EDBA993-2E34-444C-95FB-549300BF7CAF}",
+    "4": "{4EDBA993-2E34-444C-95FB-549300BF7CAF}"
+   }
+  },
+  {
+   "name": "R-40R*2,R-40T*2",
+   "count": 1,
+   "pylons": {
+    "1": "{5F26DBC2-FB43-4153-92DE-6BBCE26CB0FF}",
+    "2": "{4EDBA993-2E34-444C-95FB-549300BF7CAF}",
+    "3": "{4EDBA993-2E34-444C-95FB-549300BF7CAF}",
+    "4": "{5F26DBC2-FB43-4153-92DE-6BBCE26CB0FF}"
+   }
+  },
+  {
+   "name": "R-40R*2,R-60M*2",
+   "count": 1,
+   "pylons": {
+    "1": "{APU-60-1_R_60M}",
+    "2": "{4EDBA993-2E34-444C-95FB-549300BF7CAF}",
+    "3": "{4EDBA993-2E34-444C-95FB-549300BF7CAF}",
+    "4": "{APU-60-1_R_60M}"
+   }
+  }
+ ]
+}

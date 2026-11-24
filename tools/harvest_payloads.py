@@ -6,6 +6,7 @@ them and collect every (pylon, CLSID) pair used by the given unit type.
 
 Usage:
     python tools/harvest_payloads.py [--type F-4E-45MC] [--out cwdc/data/f4e_clsids.json] DIR [DIR ...]
+    python -m tools.harvest_payloads --owned     # all installed modules -> cwdc/data/payloads/
 """
 from __future__ import annotations
 
@@ -60,7 +61,33 @@ def harvest(dirs: list[Path], unit_type: str) -> dict:
             "payloads": [list(map(list, p)) for p in sorted(payloads)]}
 
 
+def harvest_owned() -> None:
+    """Refresh cwdc/data/payloads/*.json from every installed module (and mod) plus the
+    DCS-shipped AI payloads of the era airframes. Read-only on the DCS folders."""
+    from cwdc import era
+    from cwdc.era import modules, payloads
+    inst = modules.detect()
+    wanted = era.all_dcs_types()
+    for folder, path in sorted(inst.module_dirs.items()):
+        types = {t for t, f in inst.flyable.items() if f == folder} & wanted
+        if not types:
+            continue
+        got = payloads.harvest_dirs([path], types)
+        src = f"{'mod' if folder in inst.mods else 'module'} {folder}"
+        for f in payloads.write(got, src):
+            print(f"{src}: wrote {f.name}")
+    me = modules.install_dir() / "MissionEditor" / "data" / "scripts"
+    ai = {t for t in wanted if t not in inst.flyable}
+    got = payloads.harvest_dirs([me], ai)
+    for f in payloads.write(got, "DCS MissionEditor UnitPayloads"):
+        print(f"AI: wrote {f.name}")
+
+
 def main() -> None:
+    import sys
+    if "--owned" in sys.argv:
+        harvest_owned()
+        return
     ap = argparse.ArgumentParser()
     ap.add_argument("dirs", nargs="+", type=Path)
     ap.add_argument("--type", default="F-4E-45MC")

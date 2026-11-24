@@ -1,0 +1,22 @@
+# Nations of the 1950-1991 campaign maker. `country` is the DCS country name.
+# `theatres`: where the nation fights by default; `default_on` years (inclusive) when the
+# campaign maker ticks it automatically. Toggles can always switch a nation in or out.
+nations:
+  USA:            {side: west, country: USA,             theatres: [germany, syria]}
+  UK:             {side: west, country: UK,              theatres: [germany, syria]}
+  West Germany:   {side: west, country: Germany,         theatres: [germany], default_on: [1955, 1991]}
+  France:         {side: west, country: France,          theatres: [germany, syria]}
+  Netherlands:    {side: west, country: The Netherlands, theatres: [germany]}
+  Belgium:        {side: west, country: Belgium,         theatres: [germany]}
+  Canada:         {side: west, country: Canada,          theatres: [germany]}
+  Denmark:        {side: west, country: Denmark,         theatres: [germany]}
+  Norway:         {side: west, country: Norway,          theatres: [germany]}
+  Italy:          {side: west, country: Italy,           theatres: [germany]}
+  Turkey:         {side: west, country: Turkey,          theatres: [syria]}
+  Sweden:         {side: west, country: Sweden,          theatres: [germany], toggle: "Sweden joins the West", default: false}
+  USSR:           {side: east, country: USSR,            theatres: [germany, syria]}
+  GDR:            {side: east, country: GDR,             theatres: [germany], default_on: [1956, 1991]}
+  Poland:         {side: east, country: Poland,          theatres: [germany]}
+  Czechoslovakia: {side: east, country: Czech Republic,  theatres: [germany]}
+  Hungary:        {side: east, country: Hungary,         theatres: [germany]}
+  Syria:          {side: east, country: Syria,           theatres: [syria]}

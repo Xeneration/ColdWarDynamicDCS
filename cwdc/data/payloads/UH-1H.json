@@ -1,0 +1,161 @@
+{
+ "unit_type": "UH-1H",
+ "source": "module Uh-1H",
+ "missions_scanned": 65,
+ "payloads": [
+  {
+   "name": null,
+   "count": 61,
+   "pylons": {
+    "1": "M134_L",
+    "3": "M60_SIDE_L",
+    "4": "M60_SIDE_R",
+    "6": "M134_R"
+   }
+  },
+  {
+   "name": null,
+   "count": 22,
+   "pylons": {
+    "1": "M134_L",
+    "2": "XM158_MK5",
+    "3": "M60_SIDE_L",
+    "4": "M60_SIDE_R",
+    "5": "XM158_MK5",
+    "6": "M134_R"
+   }
+  },
+  {
+   "name": null,
+   "count": 18,
+   "pylons": {
+    "2": "M261_MK151",
+    "3": "M60_SIDE_L",
+    "4": "M60_SIDE_R",
+    "5": "M261_MK151"
+   }
+  },
+  {
+   "name": null,
+   "count": 15,
+   "pylons": {
+    "1": "M134_L",
+    "2": "M261_MK151",
+    "3": "M60_SIDE_L",
+    "4": "M60_SIDE_R",
+    "5": "M261_MK151",
+    "6": "M134_R"
+   }
+  },
+  {
+   "name": null,
+   "count": 8,
+   "pylons": {
+    "3": "M60_SIDE_L",
+    "4": "M60_SIDE_R"
+   }
+  },
+  {
+   "name": null,
+   "count": 5,
+   "pylons": {
+    "1": "M134_L",
+    "2": "XM158_MK5",
+    "5": "XM158_MK5",
+    "6": "M134_R"
+   }
+  },
+  {
+   "name": null,
+   "count": 4,
+   "pylons": {
+    "1": "M134_L",
+    "2": "XM158_M151",
+    "3": "M60_SIDE_L",
+    "4": "M60_SIDE_R",
+    "5": "XM158_M151",
+    "6": "M134_R"
+   }
+  },
+  {
+   "name": null,
+   "count": 3,
+   "pylons": {
+    "1": "M134_L",
+    "2": "M261_MK151",
+    "3": "M134_SIDE_L",
+    "4": "M134_SIDE_R",
+    "5": "M261_MK151",
+    "6": "M134_R"
+   }
+  },
+  {
+   "name": null,
+   "count": 2,
+   "pylons": {
+    "1": "M134_L",
+    "3": "M134_SIDE_L",
+    "4": "M134_SIDE_R",
+    "6": "M134_R"
+   }
+  },
+  {
+   "name": null,
+   "count": 2,
+   "pylons": {
+    "1": "M134_L",
+    "4": "M134_SIDE_R",
+    "6": "M134_R"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "1": "M134_L",
+    "2": "M261_MK151",
+    "5": "M261_MK151",
+    "6": "M134_R"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "1": "M134_L",
+    "2": "XM158_MK5",
+    "3": "M134_SIDE_L",
+    "4": "M134_SIDE_R",
+    "5": "XM158_MK5",
+    "6": "M134_R"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "1": "M134_L",
+    "2": "XM158_MK5",
+    "4": "M60_SIDE_R",
+    "5": "XM158_MK5",
+    "6": "M134_R"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "2": "XM158_MK5",
+    "3": "M60_SIDE_L",
+    "5": "XM158_MK5"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "3": "M134_SIDE_L"
+   }
+  }
+ ]
+}

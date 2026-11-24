@@ -1,0 +1,81 @@
+{
+ "unit_type": "Mi-8MT",
+ "source": "DCS MissionEditor UnitPayloads",
+ "missions_scanned": 0,
+ "payloads": [
+  {
+   "name": "2 xB8 + 2GUV_YaKB (MG-12.7+7.62)+ 2GUV_AP-30 (GrL 30mm)",
+   "count": 1,
+   "pylons": {
+    "1": "GUV_VOG",
+    "2": "GUV_YakB_GSHP",
+    "3": "{6A4B9E69-64FE-439a-9163-3A87FB6A4D81}",
+    "4": "{6A4B9E69-64FE-439a-9163-3A87FB6A4D81}",
+    "5": "GUV_YakB_GSHP",
+    "6": "GUV_VOG"
+   }
+  },
+  {
+   "name": "4 x B8 + 2GUV_AP-30 (GrL 30mm)",
+   "count": 1,
+   "pylons": {
+    "1": "GUV_VOG",
+    "2": "{6A4B9E69-64FE-439a-9163-3A87FB6A4D81}",
+    "3": "{6A4B9E69-64FE-439a-9163-3A87FB6A4D81}",
+    "4": "{6A4B9E69-64FE-439a-9163-3A87FB6A4D81}",
+    "5": "{6A4B9E69-64FE-439a-9163-3A87FB6A4D81}",
+    "6": "GUV_VOG"
+   }
+  },
+  {
+   "name": "6 x FAB-100",
+   "count": 1,
+   "pylons": {
+    "1": "{FB3CE165-BF07-4979-887C-92B87F13276B}",
+    "2": "{FB3CE165-BF07-4979-887C-92B87F13276B}",
+    "3": "{FB3CE165-BF07-4979-887C-92B87F13276B}",
+    "4": "{FB3CE165-BF07-4979-887C-92B87F13276B}",
+    "5": "{FB3CE165-BF07-4979-887C-92B87F13276B}",
+    "6": "{FB3CE165-BF07-4979-887C-92B87F13276B}"
+   }
+  },
+  {
+   "name": "2 x UPK +2 x B8",
+   "count": 1,
+   "pylons": {
+    "2": "GUV_YakB_GSHP",
+    "3": "{6A4B9E69-64FE-439a-9163-3A87FB6A4D81}",
+    "4": "{6A4B9E69-64FE-439a-9163-3A87FB6A4D81}",
+    "5": "GUV_YakB_GSHP"
+   }
+  },
+  {
+   "name": "2 x B8 + 2 x UPK-23-250",
+   "count": 1,
+   "pylons": {
+    "2": "{05544F1A-C39C-466b-BC37-5BD1D52E57BB}",
+    "3": "{6A4B9E69-64FE-439a-9163-3A87FB6A4D81}",
+    "4": "{6A4B9E69-64FE-439a-9163-3A87FB6A4D81}",
+    "5": "{05544F1A-C39C-466b-BC37-5BD1D52E57BB}"
+   }
+  },
+  {
+   "name": "2 x UPK--23-250",
+   "count": 1,
+   "pylons": {
+    "2": "{05544F1A-C39C-466b-BC37-5BD1D52E57BB}",
+    "5": "{05544F1A-C39C-466b-BC37-5BD1D52E57BB}"
+   }
+  },
+  {
+   "name": "4 x B8",
+   "count": 1,
+   "pylons": {
+    "2": "{6A4B9E69-64FE-439a-9163-3A87FB6A4D81}",
+    "3": "{6A4B9E69-64FE-439a-9163-3A87FB6A4D81}",
+    "4": "{6A4B9E69-64FE-439a-9163-3A87FB6A4D81}",
+    "5": "{6A4B9E69-64FE-439a-9163-3A87FB6A4D81}"
+   }
+  }
+ ]
+}

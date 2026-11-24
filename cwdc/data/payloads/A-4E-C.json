@@ -1,0 +1,515 @@
+{
+ "unit_type": "A-4E-C",
+ "source": "mod A-4E-C",
+ "missions_scanned": 50,
+ "payloads": [
+  {
+   "name": null,
+   "count": 9,
+   "pylons": {
+    "1": "{LAU3_FFAR_MK5HEAT}",
+    "2": "{Mk-81SE_MER_5_L}",
+    "4": "{Mk-81SE_MER_5_R}",
+    "5": "{LAU3_FFAR_MK5HEAT}"
+   }
+  },
+  {
+   "name": "Mk-81 SE *6, LAU-10 *2, Fuel 150G *2",
+   "count": 8,
+   "pylons": {
+    "1": "{F3EFE0AB-E91A-42D8-9CA2-B63C91ED570A}",
+    "2": "{DFT-150gal}",
+    "3": "{Mk-81SE_MER_6_C}",
+    "4": "{DFT-150gal}",
+    "5": "{F3EFE0AB-E91A-42D8-9CA2-B63C91ED570A}"
+   }
+  },
+  {
+   "name": "Mk-82 *6, Fuel 150G *2",
+   "count": 5,
+   "pylons": {
+    "2": "{DFT-150gal}",
+    "3": "{Mk-82_MER_6_C}",
+    "4": "{DFT-150gal}"
+   }
+  },
+  {
+   "name": null,
+   "count": 3,
+   "pylons": {
+    "2": "{F3EFE0AB-E91A-42D8-9CA2-B63C91ED570A}",
+    "3": "{Mk-82_MER_4_C}",
+    "4": "{F3EFE0AB-E91A-42D8-9CA2-B63C91ED570A}"
+   }
+  },
+  {
+   "name": "Mk-82 *12",
+   "count": 2,
+   "pylons": {
+    "1": "{BCE4E030-38E9-423E-98ED-24BE3DA87C32}",
+    "2": "{Mk-82_TER_2_L}",
+    "3": "{Mk-82_MER_6_C}",
+    "4": "{Mk-82_TER_2_R}",
+    "5": "{BCE4E030-38E9-423E-98ED-24BE3DA87C32}"
+   }
+  },
+  {
+   "name": "Mk-4 HIPEG *2, Fuel 300G",
+   "count": 2,
+   "pylons": {
+    "2": "{Mk4 HIPEG}",
+    "3": "{DFT-400gal}",
+    "4": "{Mk4 HIPEG}"
+   }
+  },
+  {
+   "name": null,
+   "count": 2,
+   "pylons": {
+    "3": "{DFT-300gal}"
+   }
+  },
+  {
+   "name": "FFAR M156 WP *38, M257 Illumination *14, Fuel 300G",
+   "count": 1,
+   "pylons": {
+    "1": "{647C5F26-BDD1-41e6-A371-8DE1E4CC0E94}",
+    "2": "{LAU3_FFAR_WP156}",
+    "3": "{DFT-300gal}",
+    "4": "{LAU3_FFAR_WP156}",
+    "5": "{647C5F26-BDD1-41e6-A371-8DE1E4CC0E94}"
+   }
+  },
+  {
+   "name": "FFAR M156 WP *38, M257 Illumination *14, Mk-82 SE *6",
+   "count": 1,
+   "pylons": {
+    "1": "{647C5F26-BDD1-41e6-A371-8DE1E4CC0E94}",
+    "2": "{LAU3_FFAR_WP156}",
+    "3": "{Mk-82 Snakeye_MER_6_C}",
+    "4": "{LAU3_FFAR_WP156}",
+    "5": "{647C5F26-BDD1-41e6-A371-8DE1E4CC0E94}"
+   }
+  },
+  {
+   "name": "Mk-81 *18",
+   "count": 1,
+   "pylons": {
+    "1": "{90321C8E-7ED1-47D4-A160-E074D5ABD902}",
+    "2": "{Mk-81_MER_5_L}",
+    "3": "{Mk-81_MER_6_C}",
+    "4": "{Mk-81_MER_5_R}",
+    "5": "{90321C8E-7ED1-47D4-A160-E074D5ABD902}"
+   }
+  },
+  {
+   "name": "CBU-2/A *2, Mk-20 *2, Fuel 300G",
+   "count": 1,
+   "pylons": {
+    "1": "{ADD3FAE1-EBF6-4EF9-8EFC-B36B5DDF1E6B}",
+    "2": "{CBU-2/A}",
+    "3": "{DFT-300gal}",
+    "4": "{CBU-2/A}",
+    "5": "{ADD3FAE1-EBF6-4EF9-8EFC-B36B5DDF1E6B}"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "1": "{AGM_45A}",
+    "2": "{AGM_45A}",
+    "3": "{DFT-150gal}",
+    "4": "{AGM_45A}",
+    "5": "{AGM_45A}"
+   }
+  },
+  {
+   "name": "AGM-45B *4, Fuel 300G",
+   "count": 1,
+   "pylons": {
+    "1": "{AGM_45A}",
+    "2": "{AGM_45A}",
+    "3": "{DFT-300gal}",
+    "4": "{AGM_45A}",
+    "5": "{AGM_45A}"
+   }
+  },
+  {
+   "name": "AGM-45B *4",
+   "count": 1,
+   "pylons": {
+    "1": "{AGM_45A}",
+    "2": "{AGM_45A}",
+    "4": "{AGM_45A}",
+    "5": "{AGM_45A}"
+   }
+  },
+  {
+   "name": "AGM-45B *2, Fuel 300G *2",
+   "count": 1,
+   "pylons": {
+    "1": "{AGM_45A}",
+    "2": "{DFT-300gal_LR}",
+    "4": "{DFT-300gal_LR}",
+    "5": "{AGM_45A}"
+   }
+  },
+  {
+   "name": "Mk-83 *5, Mk-82 *2",
+   "count": 1,
+   "pylons": {
+    "1": "{BCE4E030-38E9-423E-98ED-24BE3DA87C32}",
+    "2": "{7A44FF09-527C-4B7E-B42B-3F111CFE50FB}",
+    "3": "{Mk-83_TER_3_C}",
+    "4": "{7A44FF09-527C-4B7E-B42B-3F111CFE50FB}",
+    "5": "{BCE4E030-38E9-423E-98ED-24BE3DA87C32}"
+   }
+  },
+  {
+   "name": "Mk-84 *3, Mk-82 *2",
+   "count": 1,
+   "pylons": {
+    "1": "{BCE4E030-38E9-423E-98ED-24BE3DA87C32}",
+    "2": "{AB8B8299-F1CC-4359-89B5-2172E0CF4A5A}",
+    "3": "{AB8B8299-F1CC-4359-89B5-2172E0CF4A5A}",
+    "4": "{AB8B8299-F1CC-4359-89B5-2172E0CF4A5A}",
+    "5": "{BCE4E030-38E9-423E-98ED-24BE3DA87C32}"
+   }
+  },
+  {
+   "name": "Mk-82 *8, Fuel 150G *2",
+   "count": 1,
+   "pylons": {
+    "1": "{BCE4E030-38E9-423E-98ED-24BE3DA87C32}",
+    "2": "{DFT-150gal}",
+    "3": "{Mk-82_MER_6_C}",
+    "4": "{DFT-150gal}",
+    "5": "{BCE4E030-38E9-423E-98ED-24BE3DA87C32}"
+   }
+  },
+  {
+   "name": "AGM-45B *2, LAU-10 *2, Fuel 300G",
+   "count": 1,
+   "pylons": {
+    "1": "{F3EFE0AB-E91A-42D8-9CA2-B63C91ED570A}",
+    "2": "{AGM_45A}",
+    "3": "{DFT-300gal}",
+    "4": "{AGM_45A}",
+    "5": "{F3EFE0AB-E91A-42D8-9CA2-B63C91ED570A}"
+   }
+  },
+  {
+   "name": "AGM-45B *2, LAU-10 *2",
+   "count": 1,
+   "pylons": {
+    "1": "{F3EFE0AB-E91A-42D8-9CA2-B63C91ED570A}",
+    "2": "{AGM_45A}",
+    "4": "{AGM_45A}",
+    "5": "{F3EFE0AB-E91A-42D8-9CA2-B63C91ED570A}"
+   }
+  },
+  {
+   "name": "CBU-2/A *2, LAU-10 *2, Fuel 300G",
+   "count": 1,
+   "pylons": {
+    "1": "{F3EFE0AB-E91A-42D8-9CA2-B63C91ED570A}",
+    "2": "{CBU-2/A}",
+    "3": "{DFT-300gal}",
+    "4": "{CBU-2/A}",
+    "5": "{F3EFE0AB-E91A-42D8-9CA2-B63C91ED570A}"
+   }
+  },
+  {
+   "name": "Mk-82 *6, LAU-10 *4",
+   "count": 1,
+   "pylons": {
+    "1": "{F3EFE0AB-E91A-42D8-9CA2-B63C91ED570A}",
+    "2": "{F3EFE0AB-E91A-42D8-9CA2-B63C91ED570A}",
+    "3": "{Mk-82_MER_6_C}",
+    "4": "{F3EFE0AB-E91A-42D8-9CA2-B63C91ED570A}",
+    "5": "{F3EFE0AB-E91A-42D8-9CA2-B63C91ED570A}"
+   }
+  },
+  {
+   "name": "LAU-10 *2, FFAR Mk1 HE *38, Fuel 300G",
+   "count": 1,
+   "pylons": {
+    "1": "{F3EFE0AB-E91A-42D8-9CA2-B63C91ED570A}",
+    "2": "{LAU3_FFAR_MK1HE}",
+    "3": "{DFT-300gal}",
+    "4": "{LAU3_FFAR_MK1HE}",
+    "5": "{F3EFE0AB-E91A-42D8-9CA2-B63C91ED570A}"
+   }
+  },
+  {
+   "name": "Mk-4 HIPEG *2, FFAR M156 WP *19, LAU-10, M257 Illumination *7",
+   "count": 1,
+   "pylons": {
+    "1": "{F3EFE0AB-E91A-42D8-9CA2-B63C91ED570A}",
+    "2": "{LAU3_FFAR_WP156}",
+    "3": "{Mk4 HIPEG}",
+    "4": "{Mk4 HIPEG}",
+    "5": "{647C5F26-BDD1-41e6-A371-8DE1E4CC0E94}"
+   }
+  },
+  {
+   "name": "Mk-81 SE *10, LAU-10 *2, Fuel 300G",
+   "count": 1,
+   "pylons": {
+    "1": "{F3EFE0AB-E91A-42D8-9CA2-B63C91ED570A}",
+    "2": "{Mk-81SE_MER_5_L}",
+    "3": "{DFT-300gal}",
+    "4": "{Mk-81SE_MER_5_R}",
+    "5": "{F3EFE0AB-E91A-42D8-9CA2-B63C91ED570A}"
+   }
+  },
+  {
+   "name": "Mk-4 HIPEG *3, LAU-10 *2",
+   "count": 1,
+   "pylons": {
+    "1": "{F3EFE0AB-E91A-42D8-9CA2-B63C91ED570A}",
+    "2": "{Mk4 HIPEG}",
+    "3": "{Mk4 HIPEG}",
+    "4": "{Mk4 HIPEG}",
+    "5": "{F3EFE0AB-E91A-42D8-9CA2-B63C91ED570A}"
+   }
+  },
+  {
+   "name": "FFAR Mk1 HE *76, Fuel 300G",
+   "count": 1,
+   "pylons": {
+    "1": "{LAU3_FFAR_MK1HE}",
+    "2": "{LAU3_FFAR_MK1HE}",
+    "3": "{DFT-300gal}",
+    "4": "{LAU3_FFAR_MK1HE}",
+    "5": "{LAU3_FFAR_MK1HE}"
+   }
+  },
+  {
+   "name": "FFAR Mk5 HEAT *76, Fuel 300G",
+   "count": 1,
+   "pylons": {
+    "1": "{LAU3_FFAR_MK5HEAT}",
+    "2": "{LAU3_FFAR_MK5HEAT}",
+    "3": "{DFT-300gal}",
+    "4": "{LAU3_FFAR_MK5HEAT}",
+    "5": "{LAU3_FFAR_MK5HEAT}"
+   }
+  },
+  {
+   "name": "Mk-81 SE *12, Fuel 300G",
+   "count": 1,
+   "pylons": {
+    "1": "{MK-81SE}",
+    "2": "{Mk-81SE_MER_5_L}",
+    "3": "{DFT-300gal}",
+    "4": "{Mk-81SE_MER_5_R}",
+    "5": "{MK-81SE}"
+   }
+  },
+  {
+   "name": "Mk-81 SE *18",
+   "count": 1,
+   "pylons": {
+    "1": "{MK-81SE}",
+    "2": "{Mk-81SE_MER_5_L}",
+    "3": "{Mk-81SE_MER_6_C}",
+    "4": "{Mk-81SE_MER_5_R}",
+    "5": "{MK-81SE}"
+   }
+  },
+  {
+   "name": "CBU-2/A *2, Mk-82 SE *2, Fuel 300G",
+   "count": 1,
+   "pylons": {
+    "1": "{Mk82SNAKEYE}",
+    "2": "{CBU-2/A}",
+    "3": "{DFT-300gal}",
+    "4": "{CBU-2/A}",
+    "5": "{Mk82SNAKEYE}"
+   }
+  },
+  {
+   "name": "Mk-82 SE *8, Fuel 150G *2",
+   "count": 1,
+   "pylons": {
+    "1": "{Mk82SNAKEYE}",
+    "2": "{DFT-150gal}",
+    "3": "{Mk-82 Snakeye_MER_6_C}",
+    "4": "{DFT-150gal}",
+    "5": "{Mk82SNAKEYE}"
+   }
+  },
+  {
+   "name": "FFAR M156 WP *38, Mk-82 SE *2, Mk-4 HIPEG",
+   "count": 1,
+   "pylons": {
+    "1": "{Mk82SNAKEYE}",
+    "2": "{LAU3_FFAR_WP156}",
+    "3": "{Mk4 HIPEG}",
+    "4": "{LAU3_FFAR_WP156}",
+    "5": "{Mk82SNAKEYE}"
+   }
+  },
+  {
+   "name": "Mk-82 SE *8, Mk-81 SE *10",
+   "count": 1,
+   "pylons": {
+    "1": "{Mk82SNAKEYE}",
+    "2": "{Mk-81SE_MER_5_L}",
+    "3": "{Mk-82 Snakeye_MER_6_C}",
+    "4": "{Mk-81SE_MER_5_R}",
+    "5": "{Mk82SNAKEYE}"
+   }
+  },
+  {
+   "name": "Mk-82 SE *12",
+   "count": 1,
+   "pylons": {
+    "1": "{Mk82SNAKEYE}",
+    "2": "{Mk-82 Snakeye_TER_2_L}",
+    "3": "{Mk-82 Snakeye_MER_6_C}",
+    "4": "{Mk-82 Snakeye_TER_2_R}",
+    "5": "{Mk82SNAKEYE}"
+   }
+  },
+  {
+   "name": "Mk-4 HIPEG *3, Mk-82SE *2",
+   "count": 1,
+   "pylons": {
+    "1": "{Mk82SNAKEYE}",
+    "2": "{Mk4 HIPEG}",
+    "3": "{Mk4 HIPEG}",
+    "4": "{Mk4 HIPEG}",
+    "5": "{Mk82SNAKEYE}"
+   }
+  },
+  {
+   "name": "Mk-77 mod 0 *2, Mk-77 mod 1 *4",
+   "count": 1,
+   "pylons": {
+    "1": "{mk77mod1}",
+    "2": "{mk77mod0}",
+    "3": "{Mk-77 mod 1_TER_2_C}",
+    "4": "{mk77mod0}",
+    "5": "{mk77mod1}"
+   }
+  },
+  {
+   "name": "Mk-83 *5",
+   "count": 1,
+   "pylons": {
+    "2": "{7A44FF09-527C-4B7E-B42B-3F111CFE50FB}",
+    "3": "{Mk-83_TER_3_C}",
+    "4": "{7A44FF09-527C-4B7E-B42B-3F111CFE50FB}"
+   }
+  },
+  {
+   "name": "Mk-84 *3",
+   "count": 1,
+   "pylons": {
+    "2": "{AB8B8299-F1CC-4359-89B5-2172E0CF4A5A}",
+    "3": "{AB8B8299-F1CC-4359-89B5-2172E0CF4A5A}",
+    "4": "{AB8B8299-F1CC-4359-89B5-2172E0CF4A5A}"
+   }
+  },
+  {
+   "name": "Mk-84 *2, Fuel 300G",
+   "count": 1,
+   "pylons": {
+    "2": "{AB8B8299-F1CC-4359-89B5-2172E0CF4A5A}",
+    "3": "{DFT-300gal}",
+    "4": "{AB8B8299-F1CC-4359-89B5-2172E0CF4A5A}"
+   }
+  },
+  {
+   "name": "AGM-45B *2",
+   "count": 1,
+   "pylons": {
+    "2": "{AGM_45A}",
+    "4": "{AGM_45A}"
+   }
+  },
+  {
+   "name": "CBU-2/A *2, Fuel 300G",
+   "count": 1,
+   "pylons": {
+    "2": "{CBU-2/A}",
+    "3": "{DFT-300gal}",
+    "4": "{CBU-2/A}"
+   }
+  },
+  {
+   "name": "Mk-82 SE *6, Fuel 150G *2",
+   "count": 1,
+   "pylons": {
+    "2": "{DFT-150gal}",
+    "3": "{Mk-82 Snakeye_MER_6_C}",
+    "4": "{DFT-150gal}"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "2": "{DFT-150gal}",
+    "3": "{Mk-82_MER_4_C}",
+    "4": "{DFT-150gal}"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "2": "{DFT-300gal_LR_EMPTY}",
+    "4": "{DFT-300gal_LR_EMPTY}"
+   }
+  },
+  {
+   "name": "Fuel 300G *3 (Ferry)",
+   "count": 1,
+   "pylons": {
+    "2": "{DFT-300gal_LR}",
+    "3": "{DFT-300gal}",
+    "4": "{DFT-300gal_LR}"
+   }
+  },
+  {
+   "name": "Mk-83 *3, Fuel 300G *2",
+   "count": 1,
+   "pylons": {
+    "2": "{DFT-300gal_LR}",
+    "3": "{Mk-83_TER_3_C}",
+    "4": "{DFT-300gal_LR}"
+   }
+  },
+  {
+   "name": "GAR-8 *2, Fuel 150G",
+   "count": 1,
+   "pylons": {
+    "2": "{GAR-8}",
+    "3": "{DFT-150gal}",
+    "4": "{GAR-8}"
+   }
+  },
+  {
+   "name": "GAR-8 *2, Fuel 300G",
+   "count": 1,
+   "pylons": {
+    "2": "{GAR-8}",
+    "3": "{DFT-300gal}",
+    "4": "{GAR-8}"
+   }
+  },
+  {
+   "name": "Mk-4 HIPEG *3",
+   "count": 1,
+   "pylons": {
+    "2": "{Mk4 HIPEG}",
+    "3": "{Mk4 HIPEG}",
+    "4": "{Mk4 HIPEG}"
+   }
+  }
+ ]
+}

@@ -1,0 +1,1327 @@
+{
+ "unit_type": "F-14B",
+ "source": "module F14",
+ "missions_scanned": 207,
+ "payloads": [
+  {
+   "name": null,
+   "count": 123,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9M}",
+    "2": "{SHOULDER AIM-7M}",
+    "3": "{F14-300gal}",
+    "4": "{AIM_54A_Mk60}",
+    "5": "{AIM_54A_Mk60}",
+    "6": "{AIM_54A_Mk60}",
+    "7": "{AIM_54A_Mk60}",
+    "8": "{F14-300gal}",
+    "9": "{SHOULDER AIM-7M}",
+    "10": "{LAU-138 wtip - AIM-9M}"
+   }
+  },
+  {
+   "name": null,
+   "count": 99,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9M}",
+    "2": "{SHOULDER AIM-7M}",
+    "3": "{F14-300gal}",
+    "4": "{AIM_54A_Mk47}",
+    "5": "{BELLY AIM-7M}",
+    "7": "{AIM_54A_Mk47}",
+    "8": "{F14-300gal}",
+    "9": "{SHOULDER AIM-7M}",
+    "10": "{LAU-138 wtip - AIM-9M}"
+   }
+  },
+  {
+   "name": null,
+   "count": 43,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9M}",
+    "2": "{SHOULDER AIM-7M}",
+    "3": "{F14-300gal}",
+    "4": "{AIM_54A_Mk60}",
+    "5": "{BELLY AIM-7M}",
+    "7": "{AIM_54A_Mk60}",
+    "8": "{F14-300gal}",
+    "9": "{SHOULDER AIM-7M}",
+    "10": "{LAU-138 wtip - AIM-9M}"
+   }
+  },
+  {
+   "name": null,
+   "count": 36,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9M}",
+    "2": "{LAU-7 - AIM-9M}",
+    "3": "{F14-300gal}",
+    "4": "{AIM_54A_Mk47}",
+    "5": "{BELLY AIM-7M}",
+    "7": "{AIM_54A_Mk47}",
+    "8": "{F14-300gal}",
+    "9": "{LAU-7 - AIM-9M}",
+    "10": "{LAU-138 wtip - AIM-9M}"
+   }
+  },
+  {
+   "name": null,
+   "count": 36,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9M}",
+    "2": "{SHOULDER AIM-7M}",
+    "3": "{F14-300gal}",
+    "4": "{AIM_54A_Mk47}",
+    "5": "{AIM_54A_Mk47}",
+    "6": "{AIM_54A_Mk47}",
+    "7": "{AIM_54A_Mk47}",
+    "8": "{F14-300gal}",
+    "9": "{SHOULDER AIM-7M}",
+    "10": "{LAU-138 wtip - AIM-9M}"
+   }
+  },
+  {
+   "name": null,
+   "count": 35,
+   "pylons": {
+    "1": "{6CEB49FC-DED8-4DED-B053-E1F033FF72D3}",
+    "2": "{SHOULDER AIM-7M}",
+    "3": "{F14-300gal}",
+    "4": "{AIM_54C_Mk47}",
+    "5": "{BELLY AIM-7M}",
+    "7": "{AIM_54C_Mk47}",
+    "8": "{F14-300gal}",
+    "9": "{SHOULDER AIM-7M}",
+    "10": "{6CEB49FC-DED8-4DED-B053-E1F033FF72D3}"
+   }
+  },
+  {
+   "name": null,
+   "count": 31,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9M}",
+    "2": "{SHOULDER AIM-7M}",
+    "3": "{F14-300gal}",
+    "4": "{AIM_54C_Mk47}",
+    "5": "{BELLY AIM-7M}",
+    "7": "{AIM_54C_Mk47}",
+    "8": "{F14-300gal}",
+    "9": "{SHOULDER AIM-7M}",
+    "10": "{LAU-138 wtip - AIM-9M}"
+   }
+  },
+  {
+   "name": null,
+   "count": 27,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9M}",
+    "2": "{SHOULDER AIM-7M}",
+    "3": "{F14-300gal}",
+    "4": "{AIM_54C_Mk47}",
+    "5": "{AIM_54C_Mk47}",
+    "6": "{AIM_54C_Mk47}",
+    "7": "{AIM_54C_Mk47}",
+    "8": "{F14-300gal}",
+    "9": "{SHOULDER AIM-7M}",
+    "10": "{LAU-138 wtip - AIM-9M}"
+   }
+  },
+  {
+   "name": null,
+   "count": 26,
+   "pylons": {
+    "1": "{6CEB49FC-DED8-4DED-B053-E1F033FF72D3}",
+    "2": "{SHOULDER AIM-7M}",
+    "3": "{F14-300gal}",
+    "4": "{AIM_54A_Mk47}",
+    "5": "{BELLY AIM-7M}",
+    "7": "{AIM_54A_Mk47}",
+    "8": "{F14-300gal}",
+    "9": "{SHOULDER AIM-7M}",
+    "10": "{6CEB49FC-DED8-4DED-B053-E1F033FF72D3}"
+   }
+  },
+  {
+   "name": null,
+   "count": 25,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9M}",
+    "2": "{SHOULDER AIM-7P}",
+    "3": "{F14-300gal}",
+    "4": "{AIM_54C_Mk60}",
+    "5": "{AIM_54C_Mk60}",
+    "6": "{AIM_54C_Mk60}",
+    "7": "{AIM_54C_Mk60}",
+    "8": "{F14-300gal}",
+    "9": "{SHOULDER AIM-7P}",
+    "10": "{LAU-138 wtip - AIM-9M}"
+   }
+  },
+  {
+   "name": null,
+   "count": 24,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9M}",
+    "2": "{SHOULDER AIM-7M}",
+    "3": "{F14-300gal}",
+    "4": "{BELLY AIM-7M}",
+    "5": "{BELLY AIM-7M}",
+    "6": "{BELLY AIM-7M}",
+    "7": "{BELLY AIM-7M}",
+    "8": "{F14-300gal}",
+    "9": "{SHOULDER AIM-7M}",
+    "10": "{LAU-138 wtip - AIM-9M}"
+   }
+  },
+  {
+   "name": null,
+   "count": 22,
+   "pylons": {
+    "1": "{6CEB49FC-DED8-4DED-B053-E1F033FF72D3}",
+    "2": "{SHOULDER AIM-7M}",
+    "3": "{F14-300gal}",
+    "4": "{AIM_54C_Mk47}",
+    "5": "{AIM_54C_Mk47}",
+    "6": "{AIM_54C_Mk47}",
+    "7": "{AIM_54C_Mk47}",
+    "8": "{F14-300gal}",
+    "9": "{SHOULDER AIM-7M}",
+    "10": "{6CEB49FC-DED8-4DED-B053-E1F033FF72D3}"
+   }
+  },
+  {
+   "name": null,
+   "count": 20,
+   "pylons": {
+    "1": "{6CEB49FC-DED8-4DED-B053-E1F033FF72D3}",
+    "2": "{SHOULDER AIM-7M}",
+    "3": "{F14-300gal}",
+    "4": "{BRU3242_ADM141}",
+    "5": "{BRU3242_ADM141}",
+    "6": "{BRU3242_ADM141}",
+    "7": "{BRU3242_ADM141}",
+    "8": "{F14-300gal}",
+    "9": "{SHOULDER AIM-7M}",
+    "10": "{6CEB49FC-DED8-4DED-B053-E1F033FF72D3}"
+   }
+  },
+  {
+   "name": null,
+   "count": 20,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9M}",
+    "2": "{SHOULDER AIM_54A_Mk60 L}",
+    "3": "{F14-300gal}",
+    "4": "{MAK79_MK83 3L}",
+    "5": "{MAK79_MK83 1L}",
+    "6": "{MAK79_MK83 1R}",
+    "7": "{MAK79_MK83 3R}",
+    "8": "{F14-300gal}",
+    "9": "{SHOULDER AIM_54A_Mk60 R}",
+    "10": "{LAU-138 wtip - AIM-9M}"
+   }
+  },
+  {
+   "name": null,
+   "count": 17,
+   "pylons": {
+    "1": "{6CEB49FC-DED8-4DED-B053-E1F033FF72D3}",
+    "3": "{F14-300gal-empty}",
+    "8": "{F14-300gal-empty}",
+    "10": "{6CEB49FC-DED8-4DED-B053-E1F033FF72D3}"
+   }
+  },
+  {
+   "name": null,
+   "count": 17,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9L}",
+    "2": "{LAU-7 - AIM-9L}",
+    "3": "{F14-300gal}",
+    "4": "{BELLY AIM-7M}",
+    "5": "{BELLY AIM-7M}",
+    "6": "{BELLY AIM-7M}",
+    "7": "{BELLY AIM-7M}",
+    "8": "{F14-300gal}",
+    "9": "{LAU-7 - AIM-9L}",
+    "10": "{LAU-138 wtip - AIM-9L}"
+   }
+  },
+  {
+   "name": null,
+   "count": 16,
+   "pylons": {
+    "1": "{6CEB49FC-DED8-4DED-B053-E1F033FF72D3}",
+    "2": "{SHOULDER AIM-7M}",
+    "3": "{F14-300gal}",
+    "4": "{AIM_54A_Mk60}",
+    "5": "{AIM_54A_Mk60}",
+    "6": "{AIM_54A_Mk60}",
+    "7": "{AIM_54A_Mk60}",
+    "8": "{F14-300gal}",
+    "9": "{SHOULDER AIM-7M}",
+    "10": "{6CEB49FC-DED8-4DED-B053-E1F033FF72D3}"
+   }
+  },
+  {
+   "name": null,
+   "count": 16,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9M}",
+    "2": "{LAU-7 - AIM-9M}",
+    "3": "{F14-300gal}",
+    "4": "{AIM_54A_Mk60}",
+    "5": "{AIM_54A_Mk60}",
+    "6": "{AIM_54A_Mk60}",
+    "7": "{AIM_54A_Mk60}",
+    "8": "{F14-300gal}",
+    "9": "{LAU-7 - AIM-9M}",
+    "10": "{LAU-138 wtip - AIM-9M}"
+   }
+  },
+  {
+   "name": null,
+   "count": 16,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9M}",
+    "2": "{SHOULDER AIM-7M}",
+    "3": "{F14-300gal-empty}",
+    "8": "{F14-300gal-empty}",
+    "9": "{SHOULDER AIM-7M}",
+    "10": "{LAU-138 wtip - AIM-9M}"
+   }
+  },
+  {
+   "name": null,
+   "count": 13,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9L}",
+    "2": "{LAU-7 - AIM-9M}",
+    "3": "{F14-300gal}",
+    "4": "{AIM_54A_Mk47}",
+    "5": "{BELLY AIM-7M}",
+    "7": "{AIM_54A_Mk47}",
+    "8": "{F14-300gal}",
+    "9": "{LAU-7 - AIM-9M}",
+    "10": "{LAU-138 wtip - AIM-9L}"
+   }
+  },
+  {
+   "name": null,
+   "count": 13,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9M}",
+    "2": "{LAU-7 - AIM-9M}",
+    "3": "{F14-300gal}",
+    "4": "{AIM_54C_Mk47}",
+    "5": "{BELLY AIM-7M}",
+    "7": "{AIM_54C_Mk47}",
+    "8": "{F14-300gal}",
+    "9": "{LAU-7 - AIM-9M}",
+    "10": "{LAU-138 wtip - AIM-9M}"
+   }
+  },
+  {
+   "name": null,
+   "count": 13,
+   "pylons": {
+    "3": "{F14-300gal-empty}",
+    "8": "{F14-300gal-empty}"
+   }
+  },
+  {
+   "name": null,
+   "count": 12,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9M}",
+    "2": "{SHOULDER AIM-7M}",
+    "3": "{F14-300gal-empty}",
+    "4": "{AIM_54A_Mk60}",
+    "5": "{BELLY AIM-7M}",
+    "7": "{AIM_54A_Mk60}",
+    "8": "{F14-300gal-empty}",
+    "9": "{SHOULDER AIM-7M}",
+    "10": "{LAU-138 wtip - AIM-9M}"
+   }
+  },
+  {
+   "name": null,
+   "count": 12,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9M}",
+    "2": "{SHOULDER AIM-7M}",
+    "3": "{F14-300gal}",
+    "4": "{BRU-32 MK-82}",
+    "5": "{BRU-32 MK-82}",
+    "6": "{BRU-32 MK-82}",
+    "7": "{BRU-32 MK-82}",
+    "8": "{F14-300gal}",
+    "9": "{F14-LANTIRN-TP}",
+    "10": "{LAU-138 wtip - AIM-9M}"
+   }
+  },
+  {
+   "name": null,
+   "count": 11,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9M}",
+    "2": "{SHOULDER AIM-7M}",
+    "3": "{F14-300gal}",
+    "8": "{F14-300gal}",
+    "9": "{SHOULDER AIM-7M}",
+    "10": "{LAU-138 wtip - AIM-9M}"
+   }
+  },
+  {
+   "name": null,
+   "count": 11,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9M}",
+    "3": "{F14-300gal-empty}",
+    "8": "{F14-300gal-empty}",
+    "10": "{LAU-138 wtip - AIM-9M}"
+   }
+  },
+  {
+   "name": null,
+   "count": 10,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9L}",
+    "2": "{SHOULDER AIM-7M}",
+    "3": "{F14-300gal}",
+    "4": "{AIM_54A_Mk47}",
+    "5": "{AIM_54A_Mk47}",
+    "6": "{AIM_54A_Mk47}",
+    "7": "{AIM_54A_Mk47}",
+    "8": "{F14-300gal}",
+    "9": "{SHOULDER AIM-7M}",
+    "10": "{LAU-138 wtip - AIM-9L}"
+   }
+  },
+  {
+   "name": null,
+   "count": 10,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9M}",
+    "2": "{SHOULDER AIM-7M}",
+    "3": "{F14-300gal}",
+    "4": "{BRU-32 GBU-12}",
+    "5": "{BRU-32 GBU-12}",
+    "6": "{BRU-32 GBU-12}",
+    "7": "{BRU-32 GBU-12}",
+    "8": "{F14-300gal}",
+    "9": "{F14-LANTIRN-TP}",
+    "10": "{LAU-138 wtip - AIM-9M}"
+   }
+  },
+  {
+   "name": null,
+   "count": 10,
+   "pylons": {
+    "3": "{F14-300gal}",
+    "8": "{F14-300gal}"
+   }
+  },
+  {
+   "name": null,
+   "count": 8,
+   "pylons": {
+    "1": "{6CEB49FC-DED8-4DED-B053-E1F033FF72D3}",
+    "2": "{SHOULDER AIM-7M}",
+    "4": "{AIM_54C_Mk47}",
+    "5": "{BELLY AIM-7M}",
+    "7": "{AIM_54C_Mk47}",
+    "9": "{SHOULDER AIM-7M}",
+    "10": "{6CEB49FC-DED8-4DED-B053-E1F033FF72D3}"
+   }
+  },
+  {
+   "name": null,
+   "count": 8,
+   "pylons": {
+    "1": "{AIM-9L}",
+    "2": "{SHOULDER AIM-7M}",
+    "3": "{F14-300gal}",
+    "4": "{AIM_54A_Mk47}",
+    "5": "{BELLY AIM-7M}",
+    "7": "{AIM_54A_Mk47}",
+    "8": "{F14-300gal}",
+    "9": "{SHOULDER AIM-7M}",
+    "10": "{AIM-9L}"
+   }
+  },
+  {
+   "name": null,
+   "count": 8,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9M}",
+    "2": "{LAU-7 - AIM-9L}",
+    "3": "{F14-300gal}",
+    "4": "{AIM_54A_Mk47}",
+    "5": "{AIM_54A_Mk47}",
+    "6": "{AIM_54A_Mk47}",
+    "7": "{AIM_54A_Mk47}",
+    "8": "{F14-300gal}",
+    "9": "{LAU-7 - AIM-9L}",
+    "10": "{LAU-138 wtip - AIM-9M}"
+   }
+  },
+  {
+   "name": null,
+   "count": 6,
+   "pylons": {
+    "1": "{6CEB49FC-DED8-4DED-B053-E1F033FF72D3}",
+    "2": "{SHOULDER AIM-7M}",
+    "3": "{F14-300gal-empty}",
+    "4": "{AIM_54C_Mk47}",
+    "7": "{AIM_54C_Mk47}",
+    "8": "{F14-300gal-empty}",
+    "9": "{SHOULDER AIM-7M}",
+    "10": "{6CEB49FC-DED8-4DED-B053-E1F033FF72D3}"
+   }
+  },
+  {
+   "name": null,
+   "count": 6,
+   "pylons": {
+    "1": "{6CEB49FC-DED8-4DED-B053-E1F033FF72D3}",
+    "2": "{SHOULDER AIM-7M}",
+    "3": "{F14-300gal}",
+    "4": "{AIM_54A_Mk47}",
+    "5": "{AIM_54C_Mk47}",
+    "6": "{AIM_54A_Mk47}",
+    "7": "{AIM_54A_Mk47}",
+    "8": "{F14-300gal}",
+    "9": "{SHOULDER AIM-7M}",
+    "10": "{6CEB49FC-DED8-4DED-B053-E1F033FF72D3}"
+   }
+  },
+  {
+   "name": null,
+   "count": 6,
+   "pylons": {
+    "1": "{6CEB49FC-DED8-4DED-B053-E1F033FF72D3}",
+    "2": "{SHOULDER AIM-7M}",
+    "3": "{F14-300gal}",
+    "4": "{AIM_54A_Mk60}",
+    "5": "{BELLY AIM-7M}",
+    "7": "{AIM_54A_Mk60}",
+    "8": "{F14-300gal}",
+    "9": "{SHOULDER AIM-7M}",
+    "10": "{6CEB49FC-DED8-4DED-B053-E1F033FF72D3}"
+   }
+  },
+  {
+   "name": null,
+   "count": 6,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9L}",
+    "2": "{LAU-7 - AIM-9M}",
+    "3": "{F14-300gal}",
+    "4": "{BELLY AIM-7M}",
+    "5": "{BELLY AIM-7M}",
+    "6": "{BELLY AIM-7M}",
+    "7": "{BELLY AIM-7M}",
+    "8": "{F14-300gal}",
+    "9": "{LAU-7 - AIM-9M}",
+    "10": "{LAU-138 wtip - AIM-9L}"
+   }
+  },
+  {
+   "name": null,
+   "count": 6,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9M}",
+    "2": "{LAU-7 - AIM-9M}",
+    "3": "{F14-300gal}",
+    "4": "{BELLY AIM-7M}",
+    "5": "{MAK79_MK82SE 3L}",
+    "6": "{MAK79_MK82SE 3R}",
+    "7": "{BELLY AIM-7M}",
+    "8": "{F14-300gal}",
+    "9": "{LAU-7 - AIM-9M}",
+    "10": "{LAU-138 wtip - AIM-9M}"
+   }
+  },
+  {
+   "name": null,
+   "count": 6,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9M}",
+    "2": "{SHOULDER AIM-7M}",
+    "3": "{F14-300gal}",
+    "4": "{AIM_54C_Mk60}",
+    "5": "{AIM_54C_Mk60}",
+    "6": "{AIM_54C_Mk60}",
+    "7": "{AIM_54C_Mk60}",
+    "8": "{F14-300gal}",
+    "9": "{SHOULDER AIM-7M}",
+    "10": "{LAU-138 wtip - AIM-9M}"
+   }
+  },
+  {
+   "name": null,
+   "count": 6,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9M}",
+    "2": "{SHOULDER AIM-7M}",
+    "3": "{F14-300gal}",
+    "5": "{BELLY AIM-7M}",
+    "6": "{BELLY AIM-7M}",
+    "8": "{F14-300gal}",
+    "9": "{SHOULDER AIM-7M}",
+    "10": "{LAU-138 wtip - AIM-9M}"
+   }
+  },
+  {
+   "name": null,
+   "count": 6,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9M}",
+    "2": "{SHOULDER AIM-7P}",
+    "3": "{F14-300gal}",
+    "4": "{AIM_54C_Mk60}",
+    "7": "{AIM_54C_Mk60}",
+    "8": "{F14-300gal}",
+    "9": "{SHOULDER AIM-7P}",
+    "10": "{LAU-138 wtip - AIM-9M}"
+   }
+  },
+  {
+   "name": null,
+   "count": 6,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9M}",
+    "3": "{F14-300gal}",
+    "4": "{BELLY AIM-7M}",
+    "5": "{BELLY AIM-7M}",
+    "7": "{BELLY AIM-7M}",
+    "8": "{F14-300gal}",
+    "10": "{LAU-138 wtip - AIM-9M}"
+   }
+  },
+  {
+   "name": null,
+   "count": 5,
+   "pylons": {
+    "3": "{F14-300gal-empty}",
+    "8": "{F14-300gal-empty}",
+    "10": "{LAU-138 wtip - AIM-9M}"
+   }
+  },
+  {
+   "name": null,
+   "count": 4,
+   "pylons": {
+    "1": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}",
+    "2": "{SHOULDER AIM-7M}",
+    "3": "{F14-300gal}",
+    "4": "{BRU-32 MK-83}",
+    "5": "{BRU-32 MK-83}",
+    "6": "{BRU-32 MK-83}",
+    "7": "{BRU-32 MK-83}",
+    "8": "{F14-300gal}",
+    "9": "{SHOULDER AIM-7M}",
+    "10": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}"
+   }
+  },
+  {
+   "name": null,
+   "count": 4,
+   "pylons": {
+    "1": "{AIM-9L}",
+    "2": "{SHOULDER AIM-7M}",
+    "3": "{F14-300gal-empty}",
+    "4": "{AIM_54C_Mk47}",
+    "5": "{BELLY AIM-7M}",
+    "7": "{AIM_54C_Mk47}",
+    "8": "{F14-300gal-empty}",
+    "9": "{SHOULDER AIM-7M}",
+    "10": "{AIM-9L}"
+   }
+  },
+  {
+   "name": null,
+   "count": 4,
+   "pylons": {
+    "1": "{AIM-9L}",
+    "2": "{SHOULDER AIM-7M}",
+    "3": "{F14-300gal-empty}",
+    "5": "{BELLY AIM-7M}",
+    "7": "{AIM_54C_Mk47}",
+    "8": "{F14-300gal-empty}",
+    "9": "{SHOULDER AIM-7M}",
+    "10": "{AIM-9L}"
+   }
+  },
+  {
+   "name": null,
+   "count": 4,
+   "pylons": {
+    "1": "{AIS_ASQ_T50}"
+   }
+  },
+  {
+   "name": null,
+   "count": 4,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9L}",
+    "3": "{F14-300gal}",
+    "6": "{BELLY AIM-7M}",
+    "8": "{F14-300gal}",
+    "10": "{LAU-138 wtip - AIM-9L}"
+   }
+  },
+  {
+   "name": null,
+   "count": 4,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9M}",
+    "2": "{LAU-7 - AIM-9M}",
+    "3": "{F14-300gal-empty}",
+    "8": "{F14-300gal-empty}",
+    "9": "{LAU-7 - AIM-9M}",
+    "10": "{LAU-138 wtip - AIM-9M}"
+   }
+  },
+  {
+   "name": null,
+   "count": 4,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9M}",
+    "2": "{LAU-7 - AIM-9M}",
+    "3": "{F14-300gal}",
+    "4": "{MAK79_MK82 4}",
+    "5": "{MAK79_MK82 3L}",
+    "6": "{MAK79_MK82 3R}",
+    "7": "{MAK79_MK82 4}",
+    "8": "{F14-300gal}",
+    "9": "{LAU-7 - AIM-9M}",
+    "10": "{LAU-138 wtip - AIM-9M}"
+   }
+  },
+  {
+   "name": null,
+   "count": 4,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9M}",
+    "2": "{SHOULDER AIM-7M}",
+    "3": "{F14-300gal}",
+    "4": "{AIM_54C_Mk47}",
+    "5": "{BELLY AIM-7M}",
+    "7": "{AIM_54C_Mk47}",
+    "8": "{F14-300gal}",
+    "9": "{F14-LANTIRN-TP}",
+    "10": "{LAU-138 wtip - AIM-9M}"
+   }
+  },
+  {
+   "name": null,
+   "count": 4,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9M}",
+    "2": "{SHOULDER AIM-7M}",
+    "3": "{F14-300gal}",
+    "4": "{MAK79_MK83 3L}",
+    "5": "{MAK79_MK83 1R}",
+    "6": "{MAK79_MK83 1R}",
+    "7": "{MAK79_MK83 3R}",
+    "8": "{F14-300gal}",
+    "9": "{SHOULDER AIM-7M}",
+    "10": "{LAU-138 wtip - AIM-9M}"
+   }
+  },
+  {
+   "name": null,
+   "count": 3,
+   "pylons": {
+    "1": "{6CEB49FC-DED8-4DED-B053-E1F033FF72D3}",
+    "2": "{SHOULDER AIM-7M}",
+    "3": "{F14-300gal}",
+    "4": "{AIM_54C_Mk47}",
+    "5": "{AIM_54C_Mk47}",
+    "6": "{AIM_54C_Mk47}",
+    "7": "{AIM_54C_Mk47}",
+    "8": "{F14-300gal}",
+    "9": "{F14-LANTIRN-TP}",
+    "10": "{6CEB49FC-DED8-4DED-B053-E1F033FF72D3}"
+   }
+  },
+  {
+   "name": null,
+   "count": 3,
+   "pylons": {
+    "1": "{6CEB49FC-DED8-4DED-B053-E1F033FF72D3}",
+    "10": "{AIS_ASQ_T50}"
+   }
+  },
+  {
+   "name": null,
+   "count": 3,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9M}",
+    "2": "{SHOULDER AIM-7M}",
+    "3": "{F14-300gal-empty}",
+    "4": "{AIM_54A_Mk60}",
+    "5": "{AIM_54A_Mk60}",
+    "6": "{AIM_54A_Mk60}",
+    "7": "{AIM_54A_Mk60}",
+    "8": "{F14-300gal-empty}",
+    "9": "{SHOULDER AIM-7M}",
+    "10": "{LAU-138 wtip - AIM-9M}"
+   }
+  },
+  {
+   "name": null,
+   "count": 3,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9M}",
+    "2": "{SHOULDER AIM-7M}",
+    "3": "{F14-300gal}",
+    "4": "{AIM_54C_Mk47}",
+    "5": "{BELLY AIM-7M}",
+    "7": "{AIM_54A_Mk60}",
+    "8": "{F14-300gal}",
+    "9": "{SHOULDER AIM-7M}",
+    "10": "{LAU-138 wtip - AIM-9M}"
+   }
+  },
+  {
+   "name": null,
+   "count": 3,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9M}",
+    "2": "{SHOULDER AIM-7M}",
+    "3": "{F14-300gal}",
+    "4": "{BRU-32 GBU-16}",
+    "5": "{BRU-32 GBU-16}",
+    "6": "{BRU-32 GBU-16}",
+    "7": "{BRU-32 GBU-16}",
+    "8": "{F14-300gal}",
+    "9": "{SHOULDER AIM-7M}",
+    "10": "{LAU-138 wtip - AIM-9M}"
+   }
+  },
+  {
+   "name": null,
+   "count": 3,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9M}",
+    "2": "{SHOULDER AIM-7M}",
+    "3": "{F14-300gal}",
+    "4": "{MAK79_MK83 3L}",
+    "5": "{MAK79_MK83 1L}",
+    "6": "{MAK79_MK83 1R}",
+    "7": "{MAK79_MK83 3R}",
+    "8": "{F14-300gal}",
+    "9": "{SHOULDER AIM-7M}",
+    "10": "{LAU-138 wtip - AIM-9M}"
+   }
+  },
+  {
+   "name": null,
+   "count": 3,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9M}",
+    "2": "{SHOULDER AIM_54A_Mk47 L}",
+    "3": "{F14-300gal}",
+    "5": "{BELLY AIM-7M}",
+    "8": "{F14-300gal}",
+    "9": "{F14-LANTIRN-TP}",
+    "10": "{LAU-138 wtip - AIM-9M}"
+   }
+  },
+  {
+   "name": null,
+   "count": 3,
+   "pylons": {
+    "4": "{BRU-32 GBU-16}",
+    "5": "{BRU-32 GBU-16}",
+    "6": "{BRU-32 GBU-16}",
+    "7": "{BRU-32 GBU-16}"
+   }
+  },
+  {
+   "name": null,
+   "count": 2,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9L}",
+    "2": "{LAU-7 - AIM-9L}",
+    "4": "{BELLY AIM-7M}",
+    "5": "{BELLY AIM-7M}",
+    "6": "{BELLY AIM-7M}",
+    "7": "{BELLY AIM-7M}",
+    "9": "{LAU-7 - AIM-9L}",
+    "10": "{LAU-138 wtip - AIM-9L}"
+   }
+  },
+  {
+   "name": null,
+   "count": 2,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9L}",
+    "2": "{LAU-7 - AIM-9M}",
+    "3": "{F14-300gal-empty}",
+    "4": "{AIM_54A_Mk47}",
+    "5": "{BELLY AIM-7M}",
+    "7": "{AIM_54A_Mk47}",
+    "8": "{F14-300gal-empty}",
+    "9": "{LAU-7 - AIM-9M}",
+    "10": "{LAU-138 wtip - AIM-9L}"
+   }
+  },
+  {
+   "name": null,
+   "count": 2,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9L}",
+    "2": "{SHOULDER AIM-7F}",
+    "3": "{F14-300gal-empty}",
+    "8": "{F14-300gal-empty}",
+    "9": "{SHOULDER AIM-7F}",
+    "10": "{LAU-138 wtip - AIM-9L}"
+   }
+  },
+  {
+   "name": null,
+   "count": 2,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9L}",
+    "3": "{F14-300gal-empty}",
+    "4": "{BELLY AIM-7F}",
+    "5": "{BELLY AIM-7F}",
+    "6": "{BELLY AIM-7F}",
+    "7": "{BELLY AIM-7F}",
+    "8": "{F14-300gal-empty}",
+    "10": "{LAU-138 wtip - AIM-9L}"
+   }
+  },
+  {
+   "name": null,
+   "count": 2,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9L}",
+    "3": "{F14-300gal-empty}",
+    "8": "{F14-300gal-empty}",
+    "10": "{LAU-138 wtip - AIM-9L}"
+   }
+  },
+  {
+   "name": null,
+   "count": 2,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9M}",
+    "2": "{LAU-7 - AIM-9M}",
+    "4": "{BELLY AIM-7M}",
+    "5": "{BELLY AIM-7M}",
+    "6": "{BELLY AIM-7M}",
+    "7": "{BELLY AIM-7M}",
+    "9": "{LAU-7 - AIM-9M}",
+    "10": "{LAU-138 wtip - AIM-9M}"
+   }
+  },
+  {
+   "name": null,
+   "count": 2,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9M}",
+    "2": "{SHOULDER AIM-7M}",
+    "3": "{F14-300gal-empty}",
+    "4": "{AIM_54C_Mk60}",
+    "5": "{AIM_54C_Mk60}",
+    "6": "{AIM_54C_Mk60}",
+    "7": "{AIM_54C_Mk60}",
+    "8": "{F14-300gal-empty}",
+    "9": "{SHOULDER AIM-7M}",
+    "10": "{LAU-138 wtip - AIM-9M}"
+   }
+  },
+  {
+   "name": null,
+   "count": 2,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9M}",
+    "2": "{SHOULDER AIM-7M}",
+    "3": "{F14-300gal}",
+    "4": "{AIM_54C_Mk60}",
+    "5": "{BELLY AIM-7M}",
+    "7": "{AIM_54C_Mk60}",
+    "8": "{F14-300gal}",
+    "9": "{SHOULDER AIM-7M}",
+    "10": "{LAU-138 wtip - AIM-9M}"
+   }
+  },
+  {
+   "name": null,
+   "count": 2,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9M}",
+    "2": "{SHOULDER AIM-7M}",
+    "3": "{F14-300gal}",
+    "4": "{BRU-32 GBU-16}",
+    "5": "{BRU-32 GBU-16}",
+    "6": "{BRU-32 GBU-16}",
+    "7": "{BRU-32 GBU-16}",
+    "8": "{F14-300gal}",
+    "9": "{F14-LANTIRN-TP}",
+    "10": "{LAU-138 wtip - AIM-9M}"
+   }
+  },
+  {
+   "name": null,
+   "count": 2,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9M}",
+    "2": "{SHOULDER AIM-7M}",
+    "3": "{F14-300gal}",
+    "4": "{BRU3242_3*BDU33}",
+    "7": "{BRU3242_3*BDU33}",
+    "8": "{F14-300gal}",
+    "9": "{SHOULDER AIM-7M}",
+    "10": "{LAU-138 wtip - AIM-9M}"
+   }
+  },
+  {
+   "name": null,
+   "count": 2,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9M}",
+    "2": "{SHOULDER AIM-7M}",
+    "3": "{F14-300gal}",
+    "4": "{MAK79_MK83 3L}",
+    "5": "{BRU-32 MK-83}",
+    "6": "{BRU-32 MK-83}",
+    "7": "{MAK79_MK83 3R}",
+    "8": "{F14-300gal}",
+    "9": "{SHOULDER AIM-7M}",
+    "10": "{LAU-138 wtip - AIM-9M}"
+   }
+  },
+  {
+   "name": null,
+   "count": 2,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9M}",
+    "2": "{SHOULDER AIM_54A_Mk60 L}",
+    "3": "{F14-300gal-empty}",
+    "4": "{BRU-32 GBU-12}",
+    "5": "{BRU-32 GBU-12}",
+    "6": "{BRU-32 GBU-12}",
+    "7": "{BRU-32 GBU-12}",
+    "8": "{F14-300gal-empty}",
+    "9": "{F14-LANTIRN-TP}",
+    "10": "{LAU-138 wtip - AIM-9M}"
+   }
+  },
+  {
+   "name": null,
+   "count": 2,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9M}",
+    "2": "{SHOULDER AIM_54A_Mk60 L}",
+    "3": "{F14-300gal}",
+    "4": "{BRU-32 GBU-12}",
+    "5": "{BRU-32 GBU-12}",
+    "6": "{BRU-32 GBU-12}",
+    "7": "{BRU-32 GBU-12}",
+    "8": "{F14-300gal}",
+    "9": "{F14-LANTIRN-TP}",
+    "10": "CATM-9M"
+   }
+  },
+  {
+   "name": null,
+   "count": 2,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9M}",
+    "3": "{F14-300gal}",
+    "8": "{F14-300gal}",
+    "10": "{LAU-138 wtip - AIM-9M}"
+   }
+  },
+  {
+   "name": null,
+   "count": 2,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9M}",
+    "4": "{BELLY AIM-7M}",
+    "5": "{BELLY AIM-7M}",
+    "6": "{BELLY AIM-7M}",
+    "7": "{BELLY AIM-7M}",
+    "10": "{LAU-138 wtip - AIM-9M}"
+   }
+  },
+  {
+   "name": null,
+   "count": 2,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9M}",
+    "10": "{LAU-138 wtip - AIM-9M}"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "1": "CATM-9M",
+    "3": "{F14-300gal-empty}",
+    "8": "{F14-300gal-empty}",
+    "10": "{LAU-138 wtip - TCTS R}"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "1": "{6CEB49FC-DED8-4DED-B053-E1F033FF72D3}",
+    "2": "{SHOULDER AIM-7M}",
+    "3": "{F14-300gal}",
+    "4": "{MAK79_MK83 3L}",
+    "5": "{MAK79_MK83 1R}",
+    "6": "{MAK79_MK83 1R}",
+    "7": "{MAK79_MK83 3R}",
+    "8": "{F14-300gal}",
+    "9": "{SHOULDER AIM-7M}",
+    "10": "{6CEB49FC-DED8-4DED-B053-E1F033FF72D3}"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "1": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}",
+    "2": "{PHXBRU3242_2*MK82 LS}",
+    "3": "{F14-300gal}",
+    "4": "{MAK79_MK82 4}",
+    "5": "{MAK79_MK82 3L}",
+    "6": "{MAK79_MK82 3R}",
+    "7": "{MAK79_MK82 4}",
+    "8": "{F14-300gal}",
+    "9": "{PHXBRU3242_2*MK82 RS}",
+    "10": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9L}",
+    "2": "{LAU-7 - AIM-9L}",
+    "3": "{F14-300gal-empty}",
+    "4": "{BELLY AIM-7M}",
+    "5": "{BELLY AIM-7M}",
+    "6": "{BELLY AIM-7M}",
+    "7": "{BELLY AIM-7M}",
+    "8": "{F14-300gal-empty}",
+    "9": "{LAU-7 - AIM-9L}",
+    "10": "{LAU-138 wtip - AIM-9L}"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9L}",
+    "3": "{F14-300gal}",
+    "8": "{F14-300gal}",
+    "9": "{LAU-7 - AIM-9L}"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9M}",
+    "2": "{LAU-7 - AIM-9M}",
+    "3": "{F14-300gal-empty}",
+    "4": "{BRU-32 MK-83}",
+    "5": "{BRU-32 MK-83}",
+    "6": "{BRU-32 MK-83}",
+    "7": "{BRU-32 MK-83}",
+    "8": "{F14-300gal-empty}",
+    "9": "{LAU-7 - AIM-9M}",
+    "10": "{LAU-138 wtip - AIM-9M}"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9M}",
+    "2": "{LAU-7 - AIM-9M}",
+    "3": "{F14-300gal}",
+    "8": "{F14-300gal}",
+    "9": "{LAU-7 - AIM-9M}",
+    "10": "{LAU-138 wtip - AIM-9M}"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9M}",
+    "2": "{LAU-7 - AIM-9M}",
+    "9": "{LAU-7 - AIM-9M}",
+    "10": "{LAU-138 wtip - AIM-9M}"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9M}",
+    "2": "{PHXBRU3242_2*LAU10 LS}",
+    "3": "{F14-300gal-empty}",
+    "4": "{BRU3242_2*LAU10 R}",
+    "5": "{BRU-32 MK-83}",
+    "6": "{BRU-32 MK-83}",
+    "7": "{BRU3242_LAU10}",
+    "8": "{F14-300gal-empty}",
+    "9": "{PHXBRU3242_2*LAU10 RS}",
+    "10": "{LAU-138 wtip - AIM-9M}"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9M}",
+    "2": "{SHOULDER AIM-7MH}",
+    "3": "{F14-300gal}",
+    "4": "{AIM_54A_Mk60}",
+    "5": "{BELLY AIM-7MH}",
+    "7": "{AIM_54A_Mk60}",
+    "8": "{F14-300gal}",
+    "9": "{SHOULDER AIM-7MH}",
+    "10": "{LAU-138 wtip - AIM-9M}"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9M}",
+    "2": "{SHOULDER AIM-7MH}",
+    "3": "{F14-300gal}",
+    "4": "{MAK79_MK83 3L}",
+    "5": "{MAK79_MK83 1L}",
+    "6": "{MAK79_MK83 1R}",
+    "7": "{MAK79_MK83 3R}",
+    "8": "{F14-300gal}",
+    "9": "{SHOULDER AIM-7MH}",
+    "10": "{LAU-138 wtip - AIM-9M}"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9M}",
+    "2": "{SHOULDER AIM-7M}",
+    "3": "{F14-300gal-empty}",
+    "4": "{BRU-32 GBU-12}",
+    "5": "{BRU-32 GBU-12}",
+    "6": "{BRU-32 GBU-12}",
+    "7": "{BRU-32 GBU-12}",
+    "8": "{F14-300gal-empty}",
+    "9": "{F14-LANTIRN-TP}",
+    "10": "{LAU-138 wtip - AIM-9M}"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9M}",
+    "2": "{SHOULDER AIM-7M}",
+    "3": "{F14-300gal}",
+    "4": "{BELLY AIM-7M}",
+    "7": "{BELLY AIM-7M}",
+    "8": "{F14-300gal}",
+    "9": "{F14-LANTIRN-TP}",
+    "10": "{LAU-138 wtip - AIM-9M}"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9M}",
+    "2": "{SHOULDER AIM-7M}",
+    "3": "{F14-300gal}",
+    "4": "{BRU-32 MK-84}",
+    "5": "{BRU-32 MK-84}",
+    "6": "{BRU-32 MK-84}",
+    "7": "{BRU-32 MK-84}",
+    "8": "{F14-300gal}",
+    "9": "{SHOULDER AIM-7M}",
+    "10": "{LAU-138 wtip - AIM-9M}"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9M}",
+    "2": "{SHOULDER AIM-7M}",
+    "3": "{F14-300gal}",
+    "8": "{F14-300gal}",
+    "9": "{F14-LANTIRN-TP}",
+    "10": "{LAU-138 wtip - AIM-9M}"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9M}",
+    "2": "{SHOULDER AIM-7P}",
+    "3": "{F14-300gal}",
+    "4": "{BRU-32 MK-84}",
+    "5": "{BRU-32 MK-84}",
+    "6": "{BRU-32 MK-84}",
+    "7": "{BRU-32 MK-84}",
+    "8": "{F14-300gal}",
+    "9": "{SHOULDER AIM-7P}",
+    "10": "{LAU-138 wtip - AIM-9M}"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9M}",
+    "2": "{SHOULDER AIM_54C_Mk47 L}",
+    "3": "{F14-300gal-empty}",
+    "4": "{BRU-32 GBU-24}",
+    "6": "{BRU-32 GBU-24}",
+    "8": "{F14-300gal-empty}",
+    "9": "{F14-LANTIRN-TP}",
+    "10": "{LAU-138 wtip - AIM-9M}"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9M}",
+    "3": "{F14-300gal}",
+    "4": "{BELLY AIM-7P}",
+    "6": "{F14-TARPS}",
+    "7": "{BELLY AIM-7P}",
+    "8": "{F14-300gal}",
+    "10": "{LAU-138 wtip - AIM-9M}"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "4": "{MAK79_MK82 4}",
+    "5": "{MAK79_MK83 1R}",
+    "6": "{MAK79_MK83 1R}",
+    "7": "{MAK79_MK82 4}"
+   }
+  }
+ ]
+}

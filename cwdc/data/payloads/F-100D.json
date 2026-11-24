@@ -1,0 +1,154 @@
+{
+ "unit_type": "F-100D",
+ "source": "module F-100D",
+ "missions_scanned": 35,
+ "payloads": [
+  {
+   "name": null,
+   "count": 8,
+   "pylons": {
+    "2": "{GD_F100_335_GAL_TANK_L}",
+    "6": "{GD_F100_335_GAL_TANK_R}"
+   }
+  },
+  {
+   "name": null,
+   "count": 2,
+   "pylons": {
+    "2": "{GD_F100_335_GAL_TANK_L_EMPTY}",
+    "6": "{GD_F100_335_GAL_TANK_R_EMPTY}"
+   }
+  },
+  {
+   "name": null,
+   "count": 2,
+   "pylons": {
+    "3": "{GD_F100_AIM-9E_x2}",
+    "5": "{GD_F100_AIM-9E_x2}"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "1": "{ADD3FAE1-EBF6-4EF9-8EFC-B36B5DDF1E6B}",
+    "2": "{ADD3FAE1-EBF6-4EF9-8EFC-B36B5DDF1E6B}",
+    "3": "{AGM_45A}",
+    "5": "{AGM_45A}",
+    "6": "{ADD3FAE1-EBF6-4EF9-8EFC-B36B5DDF1E6B}",
+    "7": "{ADD3FAE1-EBF6-4EF9-8EFC-B36B5DDF1E6B}"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "1": "{BCE4E030-38E9-423E-98ED-24BE3DA87C32}",
+    "2": "{BCE4E030-38E9-423E-98ED-24BE3DA87C32}",
+    "3": "{BCE4E030-38E9-423E-98ED-24BE3DA87C32}",
+    "5": "{BCE4E030-38E9-423E-98ED-24BE3DA87C32}",
+    "6": "{BCE4E030-38E9-423E-98ED-24BE3DA87C32}",
+    "7": "{BCE4E030-38E9-423E-98ED-24BE3DA87C32}"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "1": "{BCE4E030-38E9-423E-98ED-24BE3DA87C32}",
+    "2": "{GD_F100_335_GAL_TANK_L}",
+    "3": "{GD_F100_TER_MK-82_x3}",
+    "5": "{GD_F100_TER_MK-82_x3}",
+    "6": "{GD_F100_335_GAL_TANK_R}",
+    "7": "{BCE4E030-38E9-423E-98ED-24BE3DA87C32}"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "1": "{LAU3_FFAR_MK5HEAT}",
+    "2": "{LAU3_FFAR_MK5HEAT}",
+    "3": "{AGM_45A}",
+    "5": "{AGM_45A}",
+    "6": "{LAU3_FFAR_MK5HEAT}",
+    "7": "{LAU3_FFAR_MK5HEAT}"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "1": "{LAU3_FFAR_WP156}",
+    "2": "{BCE4E030-38E9-423E-98ED-24BE3DA87C32}",
+    "3": "{BCE4E030-38E9-423E-98ED-24BE3DA87C32}",
+    "5": "{BCE4E030-38E9-423E-98ED-24BE3DA87C32}",
+    "6": "{BCE4E030-38E9-423E-98ED-24BE3DA87C32}",
+    "7": "{LAU3_FFAR_WP156}"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "2": "{GD_F100_200_GAL_TANK_EMPTY}",
+    "3": "{GD_F100_AIM-9E_x2}",
+    "5": "{GD_F100_AIM-9E_x2}",
+    "6": "{GD_F100_200_GAL_TANK_EMPTY}"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "2": "{GD_F100_200_GAL_TANK}",
+    "6": "{GD_F100_200_GAL_TANK}"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "2": "{GD_F100_335_GAL_TANK_L_EMPTY}",
+    "3": "{GD_F100_AIM-9B_x2}",
+    "5": "{GD_F100_AIM-9B_x2}",
+    "6": "{GD_F100_335_GAL_TANK_R_EMPTY}"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "2": "{GD_F100_335_GAL_TANK_L}",
+    "3": "{GD_F100_AIM-9B_x2}",
+    "5": "{GD_F100_AIM-9B_x2}",
+    "6": "{GD_F100_335_GAL_TANK_R}"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "2": "{GD_F100_335_GAL_TANK_L}",
+    "3": "{GD_F100_AIM-9E_x2}",
+    "5": "{GD_F100_AIM-9E_x2}",
+    "6": "{GD_F100_335_GAL_TANK_R}"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "3": "{GD_F100_AIM-9B_x2}",
+    "5": "{GD_F100_AIM-9B_x2}"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "10": "{GD_F100_ZELL}"
+   }
+  }
+ ]
+}

@@ -1,0 +1,58 @@
+{
+ "unit_type": "Tu-22M3",
+ "source": "DCS MissionEditor UnitPayloads",
+ "missions_scanned": 0,
+ "payloads": [
+  {
+   "name": "Kh-22N*2",
+   "count": 1,
+   "pylons": {
+    "1": "{12429ECF-03F0-4DF6-BCBD-5D38B6343DE1}",
+    "5": "{12429ECF-03F0-4DF6-BCBD-5D38B6343DE1}"
+   }
+  },
+  {
+   "name": "FAB-500*33, FAB-250*36",
+   "count": 1,
+   "pylons": {
+    "1": "{E1AAE713-5FC3-4CAA-9FF5-3FDCFB899E33}",
+    "2": "{E1AAE713-5FC3-4CAA-9FF5-3FDCFB899E33}",
+    "3": "{AD5E5863-08FC-4283-B92C-162E2B2BD3FF}",
+    "4": "{E1AAE713-5FC3-4CAA-9FF5-3FDCFB899E33}",
+    "5": "{E1AAE713-5FC3-4CAA-9FF5-3FDCFB899E33}"
+   }
+  },
+  {
+   "name": "FAB-250*69",
+   "count": 1,
+   "pylons": {
+    "1": "{E1AAE713-5FC3-4CAA-9FF5-3FDCFB899E33}",
+    "2": "{E1AAE713-5FC3-4CAA-9FF5-3FDCFB899E33}",
+    "3": "{BDAD04AA-4D4A-4E51-B958-180A89F963CF}",
+    "4": "{E1AAE713-5FC3-4CAA-9FF5-3FDCFB899E33}",
+    "5": "{E1AAE713-5FC3-4CAA-9FF5-3FDCFB899E33}"
+   }
+  },
+  {
+   "name": "Kh-22N",
+   "count": 1,
+   "pylons": {
+    "3": "{12429ECF-03F0-4DF6-BCBD-5D38B6343DE1}"
+   }
+  },
+  {
+   "name": "FAB-500*33",
+   "count": 1,
+   "pylons": {
+    "3": "{AD5E5863-08FC-4283-B92C-162E2B2BD3FF}"
+   }
+  },
+  {
+   "name": "FAB-250*33",
+   "count": 1,
+   "pylons": {
+    "3": "{BDAD04AA-4D4A-4E51-B958-180A89F963CF}"
+   }
+  }
+ ]
+}

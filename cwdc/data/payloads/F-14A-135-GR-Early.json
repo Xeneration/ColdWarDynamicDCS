@@ -1,0 +1,143 @@
+{
+ "unit_type": "F-14A-135-GR-Early",
+ "source": "module F14",
+ "missions_scanned": 13,
+ "payloads": [
+  {
+   "name": null,
+   "count": 6,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9L}",
+    "2": "{LAU-7 - AIM-9L}",
+    "3": "{F14-300gal}",
+    "4": "{BELLY AIM-7F}",
+    "5": "{BELLY AIM-7F}",
+    "6": "{BELLY AIM-7F}",
+    "7": "{BELLY AIM-7F}",
+    "8": "{F14-300gal}",
+    "9": "{LAU-7 - AIM-9L}",
+    "10": "{LAU-138 wtip - AIM-9L}"
+   }
+  },
+  {
+   "name": null,
+   "count": 6,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9M}",
+    "2": "{LAU-7 - AIM-9M}",
+    "3": "{F14-300gal}",
+    "4": "{AIM_54C_Mk47}",
+    "5": "{BELLY AIM-7M}",
+    "8": "{F14-300gal}",
+    "9": "{SHOULDER AIM-7M}",
+    "10": "{LAU-138 wtip - AIM-9M}"
+   }
+  },
+  {
+   "name": null,
+   "count": 3,
+   "pylons": {
+    "3": "{F14-300gal-empty}",
+    "8": "{F14-300gal-empty}"
+   }
+  },
+  {
+   "name": null,
+   "count": 2,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9L}",
+    "2": "{LAU-7 - AIM-9M}",
+    "3": "{F14-300gal-empty}",
+    "4": "{BELLY AIM-7M}",
+    "5": "{BELLY AIM-7M}",
+    "6": "{BELLY AIM-7M}",
+    "7": "{BELLY AIM-7M}",
+    "8": "{F14-300gal-empty}",
+    "9": "{LAU-7 - AIM-9M}",
+    "10": "{LAU-138 wtip - AIM-9L}"
+   }
+  },
+  {
+   "name": null,
+   "count": 2,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9L}",
+    "2": "{SHOULDER AIM-7M}",
+    "3": "{F14-300gal}",
+    "8": "{F14-300gal}",
+    "9": "{SHOULDER AIM-7M}",
+    "10": "{LAU-138 wtip - AIM-9L}"
+   }
+  },
+  {
+   "name": null,
+   "count": 2,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9L}",
+    "3": "{F14-300gal-empty}",
+    "8": "{F14-300gal-empty}",
+    "10": "{LAU-138 wtip - AIM-9L}"
+   }
+  },
+  {
+   "name": null,
+   "count": 2,
+   "pylons": {
+    "3": "{F14-300gal}",
+    "8": "{F14-300gal}"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9L}",
+    "2": "{SHOULDER AIM-7F}",
+    "3": "{F14-300gal-empty}",
+    "8": "{F14-300gal-empty}",
+    "9": "{SHOULDER AIM-7F}",
+    "10": "{LAU-138 wtip - AIM-9L}"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9L}",
+    "3": "{F14-300gal}",
+    "8": "{F14-300gal}",
+    "10": "{LAU-138 wtip - AIM-9M}"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9M}",
+    "2": "{SHOULDER AIM-7M}",
+    "3": "{F14-300gal-empty}",
+    "8": "{F14-300gal-empty}",
+    "9": "{SHOULDER AIM-7M}",
+    "10": "{LAU-138 wtip - AIM-9M}"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "1": "{LAU-138 wtip - AIM-9M}",
+    "3": "{F14-300gal}",
+    "8": "{F14-300gal}",
+    "10": "{LAU-138 wtip - AIM-9M}"
+   }
+  },
+  {
+   "name": null,
+   "count": 1,
+   "pylons": {
+    "1": "{LAU-138 wtip - TCTS L}",
+    "10": "{LAU-138 wtip - TCTS R}"
+   }
+  }
+ ]
+}
