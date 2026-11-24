@@ -219,3 +219,34 @@ def test_hostile_act_clears_return_fire_and_intercept_is_recorded():
     lua.execute("run_due(200)")
     assert len([e for e in json.loads(lua.eval("CWDC_export()"))["events"]
                 if e["event"] == "CWDC_INTERCEPT"]) == 1          # only once per probe
+
+
+def test_magic_gci_menu_bogey_dope_picture_and_threat_calls():
+    cfg = config_lua("t-004", ["BLUE-Hawk1"], magic={
+        "callsign": "MAGIC", "side": 2, "groups": ["BLUE-Hawk1"], "radars": ["BLUE-EWR"],
+        "bullseye": {"x": -437000, "z": -948000, "name": "Fulda"}, "threat_nm": 25})
+    lua = mission_runtime(cfg, None, pre_runtime=UNITS + """
+      R = mkunit("EWR 1", "FPS-117", 2, nil, "BLUE-EWR")
+      mkgroup("BLUE-EWR", {R})
+      B = mkunit("Fishbed 2-1", "MiG-21Bis", 1, nil, "RED-Fishbed2", -437000 + 37040, -948000)
+      B._air, B._y, B._vel = true, 6096, { x = -200, y = 0, z = 0 }     -- 20 nm north, 20k ft, heading south
+      LOW = mkunit("Fitter 1-1", "Su-17M4", 1, nil, "RED-Fitter1", -437000, -948000 + 20000)
+      LOW._air = true                                                    -- not held by our radar
+      mkgroup("RED-Fishbed2", {B})
+      DETECTED["BLUE-EWR"] = { { object = B } }
+    """)
+    menu = [lua.eval(f"MENU[{i}].name") for i in range(1, lua.eval("#MENU") + 1)]
+    assert menu == ["MAGIC", "Bogey dope", "Picture", "Threat calls on/off"]
+    lua.execute("CWDC.magic_bogey_dope('BLUE-Hawk1')")
+    msg = lua.eval("CWDC.magic.last")
+    assert msg.startswith("Hawk1, MAGIC, bogey dope") or "bogey dope" in msg
+    assert "BRAA 000/20, 20 thousand, hot" in msg
+    lua.execute("CWDC.magic_picture('BLUE-Hawk1')")
+    pic = lua.eval("CWDC.magic.last")
+    assert "1 group" in pic and "bullseye 000/20" in pic           # the low Fitter is not in it
+    lua.execute("CWDC.magic_toggle_threat('BLUE-Hawk1'); GMSGS = {}; run_due(16)")
+    assert lua.eval("#GMSGS") == 1 and "threat" in lua.eval("GMSGS[1].text")
+    lua.execute("run_due(31)")
+    assert lua.eval("#GMSGS") == 1                                 # not repeated within 60 s
+    lua.execute("DETECTED['BLUE-EWR'] = {}; CWDC.magic_bogey_dope('BLUE-Hawk1')")
+    assert "picture clean" in lua.eval("CWDC.magic.last")

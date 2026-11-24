@@ -362,6 +362,166 @@ if CWDC.config.intercept then
 end
 
 ------------------------------------------------------------------------
+-- MAGIC: ground-controlled intercept over the F10 radio menu
+--   CWDC_CONFIG.magic = { callsign = "MAGIC", side = 2, groups = {player groups},
+--                         radars = {friendly EWR / SAM / fighter groups},
+--                         bullseye = { x = .., z = .., name = .. }, threat_nm = 25 }
+-- Contacts come only from what friendly radars hold (getDetectedTargets), so a
+-- low flyer under the coverage is invisible to MAGIC too.
+------------------------------------------------------------------------
+local M_TO_NM, M_TO_KFT = 1 / 1852, 3.28084 / 1000
+CWDC.magic = { threat_on = {}, called = {} }
+
+local function bearing(from, to)
+  local b = math.deg(math.atan2(to.z - from.z, to.x - from.x))
+  if b < 0 then b = b + 360 end
+  return b
+end
+
+local function aspect(tgt, toward)
+  -- hot / flank / beam / cold: target's track against the line from it to `toward`
+  local v = safe(function() return tgt:getVelocity() end)
+  if not v or (v.x * v.x + v.z * v.z) < 100 then return "" end
+  local p = tgt:getPoint()
+  local track = bearing({ x = 0, z = 0 }, v)
+  local diff = math.abs(((track - bearing(p, toward)) + 540) % 360 - 180)
+  if diff <= 30 then return "hot" elseif diff <= 70 then return "flanking"
+  elseif diff <= 110 then return "beaming" end
+  return "cold"
+end
+
+function CWDC.magic_contacts()
+  local cfg = CWDC.config.magic or {}
+  local side, out = cfg.side or 2, {}
+  for _, gname in ipairs(cfg.radars or {}) do
+    local g = Group.getByName(gname)
+    local ctl = g and safe(function() return g:getController() end)
+    local seen = ctl and safe(function() return ctl:getDetectedTargets(Controller.Detection.RADAR) end) or {}
+    for _, d in ipairs(seen) do
+      local o = d.object
+      if o and safe(function() return o:isExist() end) and safe(function() return o:getCoalition() end) ~= side
+          and safe(function() return o:inAir() end) then
+        out[o:getName()] = o
+      end
+    end
+  end
+  return out
+end
+
+local function lead_of(gname)
+  local g = Group.getByName(gname)
+  if not g or not g:isExist() then return nil end
+  for _, u in ipairs(g:getUnits() or {}) do
+    if u and u:isExist() then return u end
+  end
+end
+
+local function braa(from_unit, tgt)
+  local a, b = from_unit:getPoint(), tgt:getPoint()
+  local range = math.sqrt((b.x - a.x) ^ 2 + (b.z - a.z) ^ 2) * M_TO_NM
+  return string.format("BRAA %03d/%d, %d thousand%s", math.floor(bearing(a, b) + 0.5) % 360,
+    math.floor(range + 0.5), math.floor(b.y * M_TO_KFT + 0.5),
+    (function() local s = aspect(tgt, a) return s ~= "" and (", " .. s) or "" end)()), range
+end
+
+local function say(gname, text, secs)
+  local g = Group.getByName(gname)
+  local gid = g and safe(function() return g:getID() end)
+  if gid then trigger.action.outTextForGroup(gid, text, secs or 15) end
+  CWDC.magic.last = text
+end
+
+local function callsign_of(gname)
+  local cs = string.match(gname, "^%S+%s+(.+)$")
+  return cs or gname
+end
+
+function CWDC.magic_bogey_dope(gname)
+  local cfg = CWDC.config.magic or {}
+  local me = lead_of(gname)
+  if not me then return end
+  local best, best_r, best_text = nil, math.huge, nil
+  for _, o in pairs(CWDC.magic_contacts()) do
+    local text, r = braa(me, o)
+    if r < best_r then best, best_r, best_text = o, r, text end
+  end
+  local who = callsign_of(gname) .. ", " .. (cfg.callsign or "MAGIC")
+  if not best then say(gname, who .. ", picture clean.") return end
+  say(gname, who .. ", bogey dope: single group " .. best_text .. ", hostile.")
+end
+
+function CWDC.magic_picture(gname)
+  local cfg = CWDC.config.magic or {}
+  local who = callsign_of(gname) .. ", " .. (cfg.callsign or "MAGIC")
+  local bull = cfg.bullseye
+  local groups = {}
+  for _, o in pairs(CWDC.magic_contacts()) do
+    local gn = safe(function() return o:getGroup():getName() end) or o:getName()
+    groups[gn] = groups[gn] or { n = 0, unit = o }
+    groups[gn].n = groups[gn].n + 1
+  end
+  local lines, count = {}, 0
+  for _, gr in pairs(groups) do
+    count = count + 1
+    local p = gr.unit:getPoint()
+    local where = ""
+    if bull then
+      local r = math.sqrt((p.x - bull.x) ^ 2 + (p.z - bull.z) ^ 2) * M_TO_NM
+      where = string.format("bullseye %03d/%d", math.floor(bearing(bull, p) + 0.5) % 360, math.floor(r + 0.5))
+    end
+    lines[#lines + 1] = string.format("%s, %d thousand, %s", where, math.floor(p.y * M_TO_KFT + 0.5),
+      gr.n > 1 and (gr.n .. " contacts") or "single")
+  end
+  if count == 0 then say(gname, who .. ", picture clean.") return end
+  say(gname, who .. ", picture: " .. count .. " group" .. (count > 1 and "s" or "") .. ". "
+      .. table.concat(lines, "; ") .. ". Hostile.", 20)
+end
+
+function CWDC.magic_toggle_threat(gname)
+  CWDC.magic.threat_on[gname] = not CWDC.magic.threat_on[gname]
+  say(gname, callsign_of(gname) .. ", " .. ((CWDC.config.magic or {}).callsign or "MAGIC")
+      .. ", threat calls " .. (CWDC.magic.threat_on[gname] and "on." or "off."))
+end
+
+function CWDC.magic_threat_check()
+  local cfg = CWDC.config.magic or {}
+  local now = timer.getTime()
+  for gname, on in pairs(CWDC.magic.threat_on) do
+    local me = on and lead_of(gname)
+    if me then
+      for name, o in pairs(CWDC.magic_contacts()) do
+        local text, r = braa(me, o)
+        local key = gname .. "|" .. name
+        if r <= (cfg.threat_nm or 25) and now - (CWDC.magic.called[key] or -1e9) >= 60 then
+          CWDC.magic.called[key] = now
+          say(gname, callsign_of(gname) .. ", " .. (cfg.callsign or "MAGIC") .. ", threat, " .. text .. ".")
+        end
+      end
+    end
+  end
+end
+
+if CWDC.config.magic and missionCommands then
+  local cfg = CWDC.config.magic
+  for _, gname in ipairs(cfg.groups or {}) do
+    local g = Group.getByName(gname)
+    local gid = g and safe(function() return g:getID() end)
+    if gid then
+      local menu = missionCommands.addSubMenuForGroup(gid, cfg.callsign or "MAGIC")
+      missionCommands.addCommandForGroup(gid, "Bogey dope", menu, CWDC.magic_bogey_dope, gname)
+      missionCommands.addCommandForGroup(gid, "Picture", menu, CWDC.magic_picture, gname)
+      missionCommands.addCommandForGroup(gid, "Threat calls on/off", menu, CWDC.magic_toggle_threat, gname)
+    end
+  end
+  timer.scheduleFunction(function(_, t)
+    if CWDC.ended then return nil end
+    local ok, err = pcall(CWDC.magic_threat_check)
+    if not ok then log("magic error: " .. tostring(err)) end
+    return t + 15
+  end, nil, timer.getTime() + 15)
+end
+
+------------------------------------------------------------------------
 -- Bot missions: end automatically (no player to exit the mission)
 --   CWDC_CONFIG.end_when = { groups = {...}, time_limit = s, flag = n }
 -- When every aircraft of those groups has landed or been lost, or at the

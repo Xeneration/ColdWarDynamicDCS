@@ -102,3 +102,19 @@ def test_skill_by_side_task_experience_and_fatigue(camp):
     p.fatigue = 0.7
     assert builder._skill(camp, blue, 0) is Skill.Good
     p.sorties, p.fatigue = old
+
+
+def test_player_missions_get_magic_bot_missions_do_not(camp, tmp_path):
+    f = next(x for x in camp.flights.values() if x.player_eligible)
+    def cfg(bot):
+        rec = builder.build(camp, f.id, tmp_path, start="air", bot=bot)
+        logging.disable(logging.CRITICAL)
+        m = dcs.Mission()
+        m.load_file(rec.miz_path)
+        return str(next(a.dict() for t in m.triggerrules.triggers for a in t.actions
+                        if "CWDC_CONFIG" in str(a.dict()))), rec, m
+    text, rec, m = cfg(False)
+    assert 'callsign = "MAGIC"' in text and "b_ewr_wasserkuppe" in text and "bullseye" in text
+    assert any(l.startswith("GCI: MAGIC") for l in rec.briefing)
+    assert abs(m.coalition["blue"].bullseye["x"] - T.latlon_to_pos(50.555, 9.675).x) < 1
+    assert "magic" not in cfg(True)[0]

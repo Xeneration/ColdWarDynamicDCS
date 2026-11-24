@@ -653,6 +653,15 @@ What's deliberately left for later phases: the web UI (Phase 3), the crisis phas
 - Campaigns started directly at war are past that point, so they are unchanged.
 - That turn's briefing opens with "WAR: the Warsaw Pact attacked at HHMM… ROE: WEAPONS FREE", and the news posts the war's start.
 
+**Progress (2026-11-24): Phase 4 step 4 done: the MAGIC GCI controller** (`cwdc_runtime.lua`)
+- **F10 menu:** each human player group gets **MAGIC → Bogey dope / Picture / Threat calls on/off**. Bot missions get none.
+- **Contacts:** the union of `getDetectedTargets(RADAR)` over the friendly radars in the mission (EWR and SAM objective groups, friendly CAP, escort and QRA flights). Only airborne hostiles count, so low flyers outside radar cover stay invisible.
+- **Bogey dope:** BRAA to the nearest contact. Bearing is true; range in nm; altitude in thousands of feet; aspect is hot within 30°, flanking within 70°, beaming within 110°, otherwise cold.
+- **Picture:** one bullseye call per hostile group.
+- **Threat calls:** every 15 s, for contacts within 25 nm, at most once a minute per contact.
+- **Theater `gci` block:** the callsign (MAGIC) and the blue bullseye (Fulda). The builder sets the coalition bullseye and adds a GCI line to the briefing.
+- **NATO radar sites:** still only `b_ewr_wasserkuppe`. I could not confirm another 1976 NATO radar site, so none was added.
+
 **Phase 5: Polish**
 - Balance passes, campaign presets (start date 1974–79, other squadrons), packaging into a one-click launcher, multiplayer client slots.
 - **Immersion lockdown, once all phases are finished** (requested 2026-11-23; kept on for now to help testing):

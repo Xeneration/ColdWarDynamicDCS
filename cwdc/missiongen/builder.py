@@ -75,6 +75,11 @@ class Plan:
     sweep: set[str] = field(default_factory=set)               # enemy CAP sent at the player's station
 
 
+def _theater(c: Campaign) -> dict:
+    from cwdc.engine.factory import THEATERS
+    return T.load_data(THEATERS[c.theater][0])
+
+
 def _base(c: Campaign, f: Flight) -> Pos:
     return c.airbases[c.squadrons[f.squadron_id].base_id].pos
 
@@ -656,6 +661,21 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
     n_enemy = sum(1 for f in plan.flights if f.side is player.side.enemy and f.task is Task.CAP)
     lines.append(f"Intel: expect {n_enemy} enemy fighter flight(s) in your area."
                  if n_enemy else "Intel: no enemy fighters expected in your area.")
+    magic = None
+    gci = _theater(c).get("gci")
+    if gci and not bot:
+        bull = T.latlon_to_pos(*gci["bullseye"]["latlon"])
+        radars = [f"{o.id} {o.name}" for o in plan.objectives if o.side is player.side
+                  and o.kind in (ObjectiveKind.EWR, ObjectiveKind.SAM) and o.id in obj_groups]
+        radars += [f"{f.id} {f.callsign}" for f in plan.flights if f.side is player.side and f is not player
+                   and f.task in (Task.CAP, Task.ESCORT, Task.QRA)]
+        magic = {"callsign": gci.get("callsign", "MAGIC"), "side": 2 if player.side is Side.BLUE else 1,
+                 "groups": [f"{player.id} {player.callsign}"], "radars": radars,
+                 "bullseye": {"x": bull.x, "z": bull.z, "name": gci["bullseye"]["name"]}, "threat_nm": 25}
+        bc = m.coalition["blue" if player.side is Side.BLUE else "red"]
+        bc.bullseye = {"x": bull.x, "y": bull.z}
+        lines.append(f"GCI: {magic['callsign']} on the F10 radio menu (bogey dope, picture, threat "
+                     f"calls); it only sees what our radars hold. Bullseye: {gci['bullseye']['name']}.")
     lines.append("Exit the mission normally when done; run `cwdc ingest` afterwards.")
     m.set_description_text("\n".join(lines))
     briefing = list(lines)
@@ -666,7 +686,7 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
     intercept = ({"focus": [f"{player.id} {player.callsign}"], "targets": probes,
                   "range": INTERCEPT_RANGE, "hold": INTERCEPT_HOLD} if probes else None)
     inject_runtime(m, mission_id, tracked, end_when=end_when, tracked_statics=tracked_statics,
-                   roe="weapons_free" if c.at_war else "weapons_tight", intercept=intercept)
+                   roe="weapons_free" if c.at_war else "weapons_tight", intercept=intercept, magic=magic)
     out_dir.mkdir(parents=True, exist_ok=True)
     path = out_dir / mission_filename(c, player, bot)
     m.save(str(path))

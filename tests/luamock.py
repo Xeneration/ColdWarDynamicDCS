@@ -54,6 +54,14 @@ function run_due(now)
     end
   end
 end
+GMSGS, MENU, DETECTED, NEXT_GID = {}, {}, {}, 0
+trigger.action.outTextForGroup = function(gid, t, d) GMSGS[#GMSGS + 1] = { gid = gid, text = t } end
+missionCommands = {
+  addSubMenuForGroup = function(gid, name) MENU[#MENU + 1] = { gid = gid, name = name }; return name end,
+  addCommandForGroup = function(gid, name, parent, fn, arg)
+    MENU[#MENU + 1] = { gid = gid, name = name, fn = fn, arg = arg } end,
+}
+Controller = { Detection = { RADAR = 4 } }
 Object = { Category = { UNIT = 1, WEAPON = 2, STATIC = 3, BASE = 4, SCENERY = 5 } }
 function Object.getCategory(o) return o:getCategory() end
 
@@ -73,15 +81,23 @@ function mkunit(name, typ, coal, player, group, x, z)
   function u:getGroup() return { getName = function() return group end } end
   function u:getLife() return self._alive and 10 or 0 end
   function u:getLife0() return 10 end
-  function u:getPoint() return { x = x or 0, y = 1000, z = z or 0 } end
+  function u:getPoint() return { x = x or 0, y = u._y or 1000, z = z or 0 } end
   function u:isExist() return self._alive end
-  function u:inAir() return false end
+  function u:inAir() return self._air or false end
+  function u:getVelocity() return self._vel or { x = 0, y = 0, z = 0 } end
+  function u:setPoint(nx, ny, nz) x, z = nx, nz; self._y = ny end
   function u:getFuel() return 0.6 end
   return u
 end
 
 function mkgroup(name, units)
   local g = { _units = units }
+  NEXT_GID = NEXT_GID + 1
+  local gid = NEXT_GID
+  function g:getID() return gid end
+  function g:getController()
+    return { getDetectedTargets = function(self, kind) return DETECTED[name] or {} end }
+  end
   function g:isExist() return true end
   function g:getUnits() return self._units end
   GROUPS[name] = g

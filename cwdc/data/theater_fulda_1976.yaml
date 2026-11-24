@@ -8,6 +8,10 @@ start: "1976-08-14T06:00:00"
 turn_hours: 6
 # Pre-war crisis (engine.crisis): the campaign opens here; the war starts once tension reaches
 # 100 or after `turns` turns at the latest (rolled per campaign), i.e. 13-15 Aug.
+# MAGIC ground-controlled intercept (mission runtime): callsign and the blue bullseye
+gci:
+  callsign: MAGIC
+  bullseye: { name: Fulda, latlon: [50.555, 9.675] }
 crisis:
   start: "1976-08-11T06:00:00"
   turns: [8, 16]
