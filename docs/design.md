@@ -501,6 +501,31 @@ What's deliberately left for later phases: the web UI (Phase 3), the crisis phas
 **Phase 3: Web UI**
 - Campaign creation, theater map, briefing/ATO selection, generate-mission button, automatic ingest by watching the results folder, debrief and squadron pages.
 
+**Progress (2026-11-24): Phase 3 first cut done** (`cwdc/web/`, `cwdc/actions.py`)
+- **`cwdc/actions.py`:** a shared action layer used by both the CLI and the web server.
+  - Actions: create, fly, result status, load result, ingest, skip, rollback, list campaigns.
+  - The CLI commands are now thin printers over it, so both front ends behave identically.
+- **Model:**
+  - `MissionRecord.briefing` keeps the briefing written into the .miz.
+  - `Campaign.debriefs` keeps the last 60 turns' debriefs, with a flown-in-DCS flag.
+- **`cwdc serve`:** FastAPI on 127.0.0.1:8076 that opens the browser.
+  - It reads the campaign from disk on every request, and one lock serialises the changing actions, so the CLI can be used alongside it.
+  - **JSON API:** campaigns, overview, version (a cheap change check with result status), map layers, ATO, squadron, debriefs and snapshots, events; POST new, fly, ingest, skip, rollback and settings.
+- **Auto-ingest:** a background watcher checks every 5 s.
+  - It ingests a pending mission once the hook's result for it is fresh and `final`, which happens when the player leaves the mission.
+  - It posts an event; the UI then shows a toast and opens the debrief.
+  - It can be switched off in the UI or with `--no-auto-ingest`.
+- **Front end:** a single page (`web/static/`: plain HTML/CSS/JS, Leaflet 1.9.4 from unpkg, OpenStreetMap tiles) with a map plus ATO / Mission / War / Squadron / Debrief / News tabs, a new-campaign dialog, skip and roll back.
+  - **Map layers:** front and border, sector labels, airbases with damage, objectives by strength, SAM rings, NATO flights, Warsaw Pact flights (intel; off by default), supply network, CAP stations.
+- **Verified:**
+  - `tests/test_web.py` covers the API, mission generation, error codes, skip, debrief, rollback, and auto-ingest on and off.
+  - A browser check against a throwaway campaign covered: generating a bot mission from the ATO, the Mission tab waiting on DCS, a simulated final result being auto-ingested (turn closed, debrief opened), and the War tab rendering.
+- **Not yet:**
+  - It hasn't been used with a real DCS flight.
+  - There's no squadron selector for Warsaw Pact squadrons, and no per-flight briefing preview before generating.
+  - The map draws Warsaw Pact-held territory only as the moved front line (no shaded area).
+  - Phase 5's immersion lockdown will need an option to hide enemy intel layers.
+
 **Phase 4: Crisis phase and immersion**
 - Tension model, QRA/intercept/recon missions, ROE enforcement, the war-start event.
 - Briefings, kneeboards, news and weather.

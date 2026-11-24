@@ -425,6 +425,7 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
                  if n_enemy else "Intel: no enemy fighters expected in your area.")
     lines.append("Exit the mission normally when done; run `cwdc ingest` afterwards.")
     m.set_description_text("\n".join(lines))
+    briefing = list(lines)
     m.set_description_bluetask_text(c.packages[player.package_id].description)
 
     end_when = {"groups": [f"{player.id} {player.callsign}"], "time_limit": BOT_TIME_LIMIT}         if bot else None
@@ -434,7 +435,7 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
     m.save(str(path))
     return MissionRecord(mission_id=mission_id, turn=c.turn, player_flight_id=player.id,
                          miz_path=str(path), generated_at=time.time(), manifest=manifest,
-                         spawned_flights=[f.id for f in plan.flights], bot=bot)
+                         spawned_flights=[f.id for f in plan.flights], bot=bot, briefing=briefing)
 
 
 def static_type(type_id: str):

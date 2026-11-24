@@ -65,6 +65,12 @@ def cmd_show_result(args) -> None:
         print(f"  group {g['name']}: {len(g['units'])} alive")
 
 
+def cmd_serve(args) -> None:
+    from cwdc.web.app import serve
+    serve(host=args.host, port=args.port, open_browser=not args.no_browser,
+          auto_ingest=not args.no_auto_ingest)
+
+
 def main(argv=None) -> None:
     logging.basicConfig(level=logging.CRITICAL)  # pydcs livery parse noise
     ap = argparse.ArgumentParser(prog="cwdc", description="ColdWarDynamicDCS campaign manager")
@@ -79,6 +85,13 @@ def main(argv=None) -> None:
     p.add_argument("--from-log", action="store_true",
                    help="rebuild the result from Saved Games\\DCS\\Logs\\dcs.log instead")
     p.set_defaults(func=cmd_show_result)
+    p = sub.add_parser("serve", help="run the local web UI (opens your browser)")
+    p.add_argument("--port", type=int, default=8076)
+    p.add_argument("--host", default="127.0.0.1", help="interface to listen on (default: this PC only)")
+    p.add_argument("--no-browser", action="store_true", help="don't open a browser window")
+    p.add_argument("--no-auto-ingest", action="store_true",
+                   help="don't ingest finished missions automatically")
+    p.set_defaults(func=cmd_serve)
     from cwdc import cli_campaign
     cli_campaign.register(sub)
     args = ap.parse_args(argv)

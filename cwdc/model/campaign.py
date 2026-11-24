@@ -304,6 +304,15 @@ class MissionRecord(BaseModel):
     spawned_flights: list[str] = []    # non-player flights present (and so resolved) in DCS
     bot: bool = False                  # AI-only mission (no player slot)
     ingested: bool = False
+    briefing: list[str] = []           # the briefing text written into the mission
+
+
+class Debrief(BaseModel):
+    """One closed turn's debrief, kept for the debrief history (CLI and web UI)."""
+    turn: int
+    time: datetime
+    lines: list[str]
+    flown_in_dcs: bool = False
 
 
 class NewsItem(BaseModel):
@@ -354,6 +363,7 @@ class Campaign(BaseModel):
     flights: dict[str, Flight] = {}
     pending_mission: Optional[MissionRecord] = None
     outcome: Optional[Outcome] = None
+    debriefs: list[Debrief] = []       # most recent last; capped at engine.turn.DEBRIEF_HISTORY
     news: list[NewsItem] = []
     counters: dict[str, int] = Field(default_factory=dict)
 

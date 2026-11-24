@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ColdWarDynamic</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header>
+  <div class="brand">CWDC <span>Cold War Dynamic Campaign</span></div>
+  <select id="campaign" title="Campaign"></select>
+  <button id="btn-new" class="ghost">New campaign</button>
+  <div id="clock" class="clock"></div>
+  <div class="spacer"></div>
+  <label class="toggle" title="Ingest a mission automatically when you leave it in DCS">
+    <input type="checkbox" id="auto-ingest"> Auto-ingest
+  </label>
+  <button id="btn-skip" class="warn" title="Sit this turn out; everything is simulated">Skip turn</button>
+</header>
+
+<div id="banner" hidden></div>
+
+<main>
+  <div id="map"></div>
+  <aside>
+    <nav id="tabs">
+      <button data-tab="ato" class="active">ATO</button>
+      <button data-tab="mission">Mission</button>
+      <button data-tab="war">War</button>
+      <button data-tab="squadron">Squadron</button>
+      <button data-tab="debrief">Debrief</button>
+      <button data-tab="news">News</button>
+    </nav>
+    <section id="tab-ato" class="tab active"></section>
+    <section id="tab-mission" class="tab"></section>
+    <section id="tab-war" class="tab"></section>
+    <section id="tab-squadron" class="tab"></section>
+    <section id="tab-debrief" class="tab"></section>
+    <section id="tab-news" class="tab"></section>
+  </aside>
+</main>
+
+<dialog id="dlg-new">
+  <form method="dialog" id="form-new">
+    <h2>New campaign</h2>
+    <label>Name <input name="name" value="Fulda Gap 1976" required></label>
+    <label>Your pilot <input name="pilot" value="Player"></label>
+    <label>Seed <input name="seed" type="number" value="1976"></label>
+    <label class="check"><input name="force" type="checkbox"> Overwrite a campaign with the same name</label>
+    <p class="err" id="new-err"></p>
+    <menu>
+      <button value="cancel" class="ghost" formnovalidate>Cancel</button>
+      <button id="new-go" value="ok">Create</button>
+    </menu>
+  </form>
+</dialog>
+
+<div id="toast" hidden></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="/static/app.js"></script>
+</body>
+</html>

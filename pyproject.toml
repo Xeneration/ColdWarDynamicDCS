@@ -18,7 +18,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["pytest", "lupa"]
+dev = ["pytest", "lupa", "httpx"]
 
 [project.scripts]
 cwdc = "cwdc.cli:main"
@@ -27,7 +27,7 @@ cwdc = "cwdc.cli:main"
 include = ["cwdc*"]
 
 [tool.setuptools.package-data]
-cwdc = ["data/*.json", "data/*.yaml", "runtime/lua/*.lua"]
+cwdc = ["data/*.json", "data/*.yaml", "runtime/lua/*.lua", "web/static/*"]
 # (campaign saves live outside the repo, in Saved Games\DCS\CWDC\campaigns)
 
 [tool.pytest.ini_options]

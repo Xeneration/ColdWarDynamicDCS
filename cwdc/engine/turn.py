@@ -5,11 +5,12 @@ from datetime import timedelta
 
 from cwdc.engine import (airbases, apply, crews, factory, ground, logistics, outcome, planner,
                          resolver)
-from cwdc.model import (Airframe, AirframeStatus, Campaign, CrewRole, FlightStatus, Pilot,
+from cwdc.model import (Airframe, AirframeStatus, Campaign, CrewRole, Debrief, FlightStatus, Pilot,
                         PilotStatus, SortieResult)
 from cwdc.engine import rng
 
 REPLACEMENT_EVERY_TURNS = 4      # once a day
+DEBRIEF_HISTORY = 60             # turns of debriefs kept in the campaign
 REPLACEMENT_AIRFRAMES = 2
 REPLACEMENT_PILOTS = 2
 
@@ -50,6 +51,8 @@ def end_turn(c: Campaign, dcs_results: list[SortieResult] | None = None,
                        f"You continue as {new.rank} {new.name} (new crew). **")
 
     c.pending_mission = None
+    c.debriefs = (c.debriefs + [Debrief(turn=c.turn, time=c.time, lines=debrief,
+                                        flown_in_dcs=dcs_results is not None)])[-DEBRIEF_HISTORY:]
     crews.rest(c, night=planner.period(c) == "night",
                exclude={pid for f in c.flights.values() for pid in crews.crew_of(f)})
     c.add_news(f"Turn {c.turn}: " + "; ".join(l for l in debrief if l.startswith("[")))

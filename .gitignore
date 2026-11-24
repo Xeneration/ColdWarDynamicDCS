@@ -13,3 +13,4 @@ campaigns/
 
 # local tooling
 .claude/settings.local.json
+.claude/launch.json

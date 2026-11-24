@@ -16,12 +16,13 @@ def _ll(pos) -> str:
 
 def _load(args) -> Campaign:
     """Load the campaign and pick up objectives added to the theater data since."""
-    from cwdc.engine.factory import sync_theater
-    c = store.load(args.campaign)
-    added = sync_theater(c)
+    from cwdc import actions
+    try:
+        c, added = actions.load(args.campaign)
+    except actions.ActionError as e:
+        raise SystemExit(str(e))
     if added:
         print(f"(theater update: added {', '.join(added)})")
-        store.save(c)
     return c
 
 
@@ -40,16 +41,12 @@ def _next(c: Campaign, hint: str = "") -> None:
 
 
 def cmd_new(args) -> None:
-    from cwdc.engine.factory import new_campaign, slug
-    if (store.campaign_dir(slug(args.name)) / "campaign.json").exists() and not args.force:
-        raise SystemExit(f"campaign '{slug(args.name)}' exists - use --force to overwrite")
-    c = new_campaign(args.name, seed=args.seed, player_name=args.pilot)
-    old = store.campaign_dir(c.id)
-    if old.exists():               # --force: drop the old campaign's turn snapshots too
-        import shutil
-        shutil.rmtree(old)
-    path = store.save(c, snapshot=True)
-    print(f"New campaign '{c.name}' ({c.id}) created: {path}")
+    from cwdc import actions
+    try:
+        c = actions.create(args.name, seed=args.seed, pilot=args.pilot, force=args.force)
+    except actions.ActionError as e:
+        raise SystemExit(str(e).replace("choose overwrite to replace it", "use --force to overwrite"))
+    print(f"New campaign '{c.name}' ({c.id}) created: {store.campaign_dir(c.id) / 'campaign.json'}")
     print(f"You are {c.player_pilot().rank} {c.player_name}, "
           f"{c.squadrons[c.player_pilot().squadron_id].name}.")
     print(c.news[-1].text)
@@ -135,32 +132,18 @@ def cmd_ato(args) -> None:
 
 
 def cmd_fly(args) -> None:
-    from cwdc.engine import planner
-    from cwdc.missiongen import builder
+    from cwdc import actions
     c = _load(args)
     if _war_over(c):
         return
-    fid = args.flight.upper()
-    if fid not in c.flights:
-        raise SystemExit(f"no flight {fid} this turn - see `cwdc ato`")
-    if c.pending_mission and c.pending_mission.player_flight_id != fid:
-        print(f"(replacing pending mission {c.pending_mission.mission_id})")
-    if args.bot:
-        for other in c.flights:                 # the player sits this one out
-            planner.release_player(c, other)
-    else:
-        try:
-            planner.assign_player(c, fid)
-        except ValueError as e:
-            raise SystemExit(str(e))
-    if not dcs_paths.hook_is_current():
-        print(f"hook installed/updated: {dcs_paths.install_hook()}")
-    previous = c.pending_mission
-    rec = builder.build(c, fid, dcs_paths.missions_dir(), start=args.start, bot=args.bot)
-    if previous and previous.miz_path != rec.miz_path:
-        Path(previous.miz_path).unlink(missing_ok=True)     # superseded, never flown
-    c.pending_mission = rec
-    store.save(c)
+    try:
+        flown = actions.fly(c, args.flight, start=args.start, bot=args.bot)
+    except actions.ActionError as e:
+        raise SystemExit(str(e) + (" - see `cwdc ato`" if str(e).startswith("no flight") else ""))
+    for note in flown.notes:
+        print(f"({note})")
+    rec = flown.record
+    fid = rec.player_flight_id
     f = c.flights[fid]
     print(f"Mission written: {rec.miz_path}")
     if args.bot:
@@ -183,53 +166,35 @@ def cmd_fly(args) -> None:
 
 
 def _load_result(c: Campaign, from_log: bool) -> dict:
-    from cwdc.ingest import results
-    rec = c.pending_mission
-    path = dcs_paths.results_dir() / f"{rec.mission_id}.json"
-    data = None
-    if not from_log and path.is_file():
-        data = results.load_result_file(path)
-        if data.get("run_started", 0) < rec.generated_at - 60:
-            print(f"ignoring {path.name}: it predates the generated mission")
-            data = None
-    if data is None:
-        log = dcs_paths.saved_games_dcs() / "Logs" / "dcs.log"
-        if log.is_file():
-            data = results.from_dcs_log(log, rec.mission_id)
-            if data:
-                print(f"(result rebuilt from {log})")
-    if data is None:
-        raise SystemExit(f"no results for {rec.mission_id} yet. Fly the mission, or "
-                         "`cwdc skip` to let it play out without you.")
-    if not data.get("final") and not data.get("ended"):
-        print("WARNING: the result is not final (DCS still running or crashed?) - using what was captured")
+    from cwdc import actions
+    try:
+        data, notes = actions.load_result(c, from_log)
+    except actions.ActionError as e:
+        raise SystemExit(str(e).replace("skip the turn", "`cwdc skip`"))
+    for note in notes:
+        print(note if note.startswith("WARNING") else f"({note})")
     return data
 
 
 def cmd_ingest(args) -> None:
-    from cwdc.engine import turn
-    from cwdc.ingest.flown import results_from_dcs
+    from cwdc import actions
     c = _load(args)
     if not c.pending_mission:
         raise SystemExit("no pending mission - `cwdc fly <ID>` first")
-    data = _load_result(c, args.from_log)
-    dcs_results, destroyed = results_from_dcs(c, c.pending_mission, data)
-    lines = turn.end_turn(c, dcs_results, destroyed)
-    store.save(c, snapshot=True)
+    _load_result(c, args.from_log)               # report problems / notes before applying
+    lines, _ = actions.ingest(c, args.from_log)
     print("\n".join(lines))
     _next(c, " `cwdc ato` for new tasking.")
 
 
 def cmd_skip(args) -> None:
-    from cwdc.engine import planner, turn
+    from cwdc import actions
     c = _load(args)
     if _war_over(c):
         return
-    if c.pending_mission:
-        planner.release_player(c, c.pending_mission.player_flight_id)
-        print(f"(discarding pending mission {c.pending_mission.mission_id})")
-    lines = turn.end_turn(c)
-    store.save(c, snapshot=True)
+    lines, notes = actions.skip(c)
+    for note in notes:
+        print(f"({note})")
     print("\n".join(lines))
     _next(c)
 
@@ -305,8 +270,12 @@ def cmd_roster(args) -> None:
 
 
 def cmd_rollback(args) -> None:
+    from cwdc import actions
     c = _load(args)
-    c = store.rollback(c.id, args.turn)
+    try:
+        c = actions.rollback(c.id, args.turn)
+    except actions.ActionError as e:
+        raise SystemExit(str(e))
     print(f"Rolled back to the start of turn {c.turn} ({c.time:%d %b %H:%M}).")
 
 

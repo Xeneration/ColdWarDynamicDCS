@@ -10,7 +10,21 @@ results back after you fly, so the war moves on.
 > Status: **Phase 1**, a playable command-line campaign loop. See [docs/design.md](docs/design.md)
 > for the full design and roadmap.
 
-## Playing (Phase 1)
+## Playing in the browser (Phase 3)
+```powershell
+.\.venv\Scripts\python.exe -m cwdc serve        # opens http://127.0.0.1:8076 in your browser
+```
+- **Map:** shows the front line and the pre-war border, each sector's position and who is attacking, airbases (an amber ring means damaged), objectives, SAM coverage and the day's flights. The layer menu adds Warsaw Pact flights (intel), the supply network and CAP stations.
+- **ATO:** amber rows are flights you can fly. Pick a start (runway/ramp/air) and press **Fly**, or **Bot** for an AI-only test mission. Click a row to see its route on the map.
+- **Mission:** shows the briefing and whether DCS has produced a result yet. With **Auto-ingest** on (the default), the turn closes by itself when you leave the mission in DCS. Otherwise press **Ingest now**, or **Ingest from dcs.log** if the hook missed it.
+- **War:** shows the war situation (or the final summary), the ground war by sector and formation, air forces, airfields and supply.
+- **Squadron:** shows your pilots and WSOs with their fatigue, and your aircraft.
+- **Debrief:** shows every closed turn, plus **Roll back** to the start of an earlier turn.
+- **News**, **New campaign** and **Skip turn** do what they say.
+
+The server only listens on this PC (`--host` changes that) and reads the campaign from disk on every request, so the CLI below keeps working alongside it. `--no-auto-ingest` and `--no-browser` are available. The map tiles come from OpenStreetMap, so the background needs an internet connection; everything else is local.
+
+## Playing from the command line (Phase 1)
 ```powershell
 .\.venv\Scripts\python.exe -m cwdc new --pilot "Your Name"   # start a campaign
 .\.venv\Scripts\python.exe -m cwdc ato                       # this turn's tasking; * = you can fly it
