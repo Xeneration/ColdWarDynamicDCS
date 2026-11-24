@@ -27,8 +27,8 @@ function flightCard(f, over, selected) {
   const fly = f.eligible && !over ? `
     <div class="fly-box">
       <div class="start-opts">${Object.entries(START).map(([k, [name, help]], i) => `
-        <label><input type="radio" name="start-${f.id}" value="${k}" ${i === 0 ? "checked" : ""}>
-          <b>${name}</b> <span class="muted">${help}</span></label>`).join("")}</div>
+        <label><input type="radio" name="start-${f.id}" value="${k}" ${k === (f.suggested_start || "runway") ? "checked" : ""}>
+          <b>${name}</b> <span class="muted">${help}${k === "air" && f.suggested_start === "air" ? " (suggested: long transit)" : ""}</span></label>`).join("")}</div>
       <div class="row">
         <button class="ghost" data-preview="${f.id}">Preview</button>
         <button data-fly="${f.id}">${f.assigned ? "Regenerate mission" : "Fly this mission"}</button>

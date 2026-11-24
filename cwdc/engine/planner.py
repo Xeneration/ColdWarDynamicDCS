@@ -54,7 +54,8 @@ CAN_FLY = {
 DOCTRINE = {
     # NATO: one barrier CAP (the Hawk belt does the rest), escorts and SEAD for packages
     Side.BLUE: {"cap_stations": 1, "cas": 1.0, "bai": 1.0, "interdiction": 1.0, "strike": 1.0, "oca": 0.8,
-                "escort": True, "sead_support": True},
+                "escort": True, "sead_support": True,
+                "oca_per_day": 1},          # a counter-air package a day when the air war calls for it
     # Warsaw Pact: GCI-directed fighters on CAP, mass on the battlefield, few escorts,
     # and a doctrine of hitting NATO airfields to win the air battle on the ground
     Side.RED: {"cap_stations": 2, "cas": 1.2, "bai": 1.0, "interdiction": 0.8, "strike": 0.8, "oca": 1.0,
@@ -238,17 +239,32 @@ def plan_turn(c: Campaign) -> None:
         side_needs = needs(c, side)
         if opening:                                   # open the war on NATO's airfields
             side_needs.sort(key=lambda n: n.label != "OCA")
+        forced_oca = None
+        if doc.get("oca_per_day") and oca_due(c, side):
+            oca = [n for n in side_needs if n.label == "OCA"]
+            if oca:                                   # doctrine: this one is flown, not out-scored
+                forced_oca = oca[0].target.id
+                side_needs.remove(oca[0])
+                side_needs.insert(0, oca[0])
         wx = weather.strike_factor(c.weather)
         for need in side_needs:
             if need.target.id in taken:
                 continue
             sq, task = pool.pick(CAN_FLY[need.task], near=need.target.pos)
+            if need.target.id == forced_oca:          # the player's squadron takes its turn on OCA
+                own = [s.id for s in c.squadrons.values() if s.side is side and not s.player_squadron]
+                psq, ptask = pool.pick(CAN_FLY[need.task], near=need.target.pos, exclude=set(own))
+                if psq is not None:
+                    sq, task = psq, ptask
             if sq is None:
                 continue
             if wx < 1.0 and r.random() > wx:
                 pool.left[sq.id] -= 1                 # weather scrub: that sortie stays on the ground
                 continue
             taken.add(need.target.id)
+            if need.target.id == forced_oca:
+                key = f"oca:{side.value}:{c.time:%Y%m%d}"
+                c.counters[key] = c.counters.get(key, 0) + 1
             pkg = _package(c, side, task, f"{need.label or task.value} - {need.target.name}",
                            target=need.target)
             pkg.reason = need.reason
@@ -262,12 +278,39 @@ def plan_turn(c: Campaign) -> None:
                         taken.add(sam.id)
                         _flight(c, pool, ssq, Task.SEAD, pkg, target=sam, supports=main.id)
             if (doc["escort"] or need.target.value >= 4) and _enemy_fighters_near(c, need.target.pos, side.enemy):
-                esq, _ = pool.pick([Task.ESCORT, Task.CAP], near=need.target.pos)
+                # a forced OCA flown by the player's squadron is escorted by someone else, so the
+                # squadron keeps a sortie for the battlefield
+                spare = {sq.id} if need.target.id == forced_oca and sq.player_squadron else set()
+                esq, _ = pool.pick([Task.ESCORT, Task.CAP], near=need.target.pos, exclude=spare)
                 if esq:
                     _flight(c, pool, esq, Task.ESCORT, pkg, area=need.target.pos, supports=main.id)
             _describe(c, pkg)
     if not c.at_war:
         _crisis_ops(c, pools, r)
+
+
+OCA_OPENING_TURNS = 8        # the first two days of the war: hit back at their airfields
+OCA_RAID_MEMORY = 4          # turns: one of our airfields was raided this recently
+
+
+def oca_justified(c: Campaign, side: Side) -> bool:
+    """Doctrine trigger for a counter-air package: the war's opening days, a recent raid on one
+    of our airfields, or the air balance slipping."""
+    from cwdc.engine import outcome
+    if c.war_turn and c.war_turn <= OCA_OPENING_TURNS:
+        return True
+    if any(ab.side is side and ab.hit_turn >= 0 and ab.hit_turn >= c.turn - OCA_RAID_MEMORY
+           for ab in c.airbases.values()):
+        return True
+    return outcome.air_strength(c, side) < outcome.air_strength(c, side.enemy)
+
+
+def oca_due(c: Campaign, side: Side) -> bool:
+    doc = DOCTRINE[side]
+    if not c.at_war or period(c) == "night":
+        return False
+    done = c.counters.get(f"oca:{side.value}:{c.time:%Y%m%d}", 0)
+    return done < doc.get("oca_per_day", 0) and oca_justified(c, side)
 
 
 PROBES = {"dawn": (1, 2), "day": (1, 3), "dusk": (0, 1), "night": (0, 1)}   # per turn, by period

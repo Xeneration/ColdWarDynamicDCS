@@ -24,8 +24,9 @@ ATTACK = {Task.STRIKE, Task.BAI, Task.CAS, Task.INTERDICTION}
 def _flight(c, task):
     """A player-eligible flight; Task.STRIKE means 'any ground-attack flight'."""
     if task is Task.STRIKE:
-        return next(f for f in c.flights.values()
-                    if f.player_eligible and f.task in ATTACK and f.target_id)
+        return next(f for f in c.flights.values()          # a battlefield target, not an airfield
+                    if f.player_eligible and f.task in ATTACK and f.target_id
+                    and c.objectives[f.target_id].kind.value != "airbase")
     return next(f for f in c.flights.values() if f.player_eligible and f.task is task)
 
 
@@ -67,7 +68,7 @@ def test_build_mission(camp, task, tmp_path):
     assert player.units[0].skill == dcs.unit.Skill.Player
     assert player.units[0].type == "F-4E-45MC"
     names = {u.name for coal in m.coalition.values() for co in coal.countries.values()
-             for g in co.plane_group + co.vehicle_group for u in g.units}
+             for g in co.plane_group + co.vehicle_group + co.static_group for u in g.units}
     assert set(rec.manifest) <= names
     for coal in m.coalition.values():
         for co in coal.countries.values():

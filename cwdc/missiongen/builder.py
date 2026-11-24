@@ -753,8 +753,15 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
     if player.target_id:
         tgt = c.objectives[player.target_id]
         lat, lon = T.pos_to_latlon(tgt.pos)
-        lines.append(f"Target: {tgt.name} at {lat:.3f}N {lon:.3f}E "
-                     f"({len(tgt.alive_units)} vehicles reported)")
+        if tgt.kind is ObjectiveKind.AIRBASE:
+            from collections import Counter
+            kinds = Counter(u.type for u in tgt.units if u.alive)
+            lines.append(f"Target: {tgt.name} at {lat:.3f}N {lon:.3f}E - airfield attack (OCA). "
+                         "Reported: " + ", ".join(f"{n}x {t}" for t, n in kinds.items())
+                         + ". Low-level run-in; hit the parked aircraft, not the runway.")
+        else:
+            lines.append(f"Target: {tgt.name} at {lat:.3f}N {lon:.3f}E "
+                         f"({len(tgt.alive_units)} vehicles reported)")
     threats = [o for o in plan.objectives if o.side is player.side.enemy and o.kind.value == "sam"]
     if threats:
         lines.append("Known SAM threats: " + ", ".join(o.name for o in threats))

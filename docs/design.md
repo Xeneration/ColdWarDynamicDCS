@@ -690,6 +690,19 @@ What's deliberately left for later phases: the web UI (Phase 3), the crisis phas
 - **`news.daily`:** one wider-world item at each dawn. The crisis and the war each have their own pool (diplomacy, the home front, REFORGER…).
 - **Web News tab:** grouped by turn, each line with a coloured category badge; hovering the badge shows the source.
 
+**Progress (2026-11-24): Phase 4 step 8 done: NATO airfield raids (OCA)**
+- **Doctrine:** NATO `oca_per_day: 1`.
+  - `oca_due` holds on day turns when today's OCA package hasn't been flown and `oca_justified` holds.
+  - "Justified" means the war's first 8 turns, one of our airfields raided in the last 4 turns, or NATO's air strength below the Warsaw Pact's.
+  - When OCA is due, the best OCA need goes to the front of the list, so it is no longer out-scored.
+- **Squadrons:**
+  - The player's squadron flies it when it can, so the player is offered airfield strikes.
+  - Its escort then comes from another squadron, so the player's squadron keeps a sortie for the battlefield.
+- **Briefing:** "airfield attack (OCA)" with the parked aircraft and AAA by type. The advice is a low-level run-in, hitting the parked aircraft rather than the runway.
+- **ATO:** suggests an air start (`suggested_start`) for OCA and for transits over 120 nm.
+- **Still to check:** that destroyed static parked aircraft are detected. Soak missions now include OCA.
+- **No extra NATO squadrons yet.** That decision waits for the Step 10 balance numbers.
+
 **Phase 5: Polish**
 - Balance passes, campaign presets (start date 1974–79, other squadrons), packaging into a one-click launcher, multiplayer client slots.
 - **Immersion lockdown, once all phases are finished** (requested 2026-11-23; kept on for now to help testing):

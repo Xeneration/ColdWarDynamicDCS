@@ -113,6 +113,9 @@ def _distance(c: Campaign, f: Flight) -> tuple[float, float]:
     return km / 1.852, km / kmh * 60
 
 
+LONG_TRANSIT_NM = 120          # beyond this the ATO suggests an air start
+
+
 def flight_route(c: Campaign, f: Flight) -> dict:
     nm, minutes = _distance(c, f)
     base = c.airbases[c.squadrons[f.squadron_id].base_id]
@@ -166,6 +169,8 @@ def ato(c: Campaign) -> dict:
             "eligible": f.player_eligible, "assigned": f.status is FlightStatus.ASSIGNED_PLAYER,
             "supports": f.supports, "supports_callsign": c.flights[f.supports].callsign if f.supports else None,
             "aircraft": len(f.airframe_ids), "distance_nm": r["distance_nm"], "eta_min": r["eta_min"],
+            "suggested_start": "air" if (tgt is not None and tgt.kind.value == "airbase")
+                               or r["distance_nm"] > LONG_TRANSIT_NM else "runway",
             "threats": threats(c, f),
             "crews": [[_person(c, p)["name"] for p in seat]
                       for seat in ([f.pilot_ids[i]] + ([f.wso_ids[i]] if i < len(f.wso_ids) else [])
