@@ -71,6 +71,15 @@ def cmd_start(args) -> None:
         print(note)
 
 
+def cmd_stop(args) -> None:
+    from cwdc import launcher
+    notes = launcher.stop()
+    for note in notes:
+        print(note)
+    if args.popup:
+        launcher.popup("ColdWarDynamic", notes)
+
+
 def cmd_shortcuts(args) -> None:
     from cwdc import launcher
     for lnk in launcher.make_shortcuts():
@@ -107,6 +116,9 @@ def main(argv=None) -> None:
     p = sub.add_parser("start", help="one-click start: web UI in the background + browser (and DCS)")
     p.add_argument("--dcs", action="store_true", help="also start DCS World if it isn't running")
     p.set_defaults(func=cmd_start)
+    p = sub.add_parser("stop", help="stop the web UI started by `cwdc start` (DCS is left running)")
+    p.add_argument("--popup", action="store_true", help="show the result in a message box")
+    p.set_defaults(func=cmd_stop)
     p = sub.add_parser("shortcuts", help="create the desktop shortcuts for the one-click start")
     p.set_defaults(func=cmd_shortcuts)
     from cwdc import cli_campaign

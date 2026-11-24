@@ -1,4 +1,4 @@
-"""One-click start (`cwdc start`, used by the desktop shortcuts).
+"""One-click start and stop (`cwdc start` / `cwdc stop`, used by the desktop shortcuts).
 
 Starts the web UI in the background if it isn't already running, opens it in the browser and,
 with dcs=True, also starts DCS World unless a (non-server) DCS is already running. The server
@@ -84,10 +84,42 @@ def start(dcs: bool = False) -> list[str]:
     return notes
 
 
+def server_pids() -> list[int]:
+    """Processes running the web UI (`-m cwdc serve`), however they were started."""
+    out = subprocess.run(["powershell", "-NoProfile", "-Command",
+                          "Get-CimInstance Win32_Process -Filter \"Name like 'python%'\" | "
+                          "Where-Object { $_.CommandLine -match '-m\\s+cwdc\\s+serve' } | "
+                          "ForEach-Object { $_.ProcessId }"],
+                         capture_output=True, text=True, timeout=30).stdout
+    return [int(x) for x in out.split() if x.strip().isdigit()]
+
+
+def stop() -> list[str]:
+    """Stop the web UI. Campaign saves are atomic, so nothing is lost; DCS is left alone."""
+    pids = server_pids()
+    if not pids and not server_up():
+        return ["web UI was not running"]
+    for pid in pids:
+        subprocess.run(["taskkill", "/PID", str(pid), "/F"], capture_output=True, timeout=30)
+    for _ in range(20):
+        if not server_up():
+            return ["web UI stopped"]
+        time.sleep(0.5)
+    return [f"web UI is still answering on port {PORT} - was it started some other way?"]
+
+
+def popup(title: str, lines: list[str]) -> None:
+    """A message box, for the shortcuts (pythonw has no console). No-op off Windows."""
+    if sys.platform == "win32":
+        import ctypes
+        ctypes.windll.user32.MessageBoxW(None, "\n".join(lines), title, 0x40)   # MB_ICONINFORMATION
+
+
 SHORTCUTS = [
     # name, arguments after the venv python, use a console window, icon
     ("ColdWarDynamic", "-m cwdc start", False, None),
     ("ColdWarDynamic + DCS", "-m cwdc start --dcs", False, "dcs"),
+    ("Stop ColdWarDynamic", "-m cwdc stop --popup", False, "stop"),
     ("ColdWarDynamic overnight soak", "-m cwdc soak --hours 8 --instances 2", True, None),
 ]
 
@@ -107,7 +139,12 @@ def make_shortcuts(folder: Path | None = None) -> list[Path]:
     for name, args, console, icon in SHORTCUTS:
         lnk = folder / f"{name}.lnk"
         target = scripts / "python.exe" if console else pyw
-        icon_loc = f"{dcs_exe()},0" if icon == "dcs" and dcs_exe().is_file() else "%SystemRoot%\\System32\\shell32.dll,13"
+        if icon == "dcs" and dcs_exe().is_file():
+            icon_loc = f"{dcs_exe()},0"
+        elif icon == "stop":
+            icon_loc = "%SystemRoot%\\System32\\shell32.dll,27"     # the shut-down icon
+        else:
+            icon_loc = "%SystemRoot%\\System32\\shell32.dll,13"
         ps = (f"$s = (New-Object -ComObject WScript.Shell).CreateShortcut('{lnk}'); "
               f"$s.TargetPath = '{target}'; $s.Arguments = '{args}'; $s.WorkingDirectory = '{repo}'; "
               f"$s.IconLocation = '{icon_loc}'; $s.Description = 'ColdWarDynamicDCS: {name}'; $s.Save()")
