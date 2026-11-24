@@ -67,7 +67,9 @@ def overview(c: Campaign) -> dict:
         "phase": c.phase, "tension": round(c.tension), "roe": "weapons free" if c.at_war else "weapons tight",
         "weather": {"kind": c.weather.kind, "text": _weather_text(c)},
         "player": _person(c, me.id) | {"squadron": c.squadrons[me.squadron_id].name,
-                                       "base": base_name(c, c.airbases[c.squadrons[me.squadron_id].base_id])},
+                                       "base": base_name(c, c.airbases[c.squadrons[me.squadron_id].base_id]),
+                                       "aircraft": aircraft_name(c.squadrons[me.squadron_id]),
+                                       "wing": [aircraft_name(s) for s in c.squadrons.values() if s.player_wing]},
         "pending": pending,
         "outcome": ({"title": c.outcome.title, "reason": c.outcome.reason,
                      "winner": c.outcome.winner.value if c.outcome.winner else None,
@@ -149,6 +151,14 @@ def threats(c: Campaign, f: Flight) -> dict:
     level = min(3, len(sams) + (1 if aaa else 0) + len(fighters))
     return {"sams": [o.name for o in sams], "aaa": aaa, "fighters": len(fighters),
             "level": ["low", "moderate", "high", "very high"][level]}
+
+
+def aircraft_name(sq) -> str:
+    """'F-100D Super Sabre' (era name) for a squadron's aircraft; the DCS type for hand-written OOBs."""
+    from cwdc import era
+    if sq.airframe and sq.airframe in era.airframes():
+        return era.airframes()[sq.airframe].name
+    return {"F-4E-45MC": "F-4E Phantom II"}.get(sq.aircraft_type, sq.aircraft_type)
 
 
 def _loadout_text(c: Campaign, f: Flight) -> str:

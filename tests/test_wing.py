@@ -60,8 +60,13 @@ def test_unmixed_wing_keeps_to_the_players_nation_and_land_bases():
         af = era.airframes()[s.airframe]
         assert s.country == "USA" and not af.carrier
     mixed = new_campaign("Wing", seed=4, setup=_setup(1976))
-    assert any(era.airframes()[s.airframe].carrier for s in _wing(mixed))
-    assert any(s.name.startswith("VF-") for s in _wing(mixed))       # US Navy squadrons named as such
+    assert any(s.country != "USA" for s in _wing(mixed))              # e.g. a French F-100D squadron
+    assert not any(era.airframes()[s.airframe].carrier for s in _wing(mixed))   # land-based first
+    navy = new_campaign("Navy", seed=4, setup=_setup(1976, player_airframe="F-14A"))
+    home = next(s for s in navy.squadrons.values() if s.player_squadron)
+    assert home.name.startswith("VF-")                                # US Navy squadrons named as such
+    pv = new_campaign("PV", seed=4, setup=_setup(1975, sweden=True, player_airframe="F-4E"))
+    assert "AJS37" in {s.aircraft_type for s in _wing(pv)}            # Phantoms and Viggens
 
 
 def test_preset_offers_only_the_home_squadron():

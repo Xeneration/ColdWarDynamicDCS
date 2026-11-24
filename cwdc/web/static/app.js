@@ -2,6 +2,7 @@
 import { $, api, esc, fmtLocal, fmtZ, guarded, PERIOD_ICON, toast } from "./api.js";
 import { abbr } from "./glossary.js";
 import { showGuide, showHelp } from "./guide.js";
+import { openMaker } from "./maker.js";
 import { CampaignMap } from "./map.js";
 import { renderATO } from "./panels/ato.js";
 import { renderDebrief } from "./panels/debrief.js";
@@ -146,7 +147,7 @@ async function loadCampaigns(select) {
   if (state.cid) sel.value = state.cid;
   if (!r.campaigns.length) {
     $("#next").innerHTML = `<div class="next-body"><b>No campaign yet</b><div>Press <b>New campaign</b> to start the war.</div></div>`;
-    $("#dlg-new").showModal();
+    openMaker(created);
   }
 }
 
@@ -178,22 +179,13 @@ $("#btn-skip").onclick = (e) => {
 };
 $("#btn-help").onclick = showHelp;
 $("#btn-guide-again").onclick = () => { $("#dlg-help").close(); showGuide(true, state.o); };
-$("#btn-new").onclick = () => { $("#new-err").textContent = ""; $("#dlg-new").showModal(); };
-$("#new-go").onclick = (e) => {
-  e.preventDefault();
-  const f = new FormData($("#form-new"));
-  guarded(e.target, async () => {
-    try {
-      const r = await api("/api/campaigns", { method: "POST", body: {
-        name: f.get("name"), pilot: f.get("pilot"), seed: +f.get("seed") || 1976, force: f.get("force") === "on" } });
-      $("#dlg-new").close();
-      await loadCampaigns(r.id);
-      state.version = null;
-      await refresh(true);
-      showTab("ato");
-    } catch (err) { $("#new-err").textContent = err.message; }
-  });
-};
+async function created(id) {
+  await loadCampaigns(id);
+  state.version = null;
+  await refresh(true);
+  showTab("ato");
+}
+$("#btn-new").onclick = () => openMaker(created).catch((e) => toast(`<b>Error:</b> ${esc(e.message)}`, 9000));
 
 (async function start() {
   try {

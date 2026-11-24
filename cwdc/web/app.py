@@ -15,7 +15,7 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import FileResponse
+from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
@@ -23,6 +23,17 @@ from cwdc import actions
 from cwdc.web import views
 
 STATIC = Path(__file__).parent / "static"
+
+
+def static_build() -> str:
+    """A short hash of the static files' names, sizes and times (changes with every edit)."""
+    import hashlib
+    h = hashlib.sha1()
+    for f in sorted(STATIC.rglob("*")):
+        if f.is_file():
+            st = f.stat()
+            h.update(f"{f.relative_to(STATIC)}:{st.st_size}:{st.st_mtime_ns}".encode())
+    return h.hexdigest()[:10]
 POLL_SECONDS = 5.0
 
 
@@ -31,6 +42,9 @@ class NewCampaign(BaseModel):
     seed: int = 1976
     pilot: str = "Player"
     force: bool = False
+    crisis: bool = True
+    preset: str | None = None            # campaign-maker preset id (fulda-1976 = the original)
+    era: dict | None = None              # campaign-maker setup: theatre, year, nations, ...
 
 
 class FlyRequest(BaseModel):
@@ -99,8 +113,16 @@ def _watcher(state: _State) -> None:
             state.event("error", "", f"watcher: {e}")
 
 
-def create_app(auto_ingest: bool = True, watcher: bool = True) -> FastAPI:
+def create_app(auto_ingest: bool = True, watcher: bool = True, installed=None) -> FastAPI:
+    """installed: era.modules.Installed (what modules this machine has); detected on first use."""
     state = _State(auto_ingest)
+    state.installed = installed
+
+    def inst():
+        if state.installed is None:
+            from cwdc.era import modules
+            state.installed = modules.detect()
+        return state.installed
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
@@ -176,9 +198,30 @@ def create_app(auto_ingest: bool = True, watcher: bool = True) -> FastAPI:
         return {"events": [e for e in state.events if e["id"] > after], "auto_ingest": state.auto_ingest}
 
     # ------------------------------------------------------------------ actions
+    @app.get("/api/maker")
+    def maker_info(theatre: str = "germany"):
+        from cwdc.web import maker
+        return maker.info(inst(), theatre)
+
+    @app.post("/api/maker/preview")
+    def maker_preview(req: dict):
+        from cwdc.web import maker
+        return maker.preview(inst(), req)
+
     @app.post("/api/campaigns")
     def new(req: NewCampaign):
-        c = act(actions.create, req.name, seed=req.seed, pilot=req.pilot, force=req.force)
+        from cwdc.engine import generate
+        setup = None
+        try:
+            if req.preset:
+                setup = generate.preset_setup(req.preset, inst())
+            elif req.era:
+                from cwdc.web import maker
+                setup = maker.setup(inst(), req.era)
+        except generate.SetupError as e:
+            raise HTTPException(400, str(e))
+        c = act(actions.create, req.name, seed=req.seed, pilot=req.pilot, force=req.force,
+                crisis=req.crisis, setup=setup)
         return {"id": c.id}
 
     @app.post("/api/campaigns/{cid}/fly")
@@ -228,11 +271,25 @@ def create_app(auto_ingest: bool = True, watcher: bool = True) -> FastAPI:
         return {"auto_ingest": state.auto_ingest}
 
     # ------------------------------------------------------------------ front end
+    @app.middleware("http")
+    async def revalidate_static(request: Request, call_next):
+        # the browser caches ES modules hard; after an update it must ask again (ETag keeps it cheap)
+        response = await call_next(request)
+        if request.url.path.startswith("/static/") or request.url.path == "/":
+            response.headers["Cache-Control"] = "no-cache"
+        return response
+
     app.mount("/static", StaticFiles(directory=STATIC), name="static")
+
+    build = static_build()
+    app.mount(f"/v/{build}", StaticFiles(directory=STATIC), name="static-versioned")
 
     @app.get("/")
     def index():
-        return FileResponse(STATIC / "index.html")
+        # scripts and styles load from /v/<build>/, a path that changes whenever a static file
+        # changes: the browser can never mix a new page with old cached modules
+        html = (STATIC / "index.html").read_text(encoding="utf-8").replace('"/static/', f'"/v/{build}/')
+        return HTMLResponse(html, headers={"Cache-Control": "no-cache"})
 
     return app
 

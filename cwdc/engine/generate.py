@@ -152,14 +152,16 @@ def player_choice(setup: Setup) -> tuple[era.InService, str]:
 
 def wing_choice(setup: Setup, pick: era.InService, ptype: str) -> list[tuple[era.InService, str]]:
     """Up to WING_EXTRA more squadrons for the player's wing, each flying another owned type in
-    service with the side that year: the player's nation first, land-based and real types first."""
+    service with the side that year: land-based and real types first, the newest of them first (the
+    year's signature aircraft), then the player's nation."""
     inst = setup.installed()
     cands = [s for s in era.airframes_in(setup.year, setup.active_nations(), side=setup.side,
                                          strict=setup.strict, installed=inst)
              if s.airframe.role in FIGHTER_ROLES + STRIKE_ROLES and era.player_types(s.airframe, inst)]
     if not setup.mixed_wing:
         cands = [s for s in cands if s.nation == pick.nation and not s.airframe.carrier]
-    cands.sort(key=lambda s: (s.nation != pick.nation, s.airframe.carrier, s.airframe.stand_in,
+    cands.sort(key=lambda s: (s.airframe.carrier, s.airframe.stand_in, -s.airframe.years[0],
+                              s.nation != pick.nation,
                               _group(s.airframe) == _group(pick.airframe), -NATION_WEIGHT.get(s.nation, 1),
                               s.airframe.id))
     out, types = [], {ptype}

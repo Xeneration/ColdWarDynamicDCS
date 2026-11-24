@@ -44,19 +44,53 @@
   </aside>
 </main>
 
-<dialog id="dlg-new">
-  <form method="dialog" id="form-new">
-    <h2>New campaign</h2>
-    <p class="muted">August 1976: the Warsaw Pact attacks West Germany. You fly F-4E Phantoms for NATO.</p>
-    <label>Campaign name <input name="name" value="Fulda Gap 1976" required></label>
-    <label>Your pilot's name <input name="pilot" value="Player"></label>
-    <label>Seed <span class="muted">(a number: the same seed gives the same war)</span><input name="seed" type="number" value="1976"></label>
-    <label class="check"><input name="force" type="checkbox"> Overwrite a campaign with the same name</label>
-    <p class="err" id="new-err"></p>
-    <menu>
-      <button value="cancel" class="ghost" formnovalidate>Cancel</button>
-      <button id="new-go" value="ok">Create</button>
-    </menu>
+<dialog id="dlg-maker" class="maker">
+  <form method="dialog" id="form-maker">
+    <div class="mk-head">
+      <h2>New campaign</h2>
+      <div id="mk-theatres" class="mk-theatres"></div>
+      <div id="mk-presets" class="mk-presets"></div>
+    </div>
+    <div class="mk-body">
+      <section class="mk-left">
+        <div class="mk-yearbar">
+          <div class="mk-year-big" id="mk-year-big">1976</div>
+          <input type="range" id="mk-year" aria-label="Year of the war">
+          <select id="mk-filter" title="Which aircraft to show">
+            <option value="all">All aircraft</option><option value="now">In service this year</option>
+            <option value="mine">Aircraft I own</option>
+          </select>
+        </div>
+        <div class="mk-legend">
+          <span><i class="lg owned"></i>you own it</span><span><i class="lg ai"></i>AI only</span>
+          <span><i class="lg standin"></i>stand-in (another DCS type flies it)</span>
+          <span><i class="lg wtick"></i>weapon introduced</span>
+          <span class="muted">Drag across the chart to pick the year · click a name to see its weapons</span>
+        </div>
+        <div id="mk-chart" class="mk-chart"></div>
+      </section>
+      <section class="mk-right">
+        <label>Your aircraft <select id="mk-aircraft"></select></label>
+        <div class="mk-toggles">
+          <label class="check"><input type="checkbox" id="mk-sweden"> Sweden joins the West</label>
+          <label class="check"><input type="checkbox" id="mk-mixed" checked> Mixed wing (any NATO nation, carrier types from land)</label>
+          <label class="check"><input type="checkbox" id="mk-strict"> No stand-ins</label>
+        </div>
+        <div id="mk-preview" class="mk-preview"></div>
+        <div class="mk-form">
+          <label>Campaign name <input id="mk-name" value="Central Front 1976" required></label>
+          <label>Your pilot's name <input id="mk-pilot" value="Player"></label>
+          <label>Seed <span class="muted">(same seed, same war)</span><input id="mk-seed" type="number" value="1976"></label>
+          <label class="check"><input id="mk-crisis" type="checkbox" checked> Open with the pre-war crisis</label>
+          <label class="check"><input id="mk-force" type="checkbox"> Overwrite a campaign with the same name</label>
+        </div>
+        <p class="err" id="mk-err"></p>
+        <menu>
+          <button type="button" id="mk-cancel" class="ghost">Cancel</button>
+          <button id="mk-go" value="ok">Create campaign</button>
+        </menu>
+      </section>
+    </div>
   </form>
 </dialog>
 

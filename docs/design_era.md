@@ -204,3 +204,30 @@ Treat **every DCS module as available**: the user owns many more than are instal
 
   In 1985 the F-5E wing squadron takes a slot an F-15/F-16 would have had. Per-era tuning is Phase G.
 - **Open:** helicopter squadrons (UH-1H missions) come with Phase E. The resolver still rates aircraft only, not their loadouts.
+
+### Phase D: the campaign-maker screen (2026-11-24, done)
+
+- **New campaign** in the web UI opens the maker. It replaces the old Fulda-only dialog.
+  - **Top:** theatre buttons (Central Front; Southern Flank greyed until Phase F) and preset buttons. Fulda 1976 stays the original hand-built campaign.
+  - **Left: the year slider over the chart.** Every airframe of the theatre gets a bar for its service life, grouped West/East:
+    - Bold blue: you own it. Grey: AI only. Hatched: stand-in. Dashed: needs a mod you don't have.
+    - Amber ticks mark each weapon's introduction.
+    - Clicking a name expands that aircraft's weapon sub-bars, as in the sketch.
+    - Dragging anywhere on the chart, or the range input, moves the amber year line. Bars outside the year dim, and nations switched off fade.
+    - A filter shows all aircraft, those in service, or those you own.
+  - **Right: "what's in this war"**, a live preview at about 0.1 s per year:
+    - your aircraft (Automatic, or any owned type in service);
+    - your wing (★ home, ☆ also yours to fly) and what each can carry that year;
+    - both sides' squadrons (stand-ins marked);
+    - air defence and ground forces of the year, and the SAM sites on the map;
+    - notes (flak only before 1959, guns only before 1956, stand-ins);
+    - nation checkboxes and toggles (Sweden joins, mixed wing, no stand-ins);
+    - name, pilot, seed, crisis, overwrite. The name follows the year until you edit it.
+- **API:** `GET /api/maker` (bars, nations, presets, theatres, owned types) and `POST /api/maker/preview`. `POST /api/campaigns` takes `preset` or `era` (a Setup). `create_app(installed=...)` lets tests inject the module list; it is otherwise detected on first use.
+- **The guide and squadron text follow the campaign:** "It is August 1975 ... You fly the F-4E Phantom II ... Your wing also flies the F-5E Tiger II and AJS 37 Viggen". `overview.player` gains `aircraft` and `wing`.
+- **Wing order:** land-based, real types, then the newest airframes (the year's signature aircraft), then your nation.
+  - 1966: F-100D, F-5 and G.91 (flown by the A-4E-C).
+  - 1975 with Sweden: F-4E, F-5E and Viggen.
+  - 1985: F-4E, A-10A and F-5E.
+- **Stale browser modules fixed:** the page now loads its scripts and styles from `/v/<build>/`, a path keyed on a hash of the static files. A browser can no longer pair a new page with old cached modules (found while testing: it kept serving the old guide.js). `/` is sent `no-cache`.
+- **Checked in the browser** at 1440x900: the chart, dragging the year, expanding rows, presets, creating a 1975 war, and the guide text. No console errors.

@@ -22,8 +22,8 @@ export function renderSquadron(root, s) {
   const counts = s.airframes.reduce((a, x) => ((a[x.status] = (a[x.status] || 0) + 1), a), {});
   root.innerHTML = `<h2>${esc(s.name)} <span class="muted">${esc(s.type)} at ${esc(s.base)}</span></h2>
     <p class="intro">Every sortie tires a crew; a turn on the ground rests them (twice as fast at night). Exhausted
-      crews are grounded, so the squadron can only keep up about two sorties a day per crew. Phantoms fly with a
-      pilot and a ${abbr("WSO")}.</p>
+      crews are grounded, so the squadron can only keep up about two sorties a day per crew.${s.wsos.length
+      ? ` Two-seaters fly with a pilot and a ${abbr("WSO")}.` : ""}</p>
     <h3>Pilots</h3><div class="crew-grid">${s.pilots.map(crewCard).join("")}</div>
     ${s.wsos.length ? `<h3>${abbr("WSO", "WSOs")} (back seat)</h3><div class="crew-grid">${s.wsos.map(crewCard).join("")}</div>` : ""}
     <h3>Aircraft</h3>
