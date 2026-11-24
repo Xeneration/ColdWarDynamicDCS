@@ -40,6 +40,7 @@ TARGET_KINDS = {
     Task.BAI: {ObjectiveKind.ARMOR, ObjectiveKind.ARTILLERY, ObjectiveKind.DEPOT,
                ObjectiveKind.CONVOY},
     Task.SEAD: {ObjectiveKind.SAM},
+    Task.ANTISHIP: {ObjectiveKind.SHIP},
 }
 
 # Which squadron tasks can fly a need, in order of preference.
@@ -50,8 +51,10 @@ CAN_FLY = {
     Task.INTERDICTION: [Task.INTERDICTION, Task.STRIKE, Task.BAI],
     Task.SEAD: [Task.SEAD],
     Task.ARMED_RECON: [Task.CAS, Task.BAI, Task.STRIKE],
+    Task.ANTISHIP: [Task.ANTISHIP, Task.STRIKE],
 }
 ARMED_RECON_PER_DAY = 1      # NATO: one road hunt a day against a Warsaw Pact supply column
+NAVAL_STRIKES_PER_DAY = 1    # each side strikes the other's ships at sea once a day (where there are any)
 
 DOCTRINE = {
     # NATO: one barrier CAP (the Hawk belt does the rest), escorts and SEAD for packages
@@ -163,6 +166,13 @@ def needs(c: Campaign, side: Side) -> list[Need]:
             out.append(Need(Task.STRIKE, o, (1 + 0.3 * o.value) * frac * doc["strike"],
                             reason="blinds their radar / command network" if o.kind is ObjectiveKind.EWR
                             else "disrupts their command"))
+        elif o.kind is ObjectiveKind.SHIP:
+            deck = next((ab for ab in c.airbases.values() if ab.carrier_of == o.id), None)
+            wing = sum(1 for sq in c.squadrons.values() if deck and sq.base_id == deck.id)
+            s = (1.5 + 0.4 * o.value + 2.0 * wing) * frac * doc["strike"]
+            out.append(Need(Task.ANTISHIP, o, s, label="Anti-ship",
+                            reason=f"a carrier with {wing} squadron(s) on deck" if wing
+                            else "their warships at sea"))
         elif o.kind is ObjectiveKind.AIRBASE and o.airbase_id:
             ab = c.airbases[o.airbase_id]
             based = sum(1 for sq in c.squadrons.values() if sq.base_id == ab.id and sq.side is enemy)
@@ -290,6 +300,11 @@ def plan_turn(c: Campaign) -> None:
             if columns:                               # the daily road hunt is flown, not out-scored
                 side_needs.remove(columns[0])
                 side_needs.insert(player_busy, columns[0])     # after the OCA and the special
+        if c.counters.get(f"naval:{side.value}:{c.time:%Y%m%d}", 0) < NAVAL_STRIKES_PER_DAY:
+            ships = [n for n in side_needs if n.task is Task.ANTISHIP]
+            if ships:                                 # the daily strike on their ships at sea
+                side_needs.remove(ships[0])
+                side_needs.insert(min(player_busy + 1, len(side_needs)), ships[0])
         if side is Side.BLUE:                         # answer the Warsaw Pact's attack first
             reactive.promote(c, side_needs, insert_at=player_busy)
         wx = weather.strike_factor(c.weather)
@@ -329,6 +344,9 @@ def plan_turn(c: Campaign) -> None:
             taken.add(need.target.id)
             if task is Task.ARMED_RECON:
                 key = f"recon:{c.time:%Y%m%d}"
+                c.counters[key] = c.counters.get(key, 0) + 1
+            if need.task is Task.ANTISHIP:
+                key = f"naval:{side.value}:{c.time:%Y%m%d}"
                 c.counters[key] = c.counters.get(key, 0) + 1
             if need.target.id == forced_oca:
                 key = f"oca:{side.value}:{c.time:%Y%m%d}"

@@ -37,6 +37,7 @@ class Task(str, Enum):
     RESCAP = "RESCAP"        # war: cover the rescue of a downed crew
     ARMED_RECON = "Armed Recon"   # war: hunt targets of opportunity along a road
     AIRLIFT = "Airlift"
+    ANTISHIP = "Anti-ship"   # war: strike a naval task group at sea
 
 
 class Pos(BaseModel):
@@ -126,6 +127,7 @@ class Airbase(BaseModel):
     side: Side
     pos: Pos
     damage: float = 0.0          # 0 = fully usable; cuts the sortie rate, closed at engine.airbases.CLOSED
+    carrier_of: Optional[str] = None   # a carrier at sea: the SHIP objective whose first unit is the deck
     hit_turn: int = -1           # last turn it was hit (no repair that turn)
 
 
@@ -140,6 +142,7 @@ class ObjectiveKind(str, Enum):
     RAIL = "rail"            # rail yard / junction: interdiction target on a supply link
     COMMAND = "command"
     AIRBASE = "airbase"      # OCA target: parked aircraft + airfield defences
+    SHIP = "ship"            # a naval task group at sea (a carrier group is one too)
 
 
 class ObjUnit(BaseModel):

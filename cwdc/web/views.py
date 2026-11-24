@@ -88,6 +88,7 @@ def overview(c: Campaign) -> dict:
 
 
 TASK_PLAIN = {
+    "Anti-ship": "Anti-ship strike: attack warships at sea - mind their missiles, the screen protects the big ship",
     "CAP": "Combat air patrol: guard an area and shoot down enemy aircraft that come near",
     "Escort": "Escort: fly with a strike package and fight off enemy fighters that go for it",
     "Strike": "Strike: bomb a fixed target such as a radar, a depot, a rail yard or an airfield",

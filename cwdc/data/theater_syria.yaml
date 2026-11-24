@@ -271,7 +271,58 @@ objectives:
       - {type: M 818, dx: 30}
       - {type: M 818, dx: 60}
       - {type: Vulcan, dx: 30, dz: 40}
+  # the US 6th Fleet carrier group east of Cyprus (the first unit is the deck: engine.generate)
+  - id: b_cvbg
+    name: "6th Fleet carrier group"
+    kind: ship
+    side: blue
+    country: USA
+    latlon: [34.95, 34.60]
+    value: 5
+    threat_range_km: 40
+    units:
+      - {type: Forrestal}
+      - {type: PERRY, dx: 1500, dz: 800}
+      - {type: PERRY, dx: -1500, dz: 800}
+      - {type: Dry-cargo ship-2, dx: 0, dz: -2500}
+  - id: b_tr_navy
+    name: "Turkish Navy patrol group, Iskenderun Bay"
+    kind: ship
+    side: blue
+    country: Turkey
+    latlon: [36.72, 35.95]
+    value: 3
+    threat_range_km: 6
+    units:
+      - {type: leander-gun-achilles}
+      - {type: La_Combattante_II, dx: 800, dz: 400}
+      - {type: La_Combattante_II, dx: -800, dz: 400}
   # ---------------------------------------------------------------- Syria / USSR
+  - id: r_med_squadron
+    name: "Soviet Mediterranean Squadron task group"
+    kind: ship
+    side: red
+    country: USSR
+    latlon: [35.30, 35.35]
+    value: 4
+    threat_range_km: 15
+    units:
+      - {type: MOSCOW}
+      - {type: REZKY, dx: 1200, dz: 600}
+      - {type: REZKY, dx: -1200, dz: 600}
+      - {type: ELNYA, dx: 0, dz: -2000}
+  - id: r_syrian_boats
+    name: "Syrian Navy missile boats off Latakia"
+    kind: ship
+    side: red
+    country: Syria
+    latlon: [35.55, 35.62]
+    value: 3
+    threat_range_km: 15
+    units:
+      - {type: ALBATROS}
+      - {type: MOLNIYA, dx: 500, dz: 300}
+      - {type: MOLNIYA, dx: -500, dz: 300}
   - id: r_ewr_aleppo
     name: "Aleppo radar station"
     kind: ewr
@@ -589,6 +640,10 @@ generator:
   title: "Southern Flank"
   lead: {west: Turkey, east: Syria}
   weights: {Turkey: 5, USA: 3, UK: 1.5, France: 1, Syria: 5, USSR: 2}   # who flies most squadrons
+  # carriers at sea: US Navy types are based on the deck (the first unit of the objective)
+  carriers:
+    - {id: cvbg, name: "6th Fleet carrier", objective: b_cvbg, nations: [USA]}
+  carrier_wing: {fighter: 1, strike: 1}    # US Navy squadrons on the deck (on top of the others)
   squadrons:
     west: {fighter: 2, strike: 2}
     east: {fighter: 3, strike: 2}

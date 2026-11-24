@@ -257,6 +257,11 @@ def reposition_objectives(c: Campaign) -> None:
 def check_overruns(c: Campaign) -> list[str]:
     lines = []
     for ab in c.airbases.values():
+        if ab.carrier_of:                      # at sea: lost only when the deck is sunk
+            deck = c.objectives.get(ab.carrier_of)
+            if deck is not None and deck.units and not deck.units[0].alive and ab.side is not None:
+                lines += _carrier_sunk(c, ab, deck)
+            continue
         owner = T.side_at_pos(c.front_line, ab.pos)
         if owner is not ab.side:
             lines += _overrun_airbase(c, ab, owner)
@@ -268,7 +273,7 @@ def check_overruns(c: Campaign) -> list[str]:
             news.post(c, msg, "ground")
             lines.append("  " + msg)
     for o in c.objectives.values():
-        if o.sector_id or o.destroyed or o.kind is ObjectiveKind.AIRBASE:
+        if o.sector_id or o.destroyed or o.kind in (ObjectiveKind.AIRBASE, ObjectiveKind.SHIP):
             continue                       # formation elements move with the front; airfields change hands
         if T.side_at_pos(c.front_line, o.pos) is not o.side:
             for u in o.units:
@@ -276,6 +281,32 @@ def check_overruns(c: Campaign) -> list[str]:
             msg = f"{o.name} has been overrun and is lost."
             news.post(c, msg, "ground")
             lines.append("  " + msg)
+    return lines
+
+
+CARRIER_DECK_LOSS = 0.5     # share of a carrier wing's aircraft lost with the ship
+
+
+def _carrier_sunk(c: Campaign, ab, deck) -> list[str]:
+    """The carrier is sunk: half the aircraft go down with her, the rest divert ashore."""
+    squadrons = [s for s in c.squadrons.values() if s.base_id == ab.id]
+    if not squadrons:
+        return []
+    lines = [f"  {deck.name}: the carrier has been sunk."]
+    news.post(c, lines[0].strip(), "military")
+    r = rng(c.seed, c.turn, f"sunk:{ab.id}")
+    land = [b for b in c.airbases.values() if b.side is ab.side and not b.carrier_of]
+    for sq in squadrons:
+        afs = c.squadron_airframes(sq.id, None)
+        r.shuffle(afs)
+        lost = afs[:math.ceil(len(afs) * CARRIER_DECK_LOSS)]
+        for a in lost:
+            a.status = AirframeStatus.DESTROYED
+        if land:
+            new = min(land, key=lambda b: b.pos.dist(ab.pos))
+            sq.base_id = new.id
+            lines.append(f"  {sq.name} loses {len(lost)} aircraft with the ship and diverts to {new.dcs_name}.")
+        news.post(c, lines[-1].strip(), "military")
     return lines
 
 

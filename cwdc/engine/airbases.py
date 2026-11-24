@@ -101,6 +101,8 @@ def make_objective(c: Campaign, ab: Airbase) -> Objective:
 def ensure_objectives(c: Campaign) -> list[str]:
     added = []
     for ab in c.airbases.values():
+        if ab.carrier_of:                       # a carrier: the ship is the target, not a parking area
+            continue
         if objective(c, ab) is None:
             o = make_objective(c, ab)
             c.objectives[o.id] = o

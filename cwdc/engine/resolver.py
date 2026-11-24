@@ -24,6 +24,7 @@ P_SAM = 0.05                     # per aircraft per covering SAM site (full stre
 P_AAA = 0.015                    # per aircraft per AAA gun at the target
 P_WEAPON = 0.45
 P_SEAD_HIT = 0.4
+SHIP_HITS = 3                    # weapon hits to sink one ship
 FAC_AAA = 0.5                    # flak's chance against a FAC-directed attack (troops in contact)
 P_CAPTURED = 0.5                 # crews down over enemy territory taken at once (else evading)
 FIGHTER_TASKS = (Task.CAP, Task.INTERCEPT, Task.SWEEP)   # fly an area and fight what comes
@@ -110,6 +111,21 @@ class _Sim:
         self.destroyed.extend(f"{o.id}#{i}" for i in hit)
         return len(hit)
 
+    def sink(self, o: Objective, hits: int) -> int:
+        """Ships sunk by `hits`: escorts first, the group's main unit (a carrier's deck) last and
+        twice as tough. Partial damage carries over within the turn only."""
+        sunk = 0
+        order = [i for i, u in enumerate(o.units) if u.alive and f"{o.id}#{i}" not in self.destroyed]
+        order = [i for i in order if i != 0] + [i for i in order if i == 0]
+        for i in order:
+            need = SHIP_HITS * (2 if i == 0 else 1)
+            if hits < need:
+                break
+            hits -= need
+            self.destroyed.append(f"{o.id}#{i}")
+            sunk += 1
+        return sunk
+
     def sam_alive(self, o: Objective) -> float:
         alive = [i for i, u in enumerate(o.units) if u.alive and f"{o.id}#{i}" not in self.destroyed]
         return len(alive) / len(o.units)
@@ -161,7 +177,7 @@ class _Sim:
         for f in ordered:
             tgt = self.c.objectives[f.target_id]
             sams = [o for o in self.c.objectives.values() if o.side is f.side.enemy
-                    and o.kind is ObjectiveKind.SAM and not o.destroyed
+                    and o.kind in (ObjectiveKind.SAM, ObjectiveKind.SHIP) and not o.destroyed
                     and o.pos.dist(tgt.pos) <= o.threat_range_m]
             for sam in sams:
                 p = P_SAM * self.sam_alive(sam) * (0.5 if sam.id in suppressed else 1.0)
@@ -191,6 +207,10 @@ class _Sim:
                 hits = sum(self.r.random() < p for _ in range(2 * n_alive))
                 if f.loadout == airbases.RUNWAY_LOADOUT:  # runway attack: craters, not parked aircraft
                     self.res[f.id].craters += hits
+                    continue
+                if tgt.kind is ObjectiveKind.SHIP:     # a warship takes several hits to sink;
+                    n = self.sink(tgt, hits)           # the screen is hit before the main unit
+                    self._ground_kills(f, tgt, n)
                     continue
                 n = self.kill_units(tgt, hits)
                 self._ground_kills(f, tgt, n)

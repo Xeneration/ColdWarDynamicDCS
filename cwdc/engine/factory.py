@@ -64,6 +64,10 @@ def new_campaign(name: str, seed: int = 1976, theater: str = "fulda_1976",
         if b and all(x["id"] != b["id"] for x in bases):
             bases.append({**b, "side": sq["side"]})
     for ab in bases:
+        if ab.get("carrier_of"):                 # a carrier at sea: the deck is a ship objective
+            c.airbases[ab["id"]] = Airbase(id=ab["id"], dcs_name="", side=Side(ab["side"]),
+                                           pos=T.latlon_to_pos(*ab["latlon"]), carrier_of=ab["carrier_of"])
+            continue
         ap = terrain.airports[ab["dcs_name"]]
         c.airbases[ab["id"]] = Airbase(id=ab["id"], dcs_name=ab["dcs_name"], side=Side(ab["side"]),
                                        pos=Pos(x=ap.position.x, z=ap.position.y))

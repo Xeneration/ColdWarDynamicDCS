@@ -56,6 +56,9 @@ def test_every_ground_unit_exists_in_dcs():
                 assert n in era.nations(), (k, n)
             for u in spec["units"]:
                 assert u in vehicles.vehicle_map, (k, u)
+    from dcs.ships import ship_map
+    for k, spec in data["naval"].items():
+        assert spec["side"] in era.SIDES and all(u in ship_map for u in spec["units"]), k
 
 
 def test_every_shipped_store_has_an_introduction_year():

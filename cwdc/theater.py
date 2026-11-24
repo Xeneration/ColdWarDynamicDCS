@@ -124,7 +124,8 @@ def airbase_name(theater_file: str, ab) -> str:
     """The name players know a base by (Rhein-Main), not DCS's airport name (Frankfurt)."""
     th = load_data(theater_file)
     gen = th.get("generator", {}).get("bases", {})
-    for a in th.get("airbases", []) + [b for side in gen.values() for b in side]:
+    carriers = th.get("generator", {}).get("carriers", [])
+    for a in th.get("airbases", []) + [b for side in gen.values() for b in side] + carriers:
         if a["id"] == ab.id:
             return a.get("name", ab.dcs_name)
     return ab.dcs_name

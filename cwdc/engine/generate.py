@@ -33,7 +33,11 @@ ARM_FAMILIES = {"AGM-45 Shrike", "AGM-78 Standard ARM", "AGM-88 HARM", "Kh-58", 
 AD_FALLBACK = {"sam_long": ["sam_medium", "sam_short", "aaa"], "sam_medium": ["sam_short", "aaa"],
                "sam_short": ["aaa"], "aaa": [], "ewr": []}
 GROUND_FALLBACK = {"tank": [], "ifv": ["apc"], "apc": ["truck"], "recon": ["apc", "truck"],
-                   "artillery": ["mlrs"], "mlrs": ["artillery"], "truck": []}
+                   "artillery": ["mlrs"], "mlrs": ["artillery"], "truck": [],
+                   # warships (section "naval")
+                   "carrier": [], "cruiser": ["destroyer", "frigate", "corvette"],
+                   "destroyer": ["frigate", "corvette"], "frigate": ["destroyer", "corvette"],
+                   "corvette": ["frigate", "fac"], "fac": ["corvette"], "amphibious": ["supply"], "supply": []}
 WING_EXTRA = 2              # squadrons besides the player's home squadron flying owned types
 P_UPGRADE = 0.35            # a SAM site still in service is re-equipped with a newer system
 P_MODERNISE = 0.7           # a vehicle type with a successor 8+ years newer is replaced by it
@@ -178,6 +182,22 @@ def wing_choice(setup: Setup, pick: era.InService, ptype: str) -> list[tuple[era
     return out
 
 
+def carrier_spec(setup: Setup, th: dict | None = None) -> dict | None:
+    """The theatre's carrier at sea, as a base spec, when a carrier is in service that year."""
+    th = th or theatre_data(setup)
+    specs = th.get("generator", {}).get("carriers", [])
+    if not specs:
+        return None
+    spec = specs[0]
+    decks = [v for v in era.naval_in(setup.year, "west", setup.active_nations(), setup.installed()).values()
+             if v["role"] == "carrier" and set(v.get("nations", spec["nations"])) & set(spec["nations"])]
+    if not decks:
+        return None
+    obj = next(o for o in th["objectives"] if o["id"] == spec["objective"])
+    return {"id": spec["id"], "name": spec["name"], "dcs_name": "", "carrier_of": spec["objective"],
+            "latlon": obj["latlon"], "nations": spec["nations"]}
+
+
 def _group(af: era.Airframe) -> str:
     return "fighter" if af.role in ("fighter", "interceptor") else "strike"
 
@@ -188,6 +208,8 @@ def _tasks(af: era.Airframe, dcs_type: str, year: int) -> list[str]:
     fams = {w["family"] for w in era.weapon_bars(dcs_type) if w["year"] <= year}
     if fams & ARM_FAMILIES and af.role in ("multirole", "attack"):
         tasks.append("SEAD")
+    if (fams & era.ANTISHIP and af.role in ("multirole", "attack")) or af.role == "bomber":
+        tasks.append("Anti-ship")
     return tasks
 
 
@@ -254,7 +276,10 @@ def oob(setup: Setup, seed: int) -> dict:
     def add(s: era.InService, side: str, group: str, player: bool = False, dcs_type: str | None = None,
             wing: bool = False):
         dcs_type = dcs_type or s.dcs_type
-        b = base_for(side, s.nation, near_front=player, at=squadrons[0]["base_spec"] if wing else None)
+        deck = deck_for(s)
+        b = deck or base_for(side, s.nation, near_front=player,
+                             at=squadrons[0]["base_spec"] if wing and not squadrons[0]["base_spec"].get("carrier_of")
+                             else None)
         cs = callsigns[side].pop(0) if callsigns[side] else f"{side.title()} {len(squadrons)}"
         size = 18 if s.nation not in ("USSR", "GDR", "Poland", "Czechoslovakia", "Hungary") else 24
         sq = {"id": f"{'b' if side == 'west' else 'r'}_{len(squadrons) + 1:02d}_{s.airframe.id.lower()}",
@@ -272,6 +297,11 @@ def oob(setup: Setup, seed: int) -> dict:
         squadrons.append(sq)
         return sq
 
+    carrier = carrier_spec(setup, th)
+
+    def deck_for(s: era.InService) -> dict | None:
+        return carrier if carrier and s.airframe.carrier and s.nation in carrier["nations"] else None
+
     pick, ptype = player_choice(setup)
     used_af = {pick.airframe.id}
     slots = {side: dict(gen["squadrons"][side]) for side in era.SIDES}
@@ -285,6 +315,18 @@ def oob(setup: Setup, seed: int) -> dict:
     for side in era.SIDES:
         all_in = [s for s in era.airframes_in(setup.year, nations_on, side=side, strict=setup.strict, installed=inst)
                   if not s.airframe.carrier]
+        if side == "west" and carrier:          # the carrier air wing
+            navy = [s for s in era.airframes_in(setup.year, nations_on, side=side, strict=setup.strict,
+                                                installed=inst)
+                    if deck_for(s) and s.airframe.role in FIGHTER_ROLES + STRIKE_ROLES]
+            for group, roles in (("fighter", FIGHTER_ROLES), ("strike", STRIKE_ROLES)):
+                for _ in range(gen.get("carrier_wing", {}).get(group, 0)):
+                    s = _pick([x for x in navy if x.airframe.role in roles and x.airframe.id not in used_af],
+                              used_af, r, weights(setup))
+                    if s is None:
+                        break
+                    used_af.add(s.airframe.id)
+                    add(s, side, group)
         for group, roles in (("fighter", FIGHTER_ROLES), ("strike", STRIKE_ROLES)):
             cands = [s for s in all_in if s.airframe.role in roles
                      and (group == "fighter" or s.airframe.strike >= 0.3)]
@@ -318,8 +360,8 @@ def _unit_index() -> dict[str, tuple[str, str]]:
     """DCS vehicle type -> (section, entry id) in ground.yaml."""
     idx: dict[str, tuple[str, str]] = {}
     g = era._ground()
-    for section in ("air_defence", "ground"):
-        for k, spec in g[section].items():
+    for section in ("air_defence", "ground", "naval"):
+        for k, spec in g.get(section, {}).items():
             for u in spec["units"]:
                 idx.setdefault(u, (section, k))
     return idx
@@ -332,6 +374,8 @@ def _class(section: str, spec: dict) -> str:
 def _available(section: str, year: int, side: str, nations, inst) -> dict[str, dict]:
     if section == "air_defence":
         return era.air_defence_in(year, side=side, nations_on=nations, installed=inst)
+    if section == "naval":
+        return era.naval_in(year, side=side, nations_on=nations, installed=inst)
     return era.ground_in(year, side=side, nations_on=nations, installed=inst)
 
 
@@ -443,6 +487,9 @@ def adapt_theatre(setup: Setup, seed: int) -> dict:
                 units.append(nu)
         if units:
             o["units"] = units
+            if o["kind"] == "ship":                 # the group's reach is its best air defence
+                o["threat_range_km"] = max(g["naval"][idx[u["type"]][1]]["range_km"]
+                                           for u in units if u["type"] in idx)
             keep.append(o)
     th["objectives"] = keep
     # dates: same season, the chosen year

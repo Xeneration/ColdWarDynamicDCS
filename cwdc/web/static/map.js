@@ -228,7 +228,7 @@ export class CampaignMap {
       L.marker(o.at, { icon: symbolIcon({ side: o.side, kind, echelon: o.element ? "battalion" : null,
         destroyed: dead, size: o.element ? 22 : 26 }, o.name, "", `site ${tier}`) })
         .bindTooltip(esc(o.text)).addTo(L_.sites);
-      if (o.kind === "sam" && !dead && o.threat_m) {
+      if ((o.kind === "sam" || o.kind === "ship") && !dead && o.threat_m) {
         this.samRings[o.name] = L.circle(o.at, { radius: o.threat_m, color: SIDE[o.side], weight: 1.5,
           dashArray: "5 5", opacity: 0.9, fillColor: SIDE[o.side], fillOpacity: 0.06, interactive: false })
           .addTo(L_.sams);

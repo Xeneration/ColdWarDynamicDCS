@@ -14,6 +14,8 @@ const GLYPH = {
   artillery: `<circle cx="0" cy="0" r="4" fill="${STROKE}"/>`,
   sam: `<path d="M-14 9 Q0 -12 14 9" fill="none" stroke="${STROKE}" stroke-width="2"/>
         <path d="M0 7 L0 -9 M-3 -5 L0 -10 L3 -5" fill="none" stroke="${STROKE}" stroke-width="2"/>`,
+  ship: `<path d="M-14 0 L14 0 L9 7 L-9 7 Z" fill="none" stroke="${STROKE}" stroke-width="2"/>
+         <path d="M-3 0 L-3 -6 L4 -6 L4 0 M0 -6 L0 -11" fill="none" stroke="${STROKE}" stroke-width="1.8"/>`,
   aaa: `<path d="M-14 9 Q0 -12 14 9" fill="none" stroke="${STROKE}" stroke-width="2"/>
         <circle cx="0" cy="2" r="3" fill="${STROKE}"/>`,
   ewr: `<path d="M-10 -8 Q-8 8 8 9" fill="none" stroke="${STROKE}" stroke-width="2.2"/>
@@ -68,5 +70,5 @@ export const KIND_LABEL = {
   armor: "Armour (tanks)", mech: "Mechanised infantry", cavalry: "Armoured cavalry (recon/screen)",
   infantry: "Infantry", artillery: "Artillery", sam: "Surface-to-air missiles (SAM)",
   aaa: "Anti-aircraft guns", ewr: "Early-warning radar", depot: "Supply depot", rail: "Rail yard",
-  convoy: "Supply column", command: "Command post", airbase: "Airbase",
+  convoy: "Supply column", command: "Command post", airbase: "Airbase", ship: "Warships at sea",
 };

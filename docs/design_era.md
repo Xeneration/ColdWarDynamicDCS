@@ -319,4 +319,42 @@ Treat **every DCS module as available**: the user owns many more than are instal
   - The first cut collapsed in 3 days: Gaziantep, a victory city, was 40 km from the border and Kilis was at 2:1.
   - Fixes: victory cities moved deeper, one Syrian division moved to the Hatay mountains, Turkish brigades strengthened, reinforcements earlier.
   - The Central Front preset is unchanged (same balance numbers as before).
-- **Still to come (F2): the sea.** Soviet Mediterranean squadron ships as targets, anti-ship strikes, and US carrier ops (F-14 / A-4 from a deck). Carrier types fly from land until then.
+- **The sea** is the next section (F2).
+
+### Phase F2: the war at sea (2026-11-24, done)
+
+- **Warships by era:** `data/era/ground.yaml` gains a `naval` section of DCS ship types with service years, roles and their own air-defence reach.
+  - West: Essex (WWII pack), Forrestal, Nimitz, Ticonderoga, Perry, Leander, Tarawa, Invincible, La Combattante, supply ships.
+  - East: Kirov, Slava, Krivak (and as a Kotlin stand-in before 1970), Grisha, Osa (Tarantul stand-in), Ropucha, tankers.
+  - `adapt_theatre` re-equips ship groups by role for the year. A group's threat range is its best ship's: a 1985 Soviet group with a Slava reaches 75 km.
+- **The Southern Flank's ships** (`ObjectiveKind.SHIP`):
+  - the 6th Fleet carrier group east of Cyprus;
+  - a Turkish patrol group in Iskenderun Bay;
+  - the Soviet Mediterranean Squadron task group off Latakia;
+  - Syrian missile boats.
+- **Anti-ship:**
+  - `Task.ANTISHIP` and anti-ship needs. A carrier is worth more for each squadron on its deck.
+  - Each side flies one naval strike a day (`NAVAL_STRIKES_PER_DAY`).
+  - Squadrons get an "Anti-ship" task when they carry anti-ship weapons that year (Harpoon, Kormoran, Rb 04, Kh-22, Bullpup, Walleye, Maverick ...), and bombers always do.
+  - `era.pick_payload(..., "antiship")` loads them.
+  - In the simulation a ship group is a SAM site against its attackers. Each ship takes 3 hits, the main unit (a carrier's deck) 6, and the screen is sunk first.
+- **Carriers:**
+  - The theatre's `generator.carriers` puts US Navy types (F-14, A-4, A-6) on the deck when a carrier is in service that year (Forrestal from 1955; Essex with the WWII Units pack). `carrier_wing` adds a fighter and a strike squadron on deck.
+  - `Airbase.carrier_of` names the ship objective; the deck gets no parking-area objective and is never overrun.
+  - In DCS:
+    - the carrier group steams west at 25 knots;
+    - you start on the deck (`flight_group_from_unit`, runway or ramp start), or in the air;
+    - every carrier flight recovers aboard, with a Land waypoint linked to the deck unit;
+    - the briefing says "from the carrier (Forrestal)".
+  - If the carrier is sunk, half the air wing goes down with her and the rest divert to the nearest land base.
+- **Web:** ship symbols on the map, their air-defence rings, and the "Anti-ship" task described on the ATO.
+- **Balance** (6 seeds x 21 days):
+
+  | Year | NATO loss / sortie | East loss / sortie | Anti-ship losses | Outcomes |
+  |---|---|---|---|---|
+  | 1966 | 3.1% | 4.7% | East 10.2% | stalemate 3, East gains 2, NATO holds 1 |
+  | 1980 | 2.6% | 6.7% | NATO 6.6%, East 11.0% | NATO holds 3, East gains 2, stalemate 1 |
+
+  - The carrier survives 21 days in every run checked; its escorts usually do not.
+  - The Central Front preset is unchanged.
+- **Open:** submarines (Kilo) are not modelled. Carrier deck crowding (parking spots) is not checked.

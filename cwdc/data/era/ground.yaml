@@ -77,3 +77,27 @@ ground:
   M109:       {side: west, role: artillery, years: [1963, 1991], units: [M-109]}
   MLRS:       {side: west, role: mlrs, years: [1983, 1991], nations: [USA, UK, West Germany], units: [MLRS]}
   M818:       {side: west, role: truck, years: [1950, 1991], units: [M 818]}
+
+# Warships by era (DCS ship types). `role`: carrier | cruiser | destroyer | frigate | corvette | fac |
+# amphibious | supply. range_km: the ship's own air defence reach (0 = guns only).
+naval:
+  # ---------------------------------------------------------------- West
+  Essex:       {side: west, role: carrier, years: [1950, 1958], nations: [USA], range_km: 3, units: [Essex], requires: "WWII Units", name: "Essex-class carrier"}
+  Forrestal:   {side: west, role: carrier, years: [1955, 1991], nations: [USA], range_km: 8, units: [Forrestal], name: "Forrestal-class carrier"}
+  Nimitz:      {side: west, role: carrier, years: [1982, 1991], nations: [USA], range_km: 8, units: [VINSON], name: "Nimitz-class carrier"}
+  Ticonderoga: {side: west, role: cruiser, years: [1983, 1991], nations: [USA], range_km: 75, units: [TICONDEROG], name: "Ticonderoga-class cruiser"}
+  Perry:       {side: west, role: frigate, years: [1977, 1991], nations: [USA], range_km: 40, units: [PERRY], name: "Oliver Hazard Perry-class frigate"}
+  Leander:     {side: west, role: frigate, years: [1963, 1991], range_km: 6, units: [leander-gun-achilles], name: "Leander-class frigate"}
+  Tarawa:      {side: west, role: amphibious, years: [1976, 1991], nations: [USA], range_km: 8, units: [LHA_Tarawa], name: "Tarawa-class assault ship"}
+  Invincible:  {side: west, role: carrier, years: [1980, 1991], nations: [UK], range_km: 30, units: [hms_invincible], name: "Invincible-class carrier"}
+  Combattante: {side: west, role: fac, years: [1970, 1991], range_km: 0, units: [La_Combattante_II], name: "fast attack craft"}
+  Supply-W:    {side: west, role: supply, years: [1950, 1991], range_km: 0, units: [Dry-cargo ship-2], name: "supply ship"}
+  # ---------------------------------------------------------------- East
+  Kirov:       {side: east, role: cruiser, years: [1980, 1991], nations: [USSR], range_km: 75, units: [PIOTR], name: "Kirov-class battlecruiser"}
+  Slava:       {side: east, role: cruiser, years: [1983, 1991], nations: [USSR], range_km: 75, units: [MOSCOW], name: "Slava-class cruiser"}
+  Krivak:      {side: east, role: destroyer, years: [1970, 1991], nations: [USSR], range_km: 15, units: [REZKY], name: "Krivak-class frigate"}
+  Kotlin:      {side: east, role: destroyer, years: [1955, 1969], nations: [USSR], range_km: 0, units: [REZKY], stand_in: true, name: "Kotlin-class destroyer (stand-in)"}
+  Grisha:      {side: east, role: corvette, years: [1970, 1991], range_km: 15, units: [ALBATROS], name: "Grisha-class corvette"}
+  Osa:         {side: east, role: fac, years: [1960, 1991], range_km: 0, units: [MOLNIYA], stand_in: true, name: "Osa-class missile boat (stand-in)"}
+  Ropucha:     {side: east, role: amphibious, years: [1975, 1991], nations: [USSR], range_km: 0, units: [BDK-775], name: "Ropucha-class landing ship"}
+  Supply-E:    {side: east, role: supply, years: [1950, 1991], range_km: 0, units: [ELNYA], name: "fleet tanker"}

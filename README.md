@@ -39,7 +39,7 @@ The shortcuts are created with `.\.venv\Scripts\python.exe -m cwdc shortcuts`; r
 move the project folder. `cwdc start [--dcs]` does the same from a terminal.
 
 ## A war in any year (campaign maker)
-In the web UI, press **New campaign** and pick the theatre: **Central Front** (Cold War Germany) or **Southern Flank** (Syria map: Turkey, Incirlik and Cyprus against Syria and a Soviet expeditionary force). Drag the year line across the chart of every airframe's service life (★ marks the ones you own). The panel beside it shows the war you'll get: your wing, both air forces, SAMs, tanks and what you can carry that year. Then press **Create campaign**. The same choices work from the command line:
+In the web UI, press **New campaign** and pick the theatre: **Central Front** (Cold War Germany) or **Southern Flank** (Syria map: Turkey, Incirlik and Cyprus against Syria and a Soviet expeditionary force, with a US carrier at sea: F-14s, A-4s and A-6s fly from the deck, and both sides strike each other's ships). Drag the year line across the chart of every airframe's service life (★ marks the ones you own). The panel beside it shows the war you'll get: your wing, both air forces, SAMs, tanks and what you can carry that year. Then press **Create campaign**. The same choices work from the command line:
 ```powershell
 .\.venv\Scripts\python.exe -m cwdc new --year 1966
 ```

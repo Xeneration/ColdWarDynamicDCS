@@ -19,6 +19,7 @@ from dcs.mapping import Vector2
 from dcs.mission import Mission, StartType
 from dcs.planes import plane_map
 from dcs.unit import Skill
+from dcs.ships import ship_map
 from dcs.vehicles import vehicle_map
 
 from cwdc import theater as T
@@ -65,7 +66,7 @@ DCS_TASK = {Task.CAP: dtask.CAP, Task.ESCORT: dtask.Escort, Task.STRIKE: dtask.G
             Task.BAI: dtask.GroundAttack, Task.INTERDICTION: dtask.GroundAttack,
             Task.CAS: dtask.CAS, Task.SEAD: dtask.SEAD, Task.QRA: dtask.Intercept, Task.RECON: dtask.CAP,
             Task.INTERCEPT: dtask.Intercept, Task.SWEEP: dtask.FighterSweep, Task.RESCAP: dtask.CAS,
-            Task.ARMED_RECON: dtask.CAS}
+            Task.ARMED_RECON: dtask.CAS, Task.ANTISHIP: dtask.AntishipStrike}
 FIGHTER_TASKS = (Task.CAP, Task.QRA, Task.INTERCEPT, Task.SWEEP, Task.RESCAP)   # fly to an area and orbit
 SWEEP_TARGET_RADIUS = 30_000    # m: enemy CAP flights this close to a sweep's area are its quarry
 
@@ -125,7 +126,7 @@ def _divert(c: Campaign, player: Flight):
     from cwdc.engine.airbases import CLOSED
     home = c.airbases[c.squadrons[player.squadron_id].base_id]
     others = [ab for ab in c.airbases.values() if ab.side is player.side and ab.id != home.id
-              and ab.damage < CLOSED]
+              and ab.damage < CLOSED and not ab.carrier_of]
     return min(others, key=lambda ab: ab.pos.dist(home.pos), default=None)
 
 
@@ -163,7 +164,8 @@ def _kneeboard_info(c: Campaign, player: Flight, plan: Plan, group, lines: list[
         name = p.name or ("START" if i == 0 else "LAND" if p.type == "Land" else f"WP{i}")
         wps.append((name, lat, lon, round(p.alt * 3.28084), "AGL" if p.alt_type == "RADIO" else "MSL"))
         route.append(pos)
-    enemy_sams = [o for o in plan.objectives if o.side is player.side.enemy and o.kind is ObjectiveKind.SAM
+    enemy_sams = [o for o in plan.objectives if o.side is player.side.enemy
+                  and o.kind in (ObjectiveKind.SAM, ObjectiveKind.SHIP)
                   and o.threat_range_m and not o.destroyed]
     threats = [f"{o.name}: {o.threat_range_m / 1852:.0f} nm ring" for o in enemy_sams]
     threats += [l for l in lines if l.startswith(("Intel:", "Intruders", "Target defences"))]
@@ -300,7 +302,7 @@ def _rescue_party(m: Mission, c: Campaign, player: Flight, player_eta: float, tr
     if pilot is None:
         return None
     pickup = player.area
-    home = min((ab for ab in c.airbases.values() if ab.side is player.side),
+    home = min((ab for ab in c.airbases.values() if ab.side is player.side and not ab.carrier_of),
                key=lambda ab: ab.pos.dist(pickup))
     start = _toward(pickup, home.pos, HELO_START)
     sq = c.squadrons[player.squadron_id]
@@ -331,6 +333,31 @@ def _rescue_party(m: Mission, c: Campaign, player: Flight, player_eta: float, tr
 def _theater(c: Campaign) -> dict:
     from cwdc.engine.factory import THEATERS
     return T.load_data(THEATERS[c.theater][0])
+
+
+CARRIER_TRACK = 60_000            # m the carrier steams west during the mission
+CARRIER_SPEED_KMH = 46            # 25 knots of wind over the deck
+
+
+def _base_label(c: Campaign, base) -> str:
+    """'Incirlik', or for a carrier 'the 6th Fleet carrier (Forrestal-class carrier)'."""
+    if not base.carrier_of:
+        return base.dcs_name
+    o = c.objectives.get(base.carrier_of)
+    return f"the carrier ({o.units[0].type})" if o else "the carrier"
+
+
+def _land(g, airport, deck) -> None:
+    """Land at the home airfield, or recover aboard the carrier."""
+    if deck is None:
+        g.land_at(airport)
+        return
+    from dcs.point import MovingPoint, PointAction, PointProperties
+    mp = MovingPoint(deck.units[0].position)
+    mp.type, mp.action = "Land", PointAction.Landing
+    mp.helipad_id = mp.link_unit = deck.units[0].id
+    mp.alt, mp.speed, mp.properties = 0, 0, PointProperties()
+    g.add_point(mp)
 
 
 def _base(c: Campaign, f: Flight) -> Pos:
@@ -531,6 +558,9 @@ def select(c: Campaign, player: Flight) -> Plan:
     for f in plan.flights:                          # escorted / SEAD-supported targets
         if f.target_id and f.target_id not in objs and not c.objectives[f.target_id].destroyed:
             objs[f.target_id] = c.objectives[f.target_id]
+        deck = c.airbases[c.squadrons[f.squadron_id].base_id].carrier_of
+        if deck and deck in c.objectives:            # carrier flights need their ship
+            objs[deck] = c.objectives[deck]
     plan.objectives = list(objs.values())
     # spawn order: player first, then main flights, then the flights that support them
     plan.flights.sort(key=lambda f: (f is not player, f.supports is not None))
@@ -685,8 +715,24 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
             continue
         country = m.country(o.country)
         gname = f"{o.id} {o.name}"
+        ships = [(i, u) for i, u in alive if u.type in ship_map]
         vehicles = [(i, u) for i, u in alive if u.type in vehicle_map]
-        structures = [(i, u) for i, u in alive if u.type not in vehicle_map]
+        structures = [(i, u) for i, u in alive if u.type not in vehicle_map and u.type not in ship_map]
+        if ships:                            # a naval group at sea (a carrier group steams into the wind)
+            i0, u0 = ships[0]
+            sgp = m.ship_group(country, gname, ship_map[u0.type],
+                               T.to_point(Pos(x=o.pos.x + u0.dx, z=o.pos.z + u0.dz)))
+            sgp.units[0].name = f"{o.id}#{i0}"
+            for i, u in ships[1:]:
+                sh = m.ship(f"{o.id}#{i}", ship_map[u.type])
+                sh.position = T.to_point(Pos(x=o.pos.x + u.dx, z=o.pos.z + u.dz))
+                sgp.add_unit(sh)
+            if any(ab.carrier_of == o.id for ab in c.airbases.values()):
+                sgp.add_waypoint(T.to_point(Pos(x=o.pos.x, z=o.pos.z - CARRIER_TRACK)), CARRIER_SPEED_KMH)
+            for unit in sgp.units:
+                manifest[unit.name] = {"kind": "objective", "objective": o.id, "unit": int(unit.name.split("#")[1])}
+            obj_groups[o.id] = sgp
+            tracked.append(gname)
         if vehicles:
             i0, u0 = vehicles[0]
             g = m.vehicle_group(country, gname, vehicle_map[u0.type],
@@ -728,7 +774,8 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
         type_cls = plane_map[sq.aircraft_type]
         country = m.country(sq.country)
         base = c.airbases[sq.base_id]
-        airport = terrain.airports[base.dcs_name]
+        deck = obj_groups.get(base.carrier_of) if base.carrier_of else None
+        airport = None if base.carrier_of else terrain.airports[base.dcs_name]
         dcs_task = DCS_TASK.get(f.task, dtask.CAP)
         gname = f"{f.id} {f.callsign}"
         alt = spec.get("cruise_alt_m", 5000) + 300 * (k % 4)     # deconflict altitudes
@@ -737,7 +784,10 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
         dest = _dest(c, f)
         n = len(f.airframe_ids)
 
-        if is_player and start in START_TYPES:
+        if is_player and start in START_TYPES and deck is not None:      # off the carrier's deck
+            g = m.flight_group_from_unit(country, gname, type_cls, deck, maintask=dcs_task,
+                                         start_type=START_TYPES[start], group_size=n)
+        elif is_player and start in START_TYPES:
             slots = _adjacent_slots(airport, type_cls, n, blocked) if start == "ramp" else None
             g = m.flight_group_from_airport(country, gname, type_cls, airport, maintask=dcs_task,
                                             start_type=START_TYPES[start], group_size=n,
@@ -896,7 +946,7 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
         if is_player or escorted is not None or not (f.task in (Task.CAP, Task.ESCORT) and ai_flown):
             for p in reversed(path[1:-1]):       # home the same way round the SAMs
                 g.add_waypoint(T.to_point(p), alt, speed, name="RETURN")
-            g.land_at(airport)
+            _land(g, airport, deck)
         tracked.append(gname)
 
     rescue_cfg = _rescue_party(m, c, player, player_eta, tracked) if player.task is Task.RESCAP else None
@@ -916,7 +966,7 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
               f"{time_limit // 60} min.", ""] if bot else [])
     lines += [f"{c.name} - turn {c.turn}, {c.time:%d %b %Y %H:%M} local",
              f"Flight: {player.callsign} ({sq.name}), {len(player.airframe_ids)}x {sq.aircraft_type}"
-             f" from {c.airbases[sq.base_id].dcs_name} ({start} start)",
+             f" from {_base_label(c, c.airbases[sq.base_id])} ({start} start)",
              f"Loadout: {loadouts.flight_payload(c, player)['text']}",
              f"Tasking: {c.packages[player.package_id].description}"]
     from cwdc.engine import weather as wxmod

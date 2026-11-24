@@ -205,6 +205,8 @@ def payload_year(pylons: dict[int, str]) -> int | None:
 
 NOT_WEAPONS = {"fuel", "equipment", "training", "ECM pod", "chaff/flare", "targeting pod", "recon pod"}
 ARM = {"AGM-45 Shrike", "AGM-78 Standard ARM", "AGM-88 HARM", "Kh-58", "Kh-28"}
+ANTISHIP = {"AGM-84 Harpoon", "Kormoran", "Rb 04 anti-ship", "anti-ship missiles", "Kh-22", "Kh-31",
+            "AGM-12 Bullpup", "AGM-62 Walleye", "AGM-65 Maverick", "Rb 05", "Kh-23", "Kh-29", "Kh-66"}
 
 
 def payloads_for(dcs_type_: str, year: int, trim: bool = True) -> list[dict]:
@@ -241,7 +243,10 @@ def pick_payload(dcs_type_: str, year: int, kind: str) -> dict | None:
         a2a = sum(1 for f in fams if is_a2a(f))
         ground = sum(1 for f in fams if f not in NOT_WEAPONS and not is_a2a(f))
         arm = sum(1 for f in fams if f in ARM)
-        if kind == "clean":
+        ship = sum(1 for f in fams if f in ANTISHIP)
+        if kind == "antiship":
+            ok, score = ship > 0, ship * 2 + a2a * 0.1
+        elif kind == "clean":
             ok, score = a2a == 0 and ground == 0, 1
         elif kind == "air":
             ok, score = a2a > 0 and ground == 0, a2a
@@ -292,6 +297,10 @@ def air_defence_in(year: int, side: str | None = None, nations_on=None, installe
 
 def ground_in(year: int, side: str | None = None, nations_on=None, installed=None) -> dict[str, dict]:
     return {k: v for k, v in _ground()["ground"].items() if _in_year(v, year, side, nations_on, installed)}
+
+
+def naval_in(year: int, side: str | None = None, nations_on=None, installed=None) -> dict[str, dict]:
+    return {k: v for k, v in _ground().get("naval", {}).items() if _in_year(v, year, side, nations_on, installed)}
 
 
 # ---------------------------------------------------------------------------- slider

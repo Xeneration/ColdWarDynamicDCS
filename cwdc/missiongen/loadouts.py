@@ -133,7 +133,8 @@ def apply(group, name: str, aircraft: str = F4E) -> None:
 
 # ---------------------------------------------------------------------------- per-flight payload
 AIR_TASK_NAMES = {"CAP", "Escort", "QRA", "Intercept", "Sweep", "Recon"}
-PICK_ORDER = {"air": ("air", "clean"), "sead": ("sead", "ground", "clean"), "ground": ("ground", "clean")}
+PICK_ORDER = {"air": ("air", "clean"), "sead": ("sead", "ground", "clean"), "ground": ("ground", "clean"),
+              "antiship": ("antiship", "ground", "clean")}
 
 
 def _store_text(clsid: str) -> str:
@@ -172,7 +173,8 @@ def flight_payload(c, f) -> dict:
     if year is None:
         return {"pylons": None, "text": "standard load for the task", "source": "default"}
     task = f.task.value
-    kind = "air" if task in AIR_TASK_NAMES else "sead" if task == "SEAD" else "ground"
+    kind = "air" if task in AIR_TASK_NAMES else "sead" if task == "SEAD" else \
+        "antiship" if task == "Anti-ship" else "ground"
     for k in PICK_ORDER[kind]:                 # a strike flight never swaps its bombs for missiles
         p = era.pick_payload(type_id, year, k)
         if p is not None:
