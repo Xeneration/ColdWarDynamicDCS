@@ -711,6 +711,17 @@ What's deliberately left for later phases: the web UI (Phase 3), the crisis phas
 - **Glossary:** QRA, ROE, BRAA, Bullseye, MAGIC and Tension. The welcome guide now opens on the crisis.
 - **Task labels:** Recon is "Border probe", and QRA is new.
 
+**Progress (2026-11-24): Phase 4 step 10 done: balance pass; Phase 4 complete**
+- `tools/balance.py --crisis` plays whole campaigns, crisis included. It reports how long the crisis lasted, what started the war, OCA packages per side, and an outcome tally.
+- **12 seeds × 21 war days:**
+  - **Crisis:** 8–16 turns, mean 12 (3.0 days). The deadline started the war 8 times and tension 4 times.
+  - **NATO OCA:** 199 packages, about 0.8 a day. The Warsaw Pact flew 452.
+  - **Outcomes, with the crisis:** stalemate 9, NATO holds 2, Warsaw Pact victory 1.
+  - **Outcomes, without the crisis:** stalemate 7, NATO holds 3, Warsaw Pact gains 1, Warsaw Pact victory 1.
+  - **Loss rates:** NATO 3.4% and the Warsaw Pact 4.3% per sortie, unchanged.
+  - This is in line with Phase 2, so no extra NATO squadrons are needed.
+- **Still open, for the Phase 5 balance work:** too many stalemates, since the ground war rarely gives a decisive result.
+
 **Phase 5: Polish**
 - Balance passes, campaign presets (start date 1974–79, other squadrons), packaging into a one-click launcher, multiplayer client slots.
 - **Immersion lockdown, once all phases are finished** (requested 2026-11-23; kept on for now to help testing):

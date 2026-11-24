@@ -7,8 +7,22 @@ DCS has no dynamic campaign engine. This project is an external campaign manager
 strategic war, generates each mission as a `.miz` into your DCS Missions folder, and reads the
 results back after you fly, so the war moves on.
 
-> Status: **Phase 1**, a playable command-line campaign loop. See [docs/design.md](docs/design.md)
+> Status: **Phases 1–4** done: the campaign engine, the web UI, unattended soak testing, and the
+> crisis and immersion features. Phase 5 (polish) is next. See [docs/design.md](docs/design.md)
 > for the full design and roadmap.
+
+## The campaign in brief (Phase 4)
+- **The crisis (11 Aug 1976):** every new campaign opens 2–4 days before the war.
+  - You fly border CAP and **QRA**: scramble, intercept Warsaw Pact border probes and shadow them back east. The ROE is **weapons tight**.
+  - An intercept counts once you hold within 2 nm for 60 s.
+  - Firing first gets your pilot grounded and raises tension. Shooting one down brings the war forward.
+  - The war starts when tension reaches 100, or within 4 days anyway. It opens with Warsaw Pact raids on NATO airfields.
+- **MAGIC:** ground radar control on the F10 radio menu, giving bogey dope (BRAA), a picture (bullseye Fulda) and threat calls. It only sees what friendly radars see.
+- **Weather:** changes every turn. Low cloud, rain and dawn fog cut strike effect and sorties, and missions get matching DCS weather.
+- **Briefings and kneeboards:** player missions include three kneeboard pages: a mission card with waypoints, threats and comms, and a route sketch.
+- **News:** categorised and grouped by turn, with a daily item from the wider world.
+- **OCA:** NATO flies about one airfield raid a day when the air war calls for it. Your squadron gets it where possible, and the ATO suggests an air start for it.
+- `cwdc new --no-crisis` starts straight at war, for testing.
 
 ## Playing in the browser (Phase 3)
 ```powershell

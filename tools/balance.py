@@ -5,6 +5,7 @@ docs/design.md care about: per-sortie loss rates (by side, task and cause), how 
 front moves over the first days, who attacks where, OCA damage and outcomes.
 
     python -m tools.balance --seeds 6 --days 21
+    python -m tools.balance --seeds 6 --days 21 --crisis   # open with the pre-war crisis (Phase 4)
 """
 from __future__ import annotations
 
@@ -18,8 +19,16 @@ from cwdc.model import AirframeStatus, Side
 REPORT_DAYS = (1, 3, 7, 14, 21)
 
 
-def run(seed: int, days: int, stats: dict) -> dict:
-    c = new_campaign(f"Balance {seed}", seed=seed)
+def run(seed: int, days: int, stats: dict, crisis: bool = False) -> dict:
+    c = new_campaign(f"Balance {seed}", seed=seed, crisis=crisis)
+    crisis_info = None
+    if crisis:
+        while not c.at_war:
+            tension, deadline = c.tension, c.crisis_deadline_turn
+            turn.end_turn(c)
+        trigger = "deadline" if c.turn >= deadline and tension < 100 else "tension"
+        crisis_info = {"turns": c.war_start_turn - 1, "trigger": trigger}
+        stats["crisis"].append(crisis_info)
     tpd = outcome.turns_per_day(c)
     sorties = Counter()
     lost_air = Counter()
@@ -39,6 +48,9 @@ def run(seed: int, days: int, stats: dict) -> dict:
     resolver._Sim.lose = lose
     try:
         for t in range(days * tpd):
+            for p in c.packages.values():
+                if p.description.startswith("OCA"):
+                    stats["oca"][p.side] += 1
             for f in c.flights.values():
                 sorties[f.side] += len(f.airframe_ids)
                 by_task[(f.side, f.task.value)][0] += len(f.airframe_ids)
@@ -62,7 +74,7 @@ def run(seed: int, days: int, stats: dict) -> dict:
         stats["destroyed"][s] += destroyed[s]
     o = c.outcome
     return {"seed": seed, "outcome": f"{o.title} (day {outcome.war_day(c)})" if o else "ongoing",
-            "fronts": fronts, "blue_attack_turns": blue_attacks,
+            "fronts": fronts, "blue_attack_turns": blue_attacks, "crisis": crisis_info,
             "air": {s.value: f"{outcome.air_strength(c, s):.0%}" for s in Side}}
 
 
@@ -71,13 +83,17 @@ def main() -> None:
     ap.add_argument("--seeds", type=int, default=4)
     ap.add_argument("--first-seed", type=int, default=1)
     ap.add_argument("--days", type=int, default=21)
+    ap.add_argument("--crisis", action="store_true", help="open each campaign with the pre-war crisis")
     args = ap.parse_args()
     stats = {"cause": Counter(), "task": defaultdict(lambda: [0, 0]), "sorties": Counter(),
-             "lost_air": Counter(), "destroyed": Counter()}
+             "lost_air": Counter(), "destroyed": Counter(), "crisis": [], "oca": Counter()}
+    outcomes = Counter()
     for seed in range(args.first_seed, args.first_seed + args.seeds):
-        r = run(seed, args.days, stats)
+        r = run(seed, args.days, stats, args.crisis)
+        outcomes[r["outcome"].split(" (")[0]] += 1
+        cr = f"; crisis {r['crisis']['turns']} turns ({r['crisis']['trigger']})" if r["crisis"] else ""
         print(f"seed {r['seed']}: {r['outcome']}; air left B {r['air']['blue']} R {r['air']['red']}; "
-              f"NATO attack sector-turns {r['blue_attack_turns']}")
+              f"NATO attack sector-turns {r['blue_attack_turns']}{cr}")
         for day, fr in r["fronts"].items():
             print(f"    day {day:>2}: " + " ".join(f"{k} {v:+d}" for k, v in fr.items()))
     print("\nPer-sortie losses (in the air) and aircraft destroyed in total (incl. on the ground):")
@@ -86,6 +102,13 @@ def main() -> None:
         causes = ", ".join(f"{cause} {stats['cause'][(s, cause)] / n:.1%}" for cause in ("air", "SAM", "AAA"))
         print(f"  {s.value:4}: {stats['sorties'][s]} sorties, air losses {stats['lost_air'][s] / n:.1%} "
               f"({causes}); destroyed {stats['destroyed'][s]}")
+    if stats["crisis"]:
+        turns = [x["turns"] for x in stats["crisis"]]
+        trig = Counter(x["trigger"] for x in stats["crisis"])
+        print(f"Crisis: {min(turns)}-{max(turns)} turns (mean {sum(turns) / len(turns):.1f}, "
+              f"{sum(turns) / len(turns) / 4:.1f} days); war started by {dict(trig)}")
+    print(f"OCA packages: NATO {stats['oca'][Side.BLUE]}, Warsaw Pact {stats['oca'][Side.RED]}")
+    print("Outcomes: " + ", ".join(f"{k} {v}" for k, v in outcomes.most_common()))
     print("By task (sorties, loss rate):")
     for (s, task), (n, l) in sorted(stats["task"].items(), key=lambda kv: (kv[0][0].value, kv[0][1])):
         print(f"  {s.value:4} {task:<13} {n:>5}  {l / max(n, 1):.1%}")
