@@ -11,7 +11,7 @@ from __future__ import annotations
 import random
 
 from cwdc import theater as T
-from cwdc.engine import crews, rng
+from cwdc.engine import crews, rng, weather
 from cwdc.model import (Campaign, Flight, Kill, Objective, ObjectiveKind, PilotFate, PilotStatus,
                         Pos, Side, SortieResult, Task)
 
@@ -170,7 +170,8 @@ class _Sim:
                     n = self.kill_units(tgt, hits, prefer_radar=True)
                     self._ground_kills(f, tgt, n)
             else:
-                p = P_WEAPON * _rating(self.c, f, "strike_rating") * crews.performance(self.c, f)
+                p = (P_WEAPON * _rating(self.c, f, "strike_rating") * crews.performance(self.c, f)
+                     * weather.strike_factor(self.c.weather))         # 1976 bombing is visual
                 hits = sum(self.r.random() < p for _ in range(2 * n_alive))
                 n = self.kill_units(tgt, hits)
                 self._ground_kills(f, tgt, n)

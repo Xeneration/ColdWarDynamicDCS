@@ -662,6 +662,16 @@ What's deliberately left for later phases: the web UI (Phase 3), the crisis phas
 - **Theater `gci` block:** the callsign (MAGIC) and the blue bullseye (Fulda). The builder sets the coalition bullseye and adds a GCI line to the briefing.
 - **NATO radar sites:** still only `b_ewr_wasserkuppe`. I could not confirm another 1976 NATO radar site, so none was added.
 
+**Progress (2026-11-24): Phase 4 step 5 done: weather** (`engine/weather.py`)
+- **`Campaign.weather`:** the kind (clear, scattered, broken, overcast, rain or fog), cloud base, visibility, wind and temperature. It is rolled every turn from August transition weights.
+- **Fog:** a 35% chance at dawn after a clear or scattered turn with wind of 8 kt or less. It lifts on the next turn.
+- **Effects:**
+  - **Strike factor:** 1.0 in clear or scattered cloud, 0.85 broken, 0.7 overcast (0.15 less below 900 m), 0.55 rain, 0.5 fog.
+  - It multiplies the resolver's weapon effect.
+  - In the planner, each attack need is scrubbed with probability 1 − factor, and a scrubbed sortie stays on the ground.
+  - Fog halves the launches from every airfield.
+- **Missions:** `apply_weather` maps the state onto a DCS cloud preset (Scattered, Broken, Overcast, OvercastAndRain), fog, visibility and winds at 3 levels. The briefing gets a "Weather:" line.
+
 **Phase 5: Polish**
 - Balance passes, campaign presets (start date 1974–79, other squadrons), packaging into a one-click launcher, multiplayer client slots.
 - **Immersion lockdown, once all phases are finished** (requested 2026-11-23; kept on for now to help testing):

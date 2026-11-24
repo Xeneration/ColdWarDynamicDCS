@@ -75,6 +75,41 @@ class Plan:
     sweep: set[str] = field(default_factory=set)               # enemy CAP sent at the player's station
 
 
+# campaign weather kind -> DCS cloud presets (pydcs dcs.cloud_presets.Clouds)
+CLOUD_PRESETS = {"scattered": ("Scattered1", "Scattered2", "LightScattered1"),
+                 "broken": ("Broken1", "Broken3", "Broken4"),
+                 "overcast": ("Overcast1", "Overcast2", "Overcast3"),
+                 "rain": ("OvercastAndRain1", "OvercastAndRain2", "OvercastAndRain3")}
+
+
+def apply_weather(m: Mission, c: Campaign) -> None:
+    """Map the campaign's weather onto the mission (cloud preset, fog, visibility, wind)."""
+    from dcs.cloud_presets import Clouds
+    from dcs.weather import Weather, Wind
+    w = c.weather
+    wx = m.weather
+    wx.season_temperature = w.temp_c
+    wx.visibility_distance = min(80_000, w.visibility_m)
+    kt = 0.514444
+    wx.wind_at_ground = Wind(w.wind_dir, round(w.wind_kts * kt))
+    wx.wind_at_2000 = Wind((w.wind_dir + 10) % 360, round(w.wind_kts * 1.8 * kt))
+    wx.wind_at_8000 = Wind((w.wind_dir + 20) % 360, round(w.wind_kts * 3.0 * kt))
+    names = CLOUD_PRESETS.get(w.kind)
+    if names:
+        preset = Clouds[names[rng(c.seed, c.turn, "clouds").randrange(len(names))]].value
+        wx.clouds_preset = preset
+        wx.clouds_base = max(preset.min_base, min(preset.max_base, w.cloud_base_m))
+        if w.kind == "rain":
+            wx.clouds_iprecptns = Weather.Preceptions.Rain
+    else:
+        wx.clouds_preset = None
+        wx.clouds_density = 0
+    if w.kind == "fog":
+        wx.enable_fog = True
+        wx.fog_visibility = w.visibility_m
+        wx.fog_thickness = 300
+
+
 def _theater(c: Campaign) -> dict:
     from cwdc.engine.factory import THEATERS
     return T.load_data(THEATERS[c.theater][0])
@@ -381,9 +416,7 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
     m = Mission(terrain)
     coalitions.setup(m)
     m.start_time = c.time
-    m.weather.clouds_density = 3
-    m.weather.clouds_base = 2500
-    m.weather.wind_at_ground.speed = 3
+    apply_weather(m, c)
 
     tag = f"-{c.instance}" if c.instance else ""
     mission_id = f"{c.id}{tag}-t{c.turn:03d}-{player.id}"
@@ -624,6 +657,8 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
              f"Flight: {player.callsign} ({sq.name}), {len(player.airframe_ids)}x {sq.aircraft_type}"
              f" from {c.airbases[sq.base_id].dcs_name} ({start} start)",
              f"Tasking: {c.packages[player.package_id].description}"]
+    from cwdc.engine import weather as wxmod
+    lines.append("Weather: " + wxmod.describe(c.weather) + ".")
     if c.at_war and c.war_turn == 1:
         lines.append(f"WAR: the Warsaw Pact attacked at {c.time:%H%M} today. Expect raids on our "
                      "airfields. ROE: WEAPONS FREE.")

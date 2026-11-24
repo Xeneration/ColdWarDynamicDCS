@@ -348,6 +348,16 @@ class Outcome(BaseModel):
     time: datetime
 
 
+class WeatherState(BaseModel):
+    """This turn's weather (engine.weather)."""
+    kind: str = "scattered"            # clear | scattered | broken | overcast | rain | fog
+    cloud_base_m: int = 2500
+    visibility_m: int = 40_000
+    wind_dir: int = 240                # degrees the wind blows from
+    wind_kts: int = 8
+    temp_c: float = 22.0
+
+
 class Campaign(BaseModel):
     schema_version: int = 2
     id: str
@@ -365,6 +375,7 @@ class Campaign(BaseModel):
     tension: float = 0.0               # 0-100; war breaks out at 100 (or at the deadline)
     war_start_turn: int = 1            # first turn of the war
     crisis_deadline_turn: int = 0      # the war starts on this turn at the latest
+    weather: WeatherState = Field(default_factory=WeatherState)
 
     @property
     def at_war(self) -> bool:

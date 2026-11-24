@@ -20,7 +20,7 @@ from dataclasses import dataclass
 from typing import Optional
 
 from cwdc import theater as T
-from cwdc.engine import airbases, crews, rng
+from cwdc.engine import airbases, crews, rng, weather
 from cwdc.model import (Campaign, CrewRole, Flight, FlightStatus, Objective, ObjectiveKind, Package,
                         PilotStatus, Pos, Side, Squadron, Task)
 
@@ -179,6 +179,7 @@ class _Pool:
             if wsos is not None:
                 n = min(n, len(wsos) // FLIGHT_SIZE)
             n = airbases.sorties(c, sq.base_id, n)                # a damaged base launches less
+            n = int(n * weather.launch_factor(c.weather))          # fog: fewer launches
             self.left[sq.id] = min(n, len(afs) // FLIGHT_SIZE, len(pls) // FLIGHT_SIZE)
 
     def pick(self, tasks: list[Task], near: Pos | None = None, exclude: set[str] = frozenset()):
@@ -237,11 +238,15 @@ def plan_turn(c: Campaign) -> None:
         side_needs = needs(c, side)
         if opening:                                   # open the war on NATO's airfields
             side_needs.sort(key=lambda n: n.label != "OCA")
+        wx = weather.strike_factor(c.weather)
         for need in side_needs:
             if need.target.id in taken:
                 continue
             sq, task = pool.pick(CAN_FLY[need.task], near=need.target.pos)
             if sq is None:
+                continue
+            if wx < 1.0 and r.random() > wx:
+                pool.left[sq.id] -= 1                 # weather scrub: that sortie stays on the ground
                 continue
             taken.add(need.target.id)
             pkg = _package(c, side, task, f"{need.label or task.value} - {need.target.name}",

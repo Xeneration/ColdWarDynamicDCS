@@ -4,7 +4,7 @@ from __future__ import annotations
 from datetime import timedelta
 
 from cwdc.engine import (airbases, apply, crews, crisis, factory, ground, logistics, outcome,
-                         planner, resolver, stats)
+                         planner, resolver, stats, weather)
 from cwdc.model import (Airframe, AirframeStatus, Campaign, CrewRole, Debrief, FlightStatus, Pilot,
                         PilotStatus, SortieResult)
 from cwdc.engine import rng
@@ -91,6 +91,7 @@ def _advance(c: Campaign) -> None:
                 p.status = PilotStatus.ACTIVE
     c.turn += 1
     c.time += timedelta(hours=c.turn_hours)
+    weather.advance(c)
     if (c.turn - 1) % REPLACEMENT_EVERY_TURNS == 0:
         _replacements(c)
 

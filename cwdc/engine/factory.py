@@ -6,7 +6,7 @@ import secrets
 from datetime import datetime
 
 from cwdc import theater as T
-from cwdc.engine import airbases, crews, crisis as crisis_mod, planner, rng
+from cwdc.engine import airbases, crews, crisis as crisis_mod, planner, rng, weather
 from cwdc.model import (Airbase, Airframe, Campaign, Formation, ObjUnit, Objective, ObjectiveKind,
                         Pilot, Pos, Sector, Side, Squadron, SupplyLink, SupplyNode, Task)
 
@@ -82,6 +82,7 @@ def new_campaign(name: str, seed: int = 1976, theater: str = "fulda_1976",
     else:
         c.add_news(f"{c.time:%d %b %Y}: Warsaw Pact forces have crossed the inner German border. "
                    "USAFE squadrons are committed to the defence of the Fulda Gap.")
+    weather.initial(c)
     planner.plan_turn(c)
     return c
 
