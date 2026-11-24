@@ -57,7 +57,7 @@ DOCTRINE = {
                 "escort": True, "sead_support": True},
     # Warsaw Pact: GCI-directed fighters on CAP, mass on the battlefield, few escorts,
     # and a doctrine of hitting NATO airfields to win the air battle on the ground
-    Side.RED: {"cap_stations": 2, "cas": 1.2, "bai": 1.0, "interdiction": 0.8, "strike": 0.8, "oca": 1.3,
+    Side.RED: {"cap_stations": 2, "cas": 1.2, "bai": 1.0, "interdiction": 0.8, "strike": 0.8, "oca": 1.0,
                "escort": False, "sead_support": True},
 }
 

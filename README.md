@@ -20,10 +20,18 @@ results back after you fly, so the war moves on.
 .\.venv\Scripts\python.exe -m cwdc ingest                    # your results + the simulated rest -> next turn
 ```
 Other commands:
-- `status` shows squadrons, objectives and news.
-- `roster` shows your squadron's pilots.
+- `status` shows the war situation, squadrons, the ground war, supply, airfields, objectives and news. Once the war is decided, it shows the war summary instead.
+- `roster` shows your squadron's pilots and WSOs, with their fatigue.
 - `skip` sits the turn out and lets it play out without you.
 - `rollback <turn>` restores the snapshot from the start of that turn.
+- `fly <ID> --bot` and `autorun <N>` play missions or turns with no player, for testing.
+- `python -m tools.balance --seeds 6 --days 21` plays whole wars and reports per-sortie loss rates, how the front moves, and the outcomes.
+
+The war ends in one of four ways:
+- **Warsaw Pact victory:** it reaches the Main, breaks through 100 km deep, or exhausts NATO air power.
+- **NATO victory:** after day 7, the border is restored everywhere.
+- **Ceasefire on day 21:** judged by how much West German territory the Warsaw Pact holds.
+- **Each campaign rolls the Warsaw Pact's main axis**, and reinforcement timetables slip.
 
 Campaign saves live in `Saved Games\DCS\CWDC\campaigns\<id>\`. That folder holds
 `campaign.json` plus one snapshot per turn in `turns\NNN.json`.

@@ -5,7 +5,8 @@ slots, so they never block a runway) and a pair of AAA guns. Destroying a parked
 aircraft - in DCS or in the resolver - is the same event:
 
   * the base takes DAMAGE_PER_HIT damage (ramp, fuel, ground crew, runway repair crews);
-  * one ready aircraft of a squadron based there is destroyed on the ground.
+  * with P_AIRCRAFT_LOST, one ready aircraft of a squadron based there is destroyed on the
+    ground (the rest were shelters, dispersed or decoys).
 
 Damage cuts the squadrons' sortie rate (`sortie_factor`); at CLOSED the base flies
 nothing. Repair crews take REPAIR_PER_TURN off each turn the base is not hit again,
@@ -23,7 +24,8 @@ from cwdc.engine import rng
 from cwdc.model import (AirframeStatus, Airbase, Campaign, ObjUnit, Objective, ObjectiveKind, Pos,
                         Side)
 
-DAMAGE_PER_HIT = 0.15
+DAMAGE_PER_HIT = 0.12
+P_AIRCRAFT_LOST = 0.4        # a hit parked aircraft is a real one (shelters, dispersal, decoys)
 REPAIR_PER_TURN = 0.10
 CLOSED = 0.7
 N_PARKED = 4
@@ -119,7 +121,7 @@ def on_unit_destroyed(c: Campaign, o: Objective, idx: int) -> None:
     r = rng(c.seed, c.turn, f"oca:{o.id}:{idx}")
     ready = [a for sq in sorted(c.squadrons.values(), key=lambda s: s.id)
              if sq.base_id == ab.id and sq.side is o.side for a in c.squadron_airframes(sq.id)]
-    if ready:
+    if ready and r.random() < P_AIRCRAFT_LOST:
         a = r.choice(ready)
         a.status = AirframeStatus.DESTROYED
         c.add_news(f"{c.squadrons[a.squadron_id].name} loses {a.id} on the ground at {ab.dcs_name}.")

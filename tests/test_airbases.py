@@ -37,7 +37,8 @@ def test_every_airbase_has_an_airfield_objective_on_its_parking_slots(camp):
             assert min(((p.x - x) ** 2 + (p.y - z) ** 2) ** 0.5 for p in slots) < 1.0
 
 
-def test_destroying_parked_aircraft_damages_base_and_kills_a_resident(camp):
+def test_destroying_parked_aircraft_damages_base_and_kills_a_resident(camp, monkeypatch):
+    monkeypatch.setattr(airbases, "P_AIRCRAFT_LOST", 1.0)    # this hit was a real aircraft
     ab = camp.airbases["rheinmain"]
     sq = next(s for s in camp.squadrons.values() if s.base_id == "rheinmain")
     before = _ready(camp, sq.id)
@@ -46,6 +47,14 @@ def test_destroying_parked_aircraft_damages_base_and_kills_a_resident(camp):
     assert _ready(camp, sq.id) == before - 1
     apply.destroy_unit(camp, f"{airbases.objective_id('rheinmain')}#4")     # an AAA gun: no damage
     assert ab.damage == pytest.approx(airbases.DAMAGE_PER_HIT)
+
+
+def test_most_hits_on_parked_aircraft_are_shelters_or_decoys(camp, monkeypatch):
+    monkeypatch.setattr(airbases, "P_AIRCRAFT_LOST", 0.0)
+    sq = next(s for s in camp.squadrons.values() if s.base_id == "rheinmain")
+    before = _ready(camp, sq.id)
+    apply.destroy_unit(camp, f"{airbases.objective_id('rheinmain')}#1")
+    assert _ready(camp, sq.id) == before and camp.airbases["rheinmain"].damage > 0
 
 
 def test_damage_cuts_sortie_rate_and_a_closed_base_flies_nothing(camp):
@@ -79,7 +88,9 @@ def test_base_repairs_over_turns_and_parked_aircraft_return(camp):
 
 def test_warsaw_pact_flies_oca_against_occupied_nato_bases(camp):
     seen = set()
-    for _ in range(6):
+    for _ in range(40):
+        if seen:
+            break
         for p in camp.packages.values():
             if p.side is Side.RED and p.description.startswith("OCA"):
                 tgt = camp.objectives[p.target_id]

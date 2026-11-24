@@ -104,14 +104,33 @@ def _add_ground_war(c: Campaign, th: dict, oob: dict) -> list[str]:
             added.append(s["name"])
         elif not c.sectors[s["id"]].depots and s.get("depots"):
             c.sectors[s["id"]].depots = {Side(k): v for k, v in s["depots"].items()}
+    plan = th.get("war_plan", {})
     for f in oob.get("formations", []):
         if f["id"] not in c.formations:
+            sector = f["sector"]
+            if sector == "main":
+                sector = main_effort(c, plan)
+            arrival = f.get("arrival_turn", 1)
+            if arrival > 1:                     # mobilisation and REFORGER timetables slip
+                lo, hi = plan.get("arrival_jitter", {}).get(f["side"], (0, 0))
+                arrival = max(2, arrival + rng(c.seed, 0, f"arrival:{f['id']}").randint(lo, hi))
             c.formations[f["id"]] = Formation(
                 id=f["id"], name=f["name"], side=Side(f["side"]), country=f["country"],
-                sector_id=f["sector"], kind=f.get("kind", "armor"), strength=f["strength"],
-                max_strength=f["strength"], arrival_turn=f.get("arrival_turn", 1))
+                sector_id=sector, kind=f.get("kind", "armor"), strength=f["strength"],
+                max_strength=f["strength"], arrival_turn=arrival)
             added.append(f["name"])
     return added
+
+
+def main_effort(c: Campaign, plan: dict) -> str:
+    """The Warsaw Pact's main axis for this campaign (rolled once, weighted by the theater)."""
+    if c.main_effort is None:
+        weights = {k: v for k, v in plan.get("red_main_effort", {}).items() if k in c.sectors}
+        if not weights:
+            weights = {next(iter(c.sectors)): 1.0}
+        r = rng(c.seed, 0, "war_plan")
+        c.main_effort = r.choices(list(weights), weights=list(weights.values()))[0]
+    return c.main_effort
 
 
 def _load_network(c: Campaign, th: dict) -> None:

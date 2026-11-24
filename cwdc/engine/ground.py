@@ -24,15 +24,22 @@ from cwdc.model import (AirframeStatus, Campaign, Formation, Objective, Objectiv
 
 K_ATTRITION = 0.03           # share of the opposing force's power lost per 6 h of fighting
 DEFENDER_BONUS = 1.3         # prepared defence multiplier (on top of sector terrain)
-RED_ATTACK_RATIO = 0.9       # Soviet doctrine: attack at modest odds (terrain-adjusted)
-BLUE_ATTACK_RATIO = 1.6      # NATO counter-attacks only with a clear advantage
+HASTY_DEFENCE = 1.05         # ... when defending ground taken during this war (no prepared positions)
+# Commanders attack on *expected* odds: attacker power / (defender power x defence x terrain)
+RED_MIN_ODDS = 0.85          # Soviet doctrine: keep the tempo up at modest odds
+BLUE_MIN_ODDS = 0.9          # NATO counter-attacks when it expects to hold its own
+PENETRATION_KM = 5.0         # a breach this deep draws NATO reinforcements
+ATTACK_STRAIN = 0.04         # readiness an attacking formation loses per turn (fuel, ammo, exhaustion)
+READINESS_RECOVERY = 0.03    # readiness regained per turn not attacking
+MIN_READINESS = 0.4
 ADVANCE_PER_RATIO_KM = 5.0   # km gained per turn for each 1.0 of odds above GRIND_ODDS
 GRIND_ODDS = 0.8             # below 1:1 an attacker still grinds forward slowly
 MAX_ADVANCE_KM = 8.0         # km per turn
-MIN_OFFSET_KM = -40.0        # NATO can push at most this far into the GDR
-REGEN_PER_TURN = 0.01        # of max strength, scaled by supply (replacements)
+MIN_OFFSET_KM = -10.0        # forward defence: NATO restores the border, it does not invade the GDR
+REGEN_PER_TURN = 0.006       # of max strength, scaled by supply (replacements)
 REVIVE_SHARE = 0.5           # share of dead visible units rebuilt per turn
-AIR_KILL_SCALE = 1.5         # strength lost per point of a vehicle destroyed from the air
+AIR_KILL_SCALE = 4.0         # strength lost per point of a visible vehicle destroyed from the air
+                             # (each visible element stands for a company-sized slice)
 SUPPLY_FALLOFF_KM = 250.0    # stand-in until Phase 2 step 4 logistics: supply fades with distance
 MIN_SUPPLY = 0.3             # ...advanced beyond the pre-war border
 ON_GROUND_LOSS = 0.25        # share of ready aircraft lost when their airbase is overrun
@@ -90,9 +97,11 @@ def resolve_ground(c: Campaign) -> list[str]:
         if R <= 0 and B <= 0:
             continue
         attacker = None
-        if B <= 0 or R >= RED_ATTACK_RATIO * B * sec.terrain:
+        red_odds = R / max(B * defence(sec, Side.BLUE) * sec.terrain, 1e-6)
+        blue_odds = B / max(R * defence(sec, Side.RED) * sec.terrain, 1e-6)
+        if B <= 0 or red_odds >= RED_MIN_ODDS:
             attacker = Side.RED
-        elif R <= 0 or B >= BLUE_ATTACK_RATIO * R:
+        elif R <= 0 or blue_odds >= BLUE_MIN_ODDS:
             attacker = Side.BLUE
         sec.attacker = attacker
         noise = r.uniform(0.85, 1.15)
@@ -102,12 +111,13 @@ def resolve_ground(c: Campaign) -> list[str]:
             _apply_losses(blues, K_ATTRITION * 0.3 * R)
             for f in reds + blues:
                 f.posture = Posture.DEFEND
+                f.readiness = min(1.0, f.readiness + READINESS_RECOVERY)
             lines.append(f"  {sec.name}: front static ({_fmt(sec)}), red {R:.0f} vs blue {B:.0f}")
             continue
 
         att, dfn = (reds, blues) if attacker is Side.RED else (blues, reds)
         A, D = (R, B) if attacker is Side.RED else (B, R)
-        d_eff = D * DEFENDER_BONUS * sec.terrain
+        d_eff = D * defence(sec, attacker.enemy) * sec.terrain
         odds = A * noise / max(d_eff, 1.0)
         # a prepared defence in good terrain takes fewer losses and inflicts more
         _apply_losses(dfn, K_ATTRITION * A * noise / sec.terrain)
@@ -119,8 +129,10 @@ def resolve_ground(c: Campaign) -> list[str]:
         sec.offset_km = max(MIN_OFFSET_KM, sec.offset_km)
         for f in att:
             f.posture = Posture.ATTACK
+            f.readiness = max(MIN_READINESS, f.readiness - ATTACK_STRAIN)
         for f in dfn:
             f.posture = Posture.DEFEND
+            f.readiness = min(1.0, f.readiness + READINESS_RECOVERY)
         who = "Warsaw Pact" if attacker is Side.RED else "NATO"
         moved = f"advances {gain:.1f} km" if gain > 0.05 else "is held"
         lines.append(f"  {sec.name}: {who} attack (odds {odds:.1f}:1) {moved}; "
@@ -136,13 +148,23 @@ def resolve_ground(c: Campaign) -> list[str]:
     return lines
 
 
+def defence(sec: Sector, defender: Side) -> float:
+    """Prepared positions on your own side of the border; hasty ones on ground just taken."""
+    on_taken_ground = sec.offset_km > 0.5 if defender is Side.RED else sec.offset_km < -0.5
+    return HASTY_DEFENCE if on_taken_ground else DEFENDER_BONUS
+
+
 def _commit_sector(c: Campaign, side: Side) -> str:
-    """NATO reinforces the most threatened sector; the Warsaw Pact exploits the best one."""
+    """NATO reinforces the deepest penetration (to restore the border there), else the most
+    threatened sector; the Warsaw Pact exploits its best one."""
     def odds(sec: Sector) -> float:
         own, enemy = power(c, sec.id, side), power(c, sec.id, side.enemy)
         return enemy / max(own, 1.0)
     secs = list(c.sectors.values())
     if side is Side.BLUE:
+        deep = max(secs, key=lambda s: s.offset_km)
+        if deep.offset_km > PENETRATION_KM:
+            return deep.id
         return max(secs, key=lambda s: (odds(s), s.offset_km)).id
     return max(secs, key=lambda s: (s.offset_km, -odds(s))).id
 

@@ -455,6 +455,47 @@ Testing is by `cwdc autorun N` (abstract turns in seconds) plus occasional `cwdc
   - **NATO never wins:** the Fulda front stalls at about +40 km and never returns to the border.
   - **For step 9:** NATO's per-sortie attrition, and its thin order of battle (two F-4E squadrons), are the obvious levers. So is a NATO counter-offensive once Warsaw Pact formations wear down.
 
+**Progress (2026-11-24): step 9 done (balance pass); Phase 2 complete**
+- **Tooling:** `tools/balance.py` plays whole wars across seeds. It reports:
+  - per-sortie air losses by side, cause and task;
+  - the front on days 1/3/7/14/21;
+  - NATO attack activity, air strength and outcomes.
+- **Baseline problems found:**
+  - **Air losses** were 7–8% per sortie for both sides.
+  - **NATO lost about 200 aircraft on the ground**, more than in the air, to Warsaw Pact OCA. That's what exhausted its air power.
+  - **The front froze at day 7.** Red kept "attacking" at effective odds of 0.7, which gained nothing, and 1% regeneration refilled both sides.
+  - **NATO never counter-attacked**, because it needed 1.6:1 raw odds.
+  - **Air power barely touched the ground war:** NATO air removed about 7% of Warsaw Pact strength in 14 days, and fronts were the same with air kills switched off.
+- **Changes:**
+  - **Resolver:** base air loss 0.15 → 0.07, SAM 0.07 → 0.05, AAA 0.03 → 0.015.
+  - **OCA:**
+    - a parked-aircraft hit is a real aircraft only 40% of the time (shelters, dispersal, decoys);
+    - 12% damage per hit;
+    - Warsaw Pact OCA weight 1.3 → 1.0.
+  - **Ground: commanders attack on *expected* odds,** that is power ÷ (defender × defence × terrain):
+    - Red attacks at 0.85 or better, NATO at 0.9 or better;
+    - otherwise both dig in.
+  - **Culmination:**
+    - attacking costs 4% readiness a turn, and not attacking restores 3% (minimum 40%);
+    - regeneration is 0.6% a turn.
+  - **Defence bonus:** a defender on ground taken this war has a hasty 1.05 defence instead of the prepared 1.3, so counter-offensives can roll a salient back.
+  - **NATO forward defence:**
+    - NATO restores the border and goes at most 10 km into the GDR (it was 40 km);
+    - NATO commits reinforcements to the deepest penetration (over 5 km), otherwise to the most threatened sector.
+  - **Air-to-ground weight:** `AIR_KILL_SCALE` 1.5 → 4, since a visible vehicle stands for a company-sized slice. CAS and BAI now matter, and so do the player's strikes.
+  - **War plan per campaign** (`war_plan` in the theater):
+    - the 1st Guards Tank Army's two divisions go to a rolled main axis: Fulda 40%, Rhön 35%, Göttingen 15%, Hof 10%;
+    - reinforcement arrivals slip (Warsaw Pact ±2 turns, NATO −2/+4).
+- **Result** (8 seeds, 21 days):
+  - **Per-sortie air losses:** NATO 3.5% (air 2.3, SAM 0.5, AAA 0.7), Warsaw Pact 4.2%.
+  - **Outcomes:** 1 Warsaw Pact victory (a Fulda collapse, day 8), 1 ceasefire with Warsaw Pact gains, 4 stalemates, 2 ceasefires with NATO holding.
+  - **The front:** typically +2 to +23 km by day 3. Salients get pinched back as NATO concentrates, and the Warsaw Pact shifts to quieter sectors.
+  - **Guard rail:** `tests/test_balance.py` keeps the first week inside this band.
+- **Still open:**
+  - **NATO never wins decisively.**
+  - **NATO flies no OCA:** its six sorties a turn always find higher-value CAS and interdiction needs, so the player never gets an OCA tasking yet.
+  - **NATO's order of battle is thin** (two F-4E squadrons against three Warsaw Pact squadrons). More squadrons or a REFORGER air deployment would be the next lever, best judged once real flights show how much one player changes things.
+
 What's deliberately left for later phases: the web UI (Phase 3), the crisis phase, the MAGIC controller and kneeboards (Phase 4), and the immersion lockdown (Phase 5).
 
 **Phase 3: Web UI**

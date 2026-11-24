@@ -90,8 +90,8 @@ formations:
   - {id: r_39gmrd, name: "39th Guards Motor Rifle Division", side: red, country: USSR, sector: fulda, kind: mech, strength: 280}
   - {id: r_57gmrd, name: "57th Guards Motor Rifle Division", side: red, country: USSR, sector: rhoen, kind: mech, strength: 260}
   - {id: r_79gtd, name: "79th Guards Tank Division", side: red, country: USSR, sector: hof, kind: armor, strength: 240}
-  - {id: r_1gta_9td, name: "9th Tank Division (1st Guards Tank Army)", side: red, country: USSR, sector: fulda, kind: armor, strength: 260, arrival_turn: 9}
-  - {id: r_1gta_11gtd, name: "11th Guards Tank Division (1st Guards Tank Army)", side: red, country: USSR, sector: rhoen, kind: armor, strength: 260, arrival_turn: 13}
+  - {id: r_1gta_9td, name: "9th Tank Division (1st Guards Tank Army)", side: red, country: USSR, sector: main, kind: armor, strength: 260, arrival_turn: 9}
+  - {id: r_1gta_11gtd, name: "11th Guards Tank Division (1st Guards Tank Army)", side: red, country: USSR, sector: main, kind: armor, strength: 260, arrival_turn: 13}
   # second strategic echelon (sector: auto = committed where the attack is going best)
   - {id: r_20ga_35mrd, name: "35th Motor Rifle Division (20th Guards Army)", side: red, country: USSR, sector: auto, kind: mech, strength: 250, arrival_turn: 17}
   - {id: r_20ga_6gmrd, name: "6th Guards Motor Rifle Division (20th Guards Army)", side: red, country: USSR, sector: auto, kind: mech, strength: 250, arrival_turn: 25}

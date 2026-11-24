@@ -38,6 +38,12 @@ front_line:
   - [49.60, 12.55]
   - [49.30, 12.90]
 
+# Per-campaign war plan: where the Warsaw Pact makes its main effort (formations with
+# sector: main go there) and how much reinforcement arrivals slip (turns, min/max).
+war_plan:
+  red_main_effort: {fulda: 0.4, rhoen: 0.35, goettingen: 0.15, hof: 0.10}
+  arrival_jitter: {red: [-2, 2], blue: [-2, 4]}
+
 # How the war is won (engine.outcome).
 victory:
   # Warsaw Pact: the front reaches the Main (any of these taken), a sector breaks through to
