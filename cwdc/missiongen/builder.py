@@ -9,6 +9,7 @@ the engine.
 from __future__ import annotations
 
 import math
+import tempfile
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -22,7 +23,7 @@ from dcs.vehicles import vehicle_map
 
 from cwdc import theater as T
 from cwdc.engine import rng
-from cwdc.missiongen import coalitions, loadouts
+from cwdc.missiongen import coalitions, kneeboard, loadouts
 from cwdc.missiongen.runtime_inject import inject_runtime
 from cwdc.model import Campaign, Flight, MissionRecord, Objective, ObjectiveKind, Pos, Side, Task
 
@@ -108,6 +109,74 @@ def apply_weather(m: Mission, c: Campaign) -> None:
         wx.enable_fog = True
         wx.fog_visibility = w.visibility_m
         wx.fog_thickness = 300
+
+
+CODEWORDS = ("BLUE MOON", "TIN CAN", "ROADHOUSE", "HAYSTACK", "LANTERN", "PEPPERMILL", "SNOWCAP",
+             "TEAPOT", "BRASS RING", "OLD MILL", "STORMDRAIN", "FENCEPOST")
+
+
+def _divert(c: Campaign, player: Flight):
+    from cwdc.engine.airbases import CLOSED
+    home = c.airbases[c.squadrons[player.squadron_id].base_id]
+    others = [ab for ab in c.airbases.values() if ab.side is player.side and ab.id != home.id
+              and ab.damage < CLOSED]
+    return min(others, key=lambda ab: ab.pos.dist(home.pos), default=None)
+
+
+def _situation_lines(c: Campaign, player: Flight, plan: Plan) -> list[str]:
+    """SITUATION / AAA / DIVERT / CODEWORDS briefing lines (also on the kneeboard)."""
+    from cwdc.engine import outcome
+    from cwdc.engine.resolver import AAA_TYPES
+    out = []
+    if c.at_war:
+        deep = max(c.sectors.values(), key=lambda s: s.offset_km, default=None)
+        front = (f" Deepest Warsaw Pact gain: {deep.offset_km:.0f} km ({deep.name})."
+                 if deep and deep.offset_km > 0 else " The front is holding at the border.")
+        out.append(f"SITUATION: war day {outcome.war_day(c)}.{front}")
+    if player.target_id:
+        tgt = c.objectives[player.target_id]
+        aaa = sum(1 for u in tgt.units if u.alive and any(a in u.type for a in AAA_TYPES))
+        if aaa:
+            out.append(f"Target defences: {aaa} AAA / short-range SAM vehicle(s) reported.")
+    div = _divert(c, player)
+    if div is not None:
+        out.append(f"Divert: {div.dcs_name}.")
+    r = rng(c.seed, c.turn, f"codewords:{player.id}")
+    ok, abort = r.sample(CODEWORDS, 2)
+    out.append(f"Codewords: mission complete {ok}, abort {abort}.")
+    return out
+
+
+def _kneeboard_info(c: Campaign, player: Flight, plan: Plan, group, lines: list[str],
+                    magic: dict | None) -> "kneeboard.KneeboardInfo":
+    wps = []
+    route = []
+    for i, p in enumerate(group.points):
+        pos = Pos(x=p.position.x, z=p.position.y)
+        lat, lon = T.pos_to_latlon(pos)
+        name = p.name or ("START" if i == 0 else "LAND" if p.type == "Land" else f"WP{i}")
+        wps.append((name, lat, lon, round(p.alt * 3.28084), "AGL" if p.alt_type == "RADIO" else "MSL"))
+        route.append(pos)
+    enemy_sams = [o for o in plan.objectives if o.side is player.side.enemy and o.kind is ObjectiveKind.SAM
+                  and o.threat_range_m and not o.destroyed]
+    threats = [f"{o.name}: {o.threat_range_m / 1852:.0f} nm ring" for o in enemy_sams]
+    threats += [l for l in lines if l.startswith(("Intel:", "Intruders", "Target defences"))]
+    comms = [l for l in lines if l.startswith(("GCI:", "Friendly flights", "Divert:", "Codewords:", "Weather:"))]
+    head = [l for l in lines if l.startswith(("Flight:", "Crews:", "Tasking:", "Target:", "CRISIS", "WAR:",
+                                              "SITUATION:"))]
+    bull = None
+    if magic:
+        bull = Pos(x=magic["bullseye"]["x"], z=magic["bullseye"]["z"])
+    centre = route[len(route) // 2] if route else None
+    front = [T.latlon_to_pos(la, lo) for la, lo in c.front_line]
+    if centre is not None:
+        front = [p for p in front if p.dist(centre) < 300_000]
+    return kneeboard.KneeboardInfo(
+        title=f"{player.callsign.upper()} - {player.task.value}",
+        subtitle=f"{c.time:%d %b %Y %H%M}L, turn {c.turn}", lines=head, waypoints=wps,
+        threats=threats, comms=comms, route=route,
+        rings=[(o.pos, o.threat_range_m, o.name.split()[0]) for o in enemy_sams], front=front,
+        bullseye=bull, target=c.objectives[player.target_id].pos if player.target_id else None)
 
 
 def _theater(c: Campaign) -> dict:
@@ -711,6 +780,7 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
         bc.bullseye = {"x": bull.x, "y": bull.z}
         lines.append(f"GCI: {magic['callsign']} on the F10 radio menu (bogey dope, picture, threat "
                      f"calls); it only sees what our radars hold. Bullseye: {gci['bullseye']['name']}.")
+    lines += _situation_lines(c, player, plan)
     lines.append("Exit the mission normally when done; run `cwdc ingest` afterwards.")
     m.set_description_text("\n".join(lines))
     briefing = list(lines)
@@ -724,7 +794,12 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
                    roe="weapons_free" if c.at_war else "weapons_tight", intercept=intercept, magic=magic)
     out_dir.mkdir(parents=True, exist_ok=True)
     path = out_dir / mission_filename(c, player, bot)
-    m.save(str(path))
+    with tempfile.TemporaryDirectory() as tmp:
+        if not bot:                                   # kneeboard pages for the player's aircraft
+            info = _kneeboard_info(c, player, plan, groups[player.id], lines, magic)
+            for page in kneeboard.render(info, Path(tmp), mission_id):
+                m.add_aircraft_kneeboard(plane_map[sq.aircraft_type], page)
+        m.save(str(path))
     return MissionRecord(mission_id=mission_id, turn=c.turn, player_flight_id=player.id,
                          miz_path=str(path), generated_at=time.time(), manifest=manifest,
                          spawned_flights=[f.id for f in plan.flights], bot=bot, briefing=briefing)

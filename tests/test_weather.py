@@ -60,3 +60,19 @@ def test_mission_gets_the_campaign_weather(tmp_path):
             assert w.clouds_preset is None and not w.enable_fog
         assert any(l.startswith("Weather: ") for l in rec.briefing)
     assert "visibility" in weather.describe(c.weather)
+
+
+def test_player_mission_has_kneeboard_pages_and_full_briefing(tmp_path):
+    import zipfile
+    c = new_campaign("Knee", seed=3)
+    f = next(x for x in c.flights.values() if x.player_eligible and x.target_id)
+    rec = builder.build(c, f.id, tmp_path, start="air")
+    with zipfile.ZipFile(rec.miz_path) as z:
+        pages = [n for n in z.namelist() if n.startswith("KNEEBOARD/F-4E-45MC/IMAGES/")]
+    assert len(pages) == 3
+    joined = "\n".join(rec.briefing)
+    for key in ("SITUATION: war day 1", "Divert: ", "Codewords: ", "Weather: ", "GCI: MAGIC"):
+        assert key in joined
+    bot = builder.build(c, f.id, tmp_path, start="air", bot=True)
+    with zipfile.ZipFile(bot.miz_path) as z:
+        assert not any(n.startswith("KNEEBOARD/") for n in z.namelist())

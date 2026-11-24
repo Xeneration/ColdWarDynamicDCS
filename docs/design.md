@@ -672,6 +672,18 @@ What's deliberately left for later phases: the web UI (Phase 3), the crisis phas
   - Fog halves the launches from every airfield.
 - **Missions:** `apply_weather` maps the state onto a DCS cloud preset (Scattered, Broken, Overcast, OvercastAndRain), fog, visibility and winds at 3 levels. The briefing gets a "Weather:" line.
 
+**Progress (2026-11-24): Phase 4 step 6 done: briefings and kneeboards**
+- **New briefing lines:**
+  - **SITUATION:** the war day and the deepest Warsaw Pact gain.
+  - **Target defences:** the AAA and short-range SAM count.
+  - **Divert:** the nearest open friendly airfield.
+  - **Codewords:** seeded words for mission complete and abort.
+  - **Weather, GCI and bullseye** (from the earlier steps).
+- **Kneeboard** (`missiongen/kneeboard.py`, Pillow with its built-in font): three 768×1024 pages, added per aircraft type with `add_aircraft_kneeboard`. Player missions only; bot missions get none.
+  1. **Mission card:** flight, tasking, ROE or war line, crews, target, and waypoints with lat/lon in degrees and minutes and altitude in ft MSL or AGL.
+  2. **Threats and comms:** SAM rings in nm, intel, intruders, GCI, friendly flights, divert, codewords, weather.
+  3. **Route sketch:** north up, clipped to its box, showing legs, SAM rings, the front line, the target, the bullseye, and a 20 nm scale bar.
+
 **Phase 5: Polish**
 - Balance passes, campaign presets (start date 1974–79, other squadrons), packaging into a one-click launcher, multiplayer client slots.
 - **Immersion lockdown, once all phases are finished** (requested 2026-11-23; kept on for now to help testing):
