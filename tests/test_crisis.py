@@ -1,4 +1,4 @@
-﻿import json
+import json
 
 from cwdc.engine import crisis, outcome, planner, turn
 from cwdc.engine.factory import new_campaign
@@ -87,6 +87,7 @@ def test_crisis_plans_probes_with_qra_against_them():
     probe = c.flights[q.intercepts]
     assert probe.task is Task.RECON and probe.side is Side.RED
     assert q.player_eligible and q.area.dist(probe.area) < 1
+    assert q.loadout == "QRA"                                           # zulu-alert fit, not CAP
     from cwdc import theater as T
     assert T.side_at_pos(c.front_line, probe.area) is Side.BLUE        # just over the border
 

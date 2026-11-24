@@ -24,6 +24,13 @@ results back after you fly, so the war moves on.
 - **OCA:** NATO flies about one airfield raid a day when the air war calls for it. Your squadron gets it where possible, and the ATO suggests an air start for it.
 - `cwdc new --no-crisis` starts straight at war, for testing.
 
+## Starting it (one click)
+Double-click **ColdWarDynamic** on the desktop: it starts the web UI in the background, or reuses
+it if it's already running, and opens it in your browser. **ColdWarDynamic + DCS** also starts
+DCS World. **ColdWarDynamic overnight soak** runs the 8-hour, 2-instance soak test.
+The shortcuts are created with `.\.venv\Scripts\python.exe -m cwdc shortcuts`; run it again if you
+move the project folder. `cwdc start [--dcs]` does the same from a terminal.
+
 ## Playing in the browser (Phase 3)
 ```powershell
 .\.venv\Scripts\python.exe -m cwdc serve        # opens http://127.0.0.1:8076 in your browser

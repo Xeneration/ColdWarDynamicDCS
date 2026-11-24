@@ -65,6 +65,18 @@ def cmd_show_result(args) -> None:
         print(f"  group {g['name']}: {len(g['units'])} alive")
 
 
+def cmd_start(args) -> None:
+    from cwdc import launcher
+    for note in launcher.start(dcs=args.dcs):
+        print(note)
+
+
+def cmd_shortcuts(args) -> None:
+    from cwdc import launcher
+    for lnk in launcher.make_shortcuts():
+        print(f"created {lnk}")
+
+
 def cmd_serve(args) -> None:
     from cwdc.web.app import serve
     serve(host=args.host, port=args.port, open_browser=not args.no_browser,
@@ -92,6 +104,11 @@ def main(argv=None) -> None:
     p.add_argument("--no-auto-ingest", action="store_true",
                    help="don't ingest finished missions automatically")
     p.set_defaults(func=cmd_serve)
+    p = sub.add_parser("start", help="one-click start: web UI in the background + browser (and DCS)")
+    p.add_argument("--dcs", action="store_true", help="also start DCS World if it isn't running")
+    p.set_defaults(func=cmd_start)
+    p = sub.add_parser("shortcuts", help="create the desktop shortcuts for the one-click start")
+    p.set_defaults(func=cmd_shortcuts)
     from cwdc import cli_campaign
     cli_campaign.register(sub)
     from cwdc.soak import cli as soak_cli
