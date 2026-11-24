@@ -31,7 +31,12 @@ def test_maker_info(client):
     bars = {b["id"]: b for b in r["bars"]}
     assert bars["F-100D"]["owned"] == ["F-100D"] and bars["MiG-21"]["owned"] == []
     assert bars["Jaguar"]["stand_in"]
-    assert {t["id"]: t["available"] for t in r["theatres"]} == {"germany": True, "syria": False}
+    assert {t["id"]: t["available"] for t in r["theatres"]} == {"germany": True, "syria": True}
+    syria = client.get("/api/maker?theatre=syria").json()
+    assert {"Turkey", "Syria"} <= {n["name"] for n in syria["nations"]}
+    assert "Sweden" not in {n["name"] for n in syria["nations"]}
+    p = client.post("/api/maker/preview", json={"theatre": "syria", "year": 1976}).json()
+    assert p["ok"] and any(x["nation"] == "Turkey" for x in p["squadrons"]["west"])
     assert {p["id"] for p in r["presets"]} >= {"fulda-1976", "sabre-days-1957"}
     assert any(n["name"] == "Sweden" and n["toggle"] for n in r["nations"])
     assert "Turkey" not in {n["name"] for n in r["nations"]}             # Southern Flank only

@@ -208,6 +208,7 @@ def map_layers(c: Campaign) -> dict:
     pos = formation_positions(c)
     labels = th.get("map_labels", {})
     return {
+        "theater": c.theater, "border_note": T.geometry()["border_note"],
         "front": [[round(a, 5), round(b, 5)] for a, b in c.front_line],
         "border": [[round(a, 5), round(b, 5)] for a, b in c.base_front_line],
         "territory": {k: [[round(a, 5), round(b, 5)] for a, b in v] for k, v in terr.items()},

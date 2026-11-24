@@ -48,8 +48,9 @@ def begin(c: Campaign) -> None:
     lo, hi = rules.get("turns", (8, 16))
     c.crisis_deadline_turn = 1 + r.randint(lo, hi)
     c.war_start_turn = c.crisis_deadline_turn
-    news.post(c, f"{c.time:%d %b %Y}: Crisis in Central Europe. Warsaw Pact forces in the GDR and "
-               "Czechoslovakia are on the move. NATO air defence goes to a higher alert state; "
+    text = rules.get("headline", "Crisis in Central Europe. Warsaw Pact forces in the GDR and "
+                     "Czechoslovakia are on the move.")
+    news.post(c, f"{c.time:%d %b %Y}: {text} NATO air defence goes to a higher alert state; "
                "Quick Reaction Alert aircraft stand ready, weapons tight.", "diplomatic")
 
 

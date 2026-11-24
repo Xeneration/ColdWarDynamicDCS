@@ -1,0 +1,29 @@
+# Southern Flank ground forces (fictional but plausible). Squadrons are generated for the chosen
+# year by the campaign maker; only the formations live here. strength as on the Central Front:
+# a brigade ~100, a division ~200-280. arrival_turn > 1 = reinforcement (4 turns a day).
+squadrons: []
+
+formations:
+  # NATO - Turkish 2nd Army (6th Corps) and the US Rapid Deployment Force
+  - {id: b_tr_39mid, name: "39th Mechanized Infantry Division", side: blue, country: Turkey, sector: hatay, kind: mech, strength: 180}
+  - {id: b_tr_hatay, name: "Hatay Border Brigade", side: blue, country: Turkey, sector: hatay, kind: mech, strength: 90}
+  - {id: b_tr_5ab, name: "5th Armored Brigade", side: blue, country: Turkey, sector: kilis, kind: armor, strength: 130}
+  - {id: b_tr_20mb, name: "20th Mechanized Brigade", side: blue, country: Turkey, sector: kilis, kind: mech, strength: 120}
+  - {id: b_tr_birecik, name: "Birecik Infantry Brigade", side: blue, country: Turkey, sector: euphrates, kind: mech, strength: 120}
+  - {id: b_tr_14ab, name: "14th Armored Brigade", side: blue, country: Turkey, sector: urfa, kind: armor, strength: 120}
+  # reinforcements (sector: auto = committed where the front is most threatened)
+  - {id: b_tr_2ad, name: "2nd Armored Division", side: blue, country: Turkey, sector: auto, kind: armor, strength: 200, arrival_turn: 5}
+  - {id: b_us_82abn, name: "82nd Airborne Division (RDF)", side: blue, country: USA, sector: auto, kind: mech, strength: 150, arrival_turn: 9}
+  - {id: b_tr_28mid, name: "28th Mechanized Infantry Division", side: blue, country: Turkey, sector: auto, kind: mech, strength: 180, arrival_turn: 15}
+  - {id: b_us_24id, name: "24th Infantry Division (Mech) (RDF)", side: blue, country: USA, sector: auto, kind: mech, strength: 200, arrival_turn: 21}
+  - {id: b_us_1mar, name: "1st Marine Division (RDF)", side: blue, country: USA, sector: auto, kind: mech, strength: 200, arrival_turn: 29}
+  # Syria and the Soviet expeditionary force
+  - {id: r_sy_7md, name: "7th Mechanized Division", side: red, country: Syria, sector: hatay, kind: mech, strength: 240}
+  - {id: r_sy_1ad, name: "1st Armored Division", side: red, country: Syria, sector: kilis, kind: armor, strength: 260}
+  - {id: r_sy_3ad, name: "3rd Armored Division", side: red, country: Syria, sector: hatay, kind: armor, strength: 250}
+  - {id: r_sy_9ad, name: "9th Armored Division (-)", side: red, country: Syria, sector: euphrates, kind: armor, strength: 160}
+  - {id: r_sy_5md, name: "5th Mechanized Division (-)", side: red, country: Syria, sector: urfa, kind: mech, strength: 170}
+  - {id: r_su_103gad, name: "103rd Guards Airborne Division (Soviet)", side: red, country: USSR, sector: main, kind: mech, strength: 200, arrival_turn: 9}
+  - {id: r_su_mrd, name: "Soviet expeditionary Motor Rifle Division", side: red, country: USSR, sector: main, kind: mech, strength: 250, arrival_turn: 13}
+  - {id: r_sy_10md, name: "10th Mechanized Division", side: red, country: Syria, sector: auto, kind: mech, strength: 230, arrival_turn: 17}
+  - {id: r_sy_dc, name: "Defence Companies Division", side: red, country: Syria, sector: auto, kind: armor, strength: 220, arrival_turn: 25}

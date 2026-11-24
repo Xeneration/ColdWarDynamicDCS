@@ -228,6 +228,7 @@ def plan_turn(c: Campaign) -> None:
     c.packages.clear()
     c.flights.clear()
     c.reactions = [x for x in c.reactions if x.turn != c.turn]     # a re-plan answers afresh
+    T.use(c)
     r = rng(c.seed, c.turn, "plan")
     night = period(c) == "night"
     pools: dict[Side, _Pool] = {}
@@ -543,7 +544,7 @@ def probe_points(c: Campaign) -> list[Pos]:
         p = T.latlon_to_pos(lat, lon)
         if stations and min(p.dist(s) for s in stations) > PROBE_FRONT_RANGE:
             continue
-        q = Pos(x=p.x, z=p.z - PROBE_DEPTH)                     # DCS z is east: west = NATO side
+        q = T.toward_nato(p, PROBE_DEPTH)
         if T.side_at_pos(c.front_line, q) is Side.BLUE:
             out.append(q)
     return out

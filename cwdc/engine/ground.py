@@ -187,8 +187,8 @@ def _fmt(sec: Sector) -> str:
     if abs(sec.offset_km) < 0.5:
         return "on the border"
     if sec.offset_km > 0:
-        return f"{sec.offset_km:.0f} km into West Germany"
-    return f"{-sec.offset_km:.0f} km into East Germany"
+        return f"{sec.offset_km:.0f} km into {T.geometry()['lands']['blue']}"
+    return f"{-sec.offset_km:.0f} km into {T.geometry()['lands']['red']}"
 
 
 # ----------------------------------------------------------------------------- front geometry
@@ -231,6 +231,12 @@ def update_front(c: Campaign) -> None:
     for sec in c.sectors.values():
         for i in sec.front_points:
             offset[i] = sec.offset_km
+    if T.geometry()["front_shift"] == "sector":   # a sector moves as one block (a front with
+        for sec in c.sectors.values():            # corners, where point normals would splay)
+            dx, dz = sector_shift(c, sec)
+            for i in sec.front_points:
+                off = sec.offset_km or 1.0
+                norms[i] = (dx / (off * 1000), dz / (off * 1000)) if sec.offset_km else norms[i]
     front = []
     for p, (nx, nz), off in zip(pts, norms, offset):
         moved = Pos(x=p.x + nx * off * 1000, z=p.z + nz * off * 1000)

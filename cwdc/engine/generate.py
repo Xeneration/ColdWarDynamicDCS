@@ -22,7 +22,8 @@ from cwdc import era
 from cwdc import theater as T
 from cwdc.engine import rng
 
-THEATRE_FILES = {"germany": "theater_fulda_1976.yaml"}
+THEATRE_FILES = {"germany": "theater_fulda_1976.yaml", "syria": "theater_syria.yaml"}
+CAMPAIGN_THEATER = {"germany": "fulda_1976", "syria": "syria"}      # Setup.theatre -> Campaign.theater
 NATION_WEIGHT = {"USA": 4, "USSR": 5, "West Germany": 2, "UK": 2, "GDR": 2, "France": 1.5}
 FIGHTER_ROLES = ("fighter", "interceptor", "multirole")
 STRIKE_ROLES = ("attack", "bomber", "multirole")
@@ -142,8 +143,9 @@ def player_choice(setup: Setup) -> tuple[era.InService, str]:
         raise SetupError(f"none of your aircraft modules is in service with the {setup.side} in {setup.year}")
     # prefer land-based real airframes, multirole first, then the lead nation
     role_pref = {"multirole": 0, "attack": 1, "fighter": 2, "interceptor": 3, "bomber": 4}
+    nw = weights(setup)
     cands.sort(key=lambda s: (s.airframe.carrier, s.airframe.stand_in, role_pref[s.airframe.role],
-                              -NATION_WEIGHT.get(s.nation, 1), s.airframe.id))
+                              -nw.get(s.nation, 1), s.airframe.id))
     pick = cands[0]
     types = era.player_types(pick.airframe, inst)
     ptype = setup.player_type if setup.player_type in types else types[0]
@@ -208,10 +210,17 @@ def _name(nation: str, group: str, used: set, r: random.Random) -> str:
     return name
 
 
-def _pick(cands: list[era.InService], used_af: set, r: random.Random) -> era.InService | None:
+def weights(setup: Setup) -> dict[str, float]:
+    """How much of each air force a theatre sees (the Central Front: USAF and the Soviets)."""
+    return theatre_data(setup)["generator"].get("weights", NATION_WEIGHT)
+
+
+def _pick(cands: list[era.InService], used_af: set, r: random.Random,
+          nation_weight: dict | None = None) -> era.InService | None:
     if not cands:
         return None
-    w = [NATION_WEIGHT.get(s.nation, 1) * (0.5 if s.airframe.stand_in else 1)
+    nw = nation_weight or NATION_WEIGHT
+    w = [nw.get(s.nation, 1) * (0.5 if s.airframe.stand_in else 1)
          * (0.5 if s.airframe.role == "bomber" else 1)
          * (0.25 if s.airframe.id in used_af else 1) for s in cands]
     return r.choices(cands, weights=w)[0]
@@ -280,7 +289,7 @@ def oob(setup: Setup, seed: int) -> dict:
             cands = [s for s in all_in if s.airframe.role in roles
                      and (group == "fighter" or s.airframe.strike >= 0.3)]
             for _ in range(slots[side][group]):
-                s = _pick(cands, used_af, r)
+                s = _pick(cands, used_af, r, weights(setup))
                 if s is None:
                     break
                 used_af.add(s.airframe.id)
@@ -290,7 +299,7 @@ def oob(setup: Setup, seed: int) -> dict:
 
 def _formations(setup: Setup, th: dict) -> list[dict]:
     from cwdc.engine.factory import THEATERS
-    base = T.load_data(THEATERS["fulda_1976"][1])
+    base = T.load_data(THEATERS[CAMPAIGN_THEATER[setup.theatre]][1])
     lead = th["generator"]["lead"]
     nations_on = set(setup.active_nations())
     out = []

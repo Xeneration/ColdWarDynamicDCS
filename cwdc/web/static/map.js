@@ -186,8 +186,12 @@ export class CampaignMap {
     this._patterns();
 
     // front, border and what is happening in each sector
+    if (m.theater && m.theater !== this.theater) {            // a new campaign's map: frame its front
+      this.theater = m.theater;
+      this.map.fitBounds(L.latLngBounds(m.front).pad(m.theater === "fulda_1976" ? 0.6 : 0.9));
+    }
     L.polyline(m.border, { color: "#c9d1d9", weight: 2, dashArray: "5 6", opacity: 0.9 })
-      .bindTooltip("Pre-war inner German border (1976). Everything west of it was West Germany (NATO).", { sticky: true })
+      .bindTooltip(esc(m.border_note || "Pre-war border."), { sticky: true })
       .addTo(L_.front);
     L.polyline(m.front, { color: "#e0a43a", weight: 4, opacity: 0.95 })
       .bindTooltip("Front line: where the armies meet now.", { sticky: true }).addTo(L_.front);
@@ -266,7 +270,7 @@ export class CampaignMap {
       this.flightLines[f.id] = { line, f };
     }
 
-    // 1976 place names
+    // period place names (from the theatre file)
     for (const c of m.countries)
       L.marker(c.latlon, { pane: "labels", interactive: false, icon: L.divIcon({ className: "country-lbl",
         html: `${esc(c.name)}<br><small>${esc(c.note)}</small>`, iconSize: null }) }).addTo(L_.labels);

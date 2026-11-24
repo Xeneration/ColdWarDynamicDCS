@@ -16,3 +16,15 @@ germany:
   hof:
     - {name: "Saale bridges at Hof", km: 6}
     - {name: "Red Main at Bayreuth", km: 40}
+syria:
+  hatay:
+    - {name: "Orontes bridges at Antakya", km: 18}
+    - {name: "Belen Pass", km: 45}
+  kilis:
+    - {name: "Kilis heights", km: 8}
+    - {name: "Gaziantep plateau", km: 35}
+  euphrates:
+    - {name: "Euphrates crossing at Birecik", km: 22}
+  urfa:
+    - {name: "Harran plain at Harran", km: 25}
+    - {name: "Sanliurfa ridge", km: 45}

@@ -20,6 +20,8 @@ def end_turn(c: Campaign, dcs_results: list[SortieResult] | None = None,
     """Close the current turn. Returns debrief lines."""
     if c.outcome is not None:
         raise ValueError(f"the war is over ({c.outcome.title})")
+    from cwdc import theater
+    theater.use(c)
     debrief = [f"=== Turn {c.turn} debrief - {c.time:%d %b %Y %H:%M} ==="]
     before = stats.counts(c)
     player_flight = c.pending_mission.player_flight_id if c.pending_mission else next(

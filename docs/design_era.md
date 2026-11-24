@@ -280,3 +280,43 @@ Treat **every DCS module as available**: the user owns many more than are instal
   - The FROG/Scud hunt: DCS has only `Scud_B`, too big and late for most eras. Counter-battery covers the guns.
   - Bridges as targets (unverified on the map).
   - UH-1H missions you fly yourself (helicopter squadrons in the wing).
+
+### Phase F: the Southern Flank on the Syria map (2026-11-24, done; naval part still to come)
+
+- **The engine works on any theatre:**
+  - `theater.THEATRE_FILES` maps `Campaign.theater` to its data file. `theater.use(c)` / `activate()` switch the DCS terrain, the coordinate conversions and which side of the front is whose.
+  - The active theatre is per thread, because the web UI serves several campaigns at once (found in browser testing: a map poll for a Germany campaign switched the map under a Syria campaign being built).
+  - `use` is called by `store.load`, `new_campaign`, `turn.end_turn`, `planner.plan_turn` and `builder.build`.
+  - A theatre file's `geometry` block:
+    - `dcs_terrain`;
+    - `blue_side` (west / north);
+    - `lands` (for "km into Turkey");
+    - `border_note`;
+    - `blue_zones`: ground that stays NATO's whatever the front does, such as Cyprus;
+    - `front_shift: sector`: a sector's front moves as one block. Point normals splay at the corner of Hatay, which let the Kilis advance wrap around Osmaniye.
+  - Direction helpers `nato_dir` / `toward_nato` / `toward_enemy` replace "the enemy is east" in probes, helicopter waves, search parties and probe exits.
+  - Crisis headline, war-start news, victory texts and the map's border tooltip come from the theatre. The map frames the campaign's front.
+- **`data/theater_syria.yaml` + `data/oob_syria.yaml`:**
+  - **Front:** the Turkish-Syrian border, from the coast at Kassab to Ceylanpinar, in four sectors: Hatay/Orontes, Kilis/Aleppo, Euphrates at Karkamis, Harran plain. Each has chokepoints (Orontes at Antakya, Belen Pass, Birecik ...).
+  - **Ground forces:**
+    - NATO: the Turkish 2nd Army brigades and divisions, plus the US Rapid Deployment Force (82nd Airborne, 24th Mech, 1st Marine Division) as reinforcements.
+    - East: Syrian armoured and mechanized divisions, with the Soviet 103rd Guards Airborne and an expeditionary motor rifle division.
+  - **Objectives:** HAWK, SA-2/3/6, EWRs, front battalions, artillery, the Aleppo headquarters, rail yards (Iskenderun, Gaziantep, Aleppo, Hama), depots and convoys, and a rail and road supply network.
+  - **Victory:** the East reaching Iskenderun, Osmaniye or Adana, or a 100 km breakthrough.
+  - **Airfields by nation:**
+    - NATO: Incirlik, Gaziantep, Adana, Sanliurfa, Diyarbakir, Cukurova, Akrotiri.
+    - East: Aleppo, Kuweires, Jirah, Taftanaz, Abu al-Duhur, Tabqa, Hama, Latakia.
+  - **Nation weights:** Turkey and Syria fly most squadrons (Turkey 5, USA 3, UK 1.5; Syria 5, USSR 2).
+  - **Dates:** the war season is October.
+- **Campaign maker:** Southern Flank is selectable. Theatre buttons reload the chart and nations, the name follows the theatre, and the enemy is called "Syria and USSR". Presets switch theatre back as needed.
+- **Balance** (`tools.balance --theatre syria --year Y`, 8 seeds x 21 days):
+
+  | Year | NATO loss / sortie | East loss / sortie | Outcomes |
+  |---|---|---|---|
+  | 1976 | 2.5% | 5.0% | stalemate 5, East gains 3 |
+  | 1985 | 3.2% | 4.9% | stalemate 5, East gains 2, NATO holds 1 |
+
+  - The first cut collapsed in 3 days: Gaziantep, a victory city, was 40 km from the border and Kilis was at 2:1.
+  - Fixes: victory cities moved deeper, one Syrian division moved to the Hatay mountains, Turkish brigades strengthened, reinforcements earlier.
+  - The Central Front preset is unchanged (same balance numbers as before).
+- **Still to come (F2): the sea.** Soviet Mediterranean squadron ships as targets, anti-ship strikes, and US carrier ops (F-14 / A-4 from a deck). Carrier types fly from land until then.

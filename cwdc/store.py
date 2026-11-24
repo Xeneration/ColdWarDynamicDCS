@@ -39,7 +39,10 @@ def load(campaign_id: str | None = None) -> Campaign:
             raise FileNotFoundError("no current campaign - run `cwdc new` first")
         campaign_id = marker.read_text(encoding="utf-8").strip()
     path = campaign_dir(campaign_id) / "campaign.json"
-    return Campaign.model_validate_json(path.read_text(encoding="utf-8"))
+    c = Campaign.model_validate_json(path.read_text(encoding="utf-8"))
+    from cwdc import theater
+    theater.use(c)
+    return c
 
 
 def rollback(campaign_id: str, turn: int) -> Campaign:

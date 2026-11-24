@@ -245,8 +245,8 @@ def _reaction_scene(m: Mission, c: Campaign, player: Flight, player_eta: float, 
                 "friends": best.name if best else "our troops"}
     if x.kind == "helo" and player.area is not None:
         area = player.area
-        start = Pos(x=area.x, z=area.z + HELO_START_DIST)      # the Warsaw Pact side is to the east
-        lz = Pos(x=area.x, z=area.z - HELO_LZ_DIST)
+        start = T.toward_enemy(area, HELO_START_DIST)
+        lz = T.toward_nato(area, HELO_LZ_DIST)
         delay = int(player_eta - HELO_START_DIST / (HELO_SPEED_KMH / 3.6))
         names = []
         types = reactive.helo_types(c.time.year)
@@ -316,8 +316,7 @@ def _rescue_party(m: Mission, c: Campaign, player: Flight, player_eta: float, tr
     hg.land_at(m.terrain.airports[home.dcs_name])
     tracked.append(hg.name)
     red = next(s for s in c.squadrons.values() if s.side is player.side.enemy)
-    east = SEARCH_PARTY_DIST if player.side is Side.BLUE else -SEARCH_PARTY_DIST
-    party_at = Pos(x=pickup.x, z=pickup.z + east)
+    party_at = T.toward_enemy(pickup, SEARCH_PARTY_DIST if player.side is Side.BLUE else -SEARCH_PARTY_DIST)
     vg = m.vehicle_group(m.country(red.country), "Search party", vehicle_map["BRDM-2"],
                          T.to_point(party_at), group_size=2)
     v = m.vehicle("Search party AAA", vehicle_map["Ural-375 ZU-23"])
@@ -643,6 +642,7 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
     player slot (DCS starts in spectator view), and the mission ends itself once the
     focus flight has landed or been lost, or after BOT_TIME_LIMIT.
     """
+    T.use(c)
     import logging
     logging.getLogger().setLevel(logging.CRITICAL)
     if start not in TAXI_TIME:
@@ -761,7 +761,7 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
                 else:
                     run_in = 70_000
                     plan.delay.setdefault(f.id, max(0, int(player_eta - run_in / (speed / 3.6))))
-                spawn = Pos(x=f.area.x, z=f.area.z + run_in)
+                spawn = T.toward_enemy(f.area, run_in)
             elif f.id in plan.sweep:                        # sweep in from the enemy side
                 spawn = _beyond(player_station, f.area, SWEEP_START_DIST)
             elif f.task in (Task.CAP, Task.ESCORT):
@@ -830,11 +830,12 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
             orbit.stop_after_duration(ESCORT_HOLD_S)
             hwp.tasks.append(orbit)
         elif f.task is Task.RECON:
-            # probe: up to (just over) the border, along it, and back east
+            # probe: up to (just over) the border, along it, and back home
             g.add_waypoint(T.to_point(f.area), alt, speed, name="PROBE")
-            along = Pos(x=f.area.x + 20_000, z=f.area.z)
+            nx, nz = T.nato_dir()
+            along = Pos(x=f.area.x - nz * 20_000, z=f.area.z + nx * 20_000)     # parallel to the border
             g.add_waypoint(T.to_point(along), alt, speed, name="PROBE-2")
-            g.add_waypoint(T.to_point(Pos(x=along.x, z=along.z + 60_000)), alt, speed, name="EXIT")
+            g.add_waypoint(T.to_point(T.toward_enemy(along, 60_000)), alt, speed, name="EXIT")
         elif f.task in FIGHTER_TASKS or (f.task is Task.ESCORT and ai_flown):
             probe_g = groups.get(f.intercepts) if f.task is Task.QRA and f.intercepts else None
             if ai_flown and probe_g is not None:

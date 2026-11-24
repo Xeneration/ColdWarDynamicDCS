@@ -85,8 +85,8 @@ def check(c: Campaign) -> Outcome | None:
     for g in v.get("red_goals", []):
         if T.side_at_pos(c.front_line, _goal_pos(g)) is Side.RED:
             return done(Side.RED, "Warsaw Pact victory",
-                        f"Soviet forces have reached {g['name']} on the Main. NATO's forward "
-                        "defence has collapsed.")
+                        v.get("goal_text", "Soviet forces have reached {city} on the Main. NATO's "
+                              "forward defence has collapsed.").format(city=g["name"]))
     deep = max(c.sectors.values(), key=lambda s: s.offset_km, default=None)
     if deep and deep.offset_km >= v.get("breakthrough_km", math.inf):
         return done(Side.RED, "Warsaw Pact victory",
@@ -100,7 +100,7 @@ def check(c: Campaign) -> Outcome | None:
             and all(s.offset_km <= 0 for s in c.sectors.values()):
         return done(Side.BLUE, "NATO victory",
                     f"after {day - 1} days NATO has thrown the Warsaw Pact back across the "
-                    "inner German border everywhere. Moscow accepts a ceasefire.")
+                    + v.get("border_name", "inner German border") + " everywhere. Moscow accepts a ceasefire.")
     if day >= v.get("max_days", math.inf) and end_of_day:
         mean = sum(max(0.0, s.offset_km) for s in c.sectors.values()) / max(1, len(c.sectors))
         if mean >= CEASEFIRE_WP_KM:
@@ -113,7 +113,7 @@ def check(c: Campaign) -> Outcome | None:
 
 def _ceasefire(c: Campaign, day: int, mean: float) -> str:
     return (f"after {day} days the superpowers agree a ceasefire. The Warsaw Pact holds on "
-            f"average {mean:.0f} km of West German territory along the front.")
+            f"average {mean:.0f} km of {T.geometry()['lands']['blue']} territory along the front.")
 
 
 # ----------------------------------------------------------------------------- reports
@@ -174,7 +174,7 @@ def summary(c: Campaign) -> list[str]:
                   f"  The war lasted {war_day(c)} days ({o.time:%d %b %Y %H:%M}, turn {o.turn})."]
     lines.append("  Front at the end: " + ", ".join(
         f"{s.name} {'+' if s.offset_km > 0 else ''}{s.offset_km:.0f} km" for s in c.sectors.values())
-        + "  (+ = into West Germany)")
+        + f"  (+ = into {T.geometry()['lands']['blue']})")
     for side, name in ((Side.BLUE, "NATO"), (Side.RED, "Warsaw Pact")):
         afs = [a for a in c.airframes.values() if c.squadrons[a.squadron_id].side is side]
         crew = Counter(p.status for p in c.pilots.values() if p.side is side)

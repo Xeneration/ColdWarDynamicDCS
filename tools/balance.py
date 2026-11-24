@@ -19,11 +19,12 @@ from cwdc.model import AirframeStatus, Side
 REPORT_DAYS = (1, 3, 7, 14, 21)
 
 
-def run(seed: int, days: int, stats: dict, crisis: bool = False, year: int | None = None) -> dict:
+def run(seed: int, days: int, stats: dict, crisis: bool = False, year: int | None = None,
+        theatre: str = "germany") -> dict:
     setup = None
-    if year is not None:                       # campaign maker: a generated war of that year
+    if year is not None or theatre != "germany":   # campaign maker: a generated war of that year
         from cwdc.engine import generate
-        setup = generate.Setup(year=year, owned=["F-100D", "F-4E-45MC", "A-10A", "A-4E-C", "AJS37", "F-5E-3"],
+        setup = generate.Setup(theatre=theatre, year=year or 1976, owned=["F-100D", "F-4E-45MC", "A-10A", "A-4E-C", "AJS37", "F-5E-3"],
                                mods=["A-4E-C"], tech=["WWII Units"])
     c = new_campaign(f"Balance {seed}", seed=seed, crisis=crisis, setup=setup)
     stats.setdefault("crisis", [])
@@ -92,12 +93,13 @@ def main() -> None:
     ap.add_argument("--days", type=int, default=21)
     ap.add_argument("--crisis", action="store_true", help="open each campaign with the pre-war crisis")
     ap.add_argument("--year", type=int, help="campaign maker: a generated war of this year")
+    ap.add_argument("--theatre", default="germany", help="campaign maker theatre: germany or syria")
     args = ap.parse_args()
     stats = {"cause": Counter(), "task": defaultdict(lambda: [0, 0]), "sorties": Counter(),
              "lost_air": Counter(), "destroyed": Counter(), "crisis": [], "oca": Counter()}
     outcomes = Counter()
     for seed in range(args.first_seed, args.first_seed + args.seeds):
-        r = run(seed, args.days, stats, args.crisis, args.year)
+        r = run(seed, args.days, stats, args.crisis, args.year, args.theatre)
         outcomes[r["outcome"].split(" (")[0]] += 1
         cr = f"; crisis {r['crisis']['turns']} turns ({r['crisis']['trigger']})" if r["crisis"] else ""
         print(f"seed {r['seed']}: {r['outcome']}; air left B {r['air']['blue']} R {r['air']['red']}; "

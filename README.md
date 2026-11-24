@@ -13,9 +13,9 @@ results back after you fly, so the war moves on.
 >
 > **Next stage: the Cold War campaign maker (1950–1991).** Pick a year, and the war is built
 > with the aircraft, weapons, SAMs and tanks of that year, flown by every West and East nation.
-> The Fulda 1976 concept is frozen as the tag `v0.4-fulda-1976`. Phases A–E (era data, the generator,
-> flying several airframes, the year-slider screen, missions in the enemy's turn) are done; next is the
-> Syria theatre (Phase F). See
+> The Fulda 1976 concept is frozen as the tag `v0.4-fulda-1976`. Phases A–F (era data, the generator,
+> flying several airframes, the year-slider screen, missions in the enemy's turn, the Southern Flank on
+> the Syria map) are done. See
 > [docs/design_era.md](docs/design_era.md).
 
 ## The campaign in brief (Phase 4)
@@ -39,7 +39,7 @@ The shortcuts are created with `.\.venv\Scripts\python.exe -m cwdc shortcuts`; r
 move the project folder. `cwdc start [--dcs]` does the same from a terminal.
 
 ## A war in any year (campaign maker)
-In the web UI, press **New campaign**. Drag the year line across the chart of every airframe's service life (★ marks the ones you own). The panel beside it shows the war you'll get: your wing, both air forces, SAMs, tanks and what you can carry that year. Then press **Create campaign**. The same choices work from the command line:
+In the web UI, press **New campaign** and pick the theatre: **Central Front** (Cold War Germany) or **Southern Flank** (Syria map: Turkey, Incirlik and Cyprus against Syria and a Soviet expeditionary force). Drag the year line across the chart of every airframe's service life (★ marks the ones you own). The panel beside it shows the war you'll get: your wing, both air forces, SAMs, tanks and what you can carry that year. Then press **Create campaign**. The same choices work from the command line:
 ```powershell
 .\.venv\Scripts\python.exe -m cwdc new --year 1966
 ```

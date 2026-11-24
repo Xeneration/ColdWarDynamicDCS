@@ -34,9 +34,7 @@ function buildStatic() {
   const slider = $("#mk-year");
   Object.assign(slider, { min: a, max: b, value: m.year });
   slider.oninput = () => setYear(+slider.value, true);
-  $("#mk-theatres").innerHTML = m.info.theatres.map((t) =>
-    `<button type="button" class="mk-theatre ${t.id === m.theatre ? "on" : ""}" data-id="${t.id}"
-      ${t.available ? "" : "disabled"} title="${esc(t.blurb)}">${esc(t.name)}<small>${esc(t.map)}${t.coming ? " · coming later" : ""}</small></button>`).join("");
+  renderTheatres();
   $("#mk-presets").innerHTML = m.info.presets.map((p) =>
     `<button type="button" class="mk-preset" data-id="${esc(p.id)}" title="${esc(p.blurb)}">${esc(p.name)}</button>`).join("");
   $("#mk-presets").querySelectorAll("button").forEach((btn) => (btn.onclick = () => applyPreset(btn.dataset.id)));
@@ -67,10 +65,39 @@ function buildStatic() {
   chart.onpointerup = () => (chart.onpointermove = null);
 }
 
+function theatreName() {
+  return (m.info.theatres.find((t) => t.id === m.theatre) || {}).name || "Central Front";
+}
+
+function enemyName() {
+  return (m.info.theatres.find((t) => t.id === m.theatre) || {}).enemy || "Warsaw Pact";
+}
+
+function renderTheatres() {
+  $("#mk-theatres").innerHTML = m.info.theatres.map((t) =>
+    `<button type="button" class="mk-theatre ${t.id === m.theatre ? "on" : ""}" data-id="${t.id}"
+      ${t.available ? "" : "disabled"} title="${esc(t.blurb)}">${esc(t.name)}<small>${esc(t.map)}${t.available ? "" : " · map not installed"}</small></button>`).join("");
+  $("#mk-theatres").querySelectorAll("button").forEach((b) => (b.onclick = () => switchTheatre(b.dataset.id)));
+}
+
+async function switchTheatre(id) {
+  if (id === m.theatre) return;
+  m.theatre = id;
+  m.nations = null; m.airframe = null; m.preset = null;
+  document.querySelectorAll(".mk-preset").forEach((b) => b.classList.remove("on"));
+  const info = await api(`/api/maker?theatre=${id}`);
+  m.info = { ...m.info, ...info };
+  renderTheatres();
+  if (!m.nameTouched) $("#mk-name").value = `${theatreName()} ${m.year}`;
+  drawChart();
+  schedulePreview(0);
+}
+
 function applyPreset(id) {
   const p = m.info.presets.find((x) => x.id === id);
+  const s = p.setup || { year: 1976, theatre: "germany" };
+  if ((s.theatre || "germany") !== m.theatre) switchTheatre(s.theatre || "germany");
   m.preset = id;
-  const s = p.setup || { year: 1976 };
   m.sweden = !!s.sweden; m.strict = !!s.strict; m.airframe = s.player_airframe || null; m.nations = null;
   $("#mk-sweden").checked = m.sweden; $("#mk-strict").checked = m.strict;
   if (!m.nameTouched) $("#mk-name").value = p.name;
@@ -86,7 +113,7 @@ function setYear(y, byHand) {
   m.year = y;
   $("#mk-year").value = y;
   $("#mk-year-big").textContent = y;
-  if (!m.nameTouched && !m.preset) $("#mk-name").value = `Central Front ${y}`;
+  if (!m.nameTouched && !m.preset) $("#mk-name").value = `${theatreName()} ${y}`;
   moveLine();
   markNow();
   schedulePreview();
@@ -214,11 +241,11 @@ function renderPreview(p) {
     <h4>What you can carry in ${p.year}</h4>${p.weapons.map(wpn).join("")}
     <div class="mk-cols">
       <div><h4 class="blue">NATO squadrons</h4><ul class="mk-list">${p.squadrons.west.filter((x) => !x.home && !x.wing).map(sq).join("")}</ul></div>
-      <div><h4 class="red">Warsaw Pact regiments</h4><ul class="mk-list">${p.squadrons.east.map(sq).join("")}</ul></div>
+      <div><h4 class="red">${esc(enemyName())} squadrons</h4><ul class="mk-list">${p.squadrons.east.map(sq).join("")}</ul></div>
     </div>
     <div class="mk-cols">
       <div><h4>NATO air defence</h4><p>${esc(p.air_defence.west.join(", ") || "none")}</p><h4>NATO ground forces</h4><p>${gr("west")}</p></div>
-      <div><h4>Warsaw Pact air defence</h4><p>${esc(p.air_defence.east.join(", ") || "none")}</p><h4>Warsaw Pact ground forces</h4><p>${gr("east")}</p></div>
+      <div><h4>${esc(enemyName())} air defence</h4><p>${esc(p.air_defence.east.join(", ") || "none")}</p><h4>${esc(enemyName())} ground forces</h4><p>${gr("east")}</p></div>
     </div>
     <h4>SAM sites on the map</h4><p>${esc(p.sites.join(" · "))}</p>
     ${p.notes.map((n) => `<p class="mk-note">${esc(n)}</p>`).join("")}

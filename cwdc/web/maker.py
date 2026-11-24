@@ -13,10 +13,10 @@ from cwdc import era
 from cwdc.engine import generate
 
 THEATRES = [
-    {"id": "germany", "name": "Central Front", "map": "Cold War Germany", "terrain": "GermanyColdWar",
+    {"id": "germany", "name": "Central Front", "map": "Cold War Germany", "terrain": "GermanyColdWar", "enemy": "Warsaw Pact",
      "blurb": "The Fulda Gap: NATO against the Warsaw Pact across the inner German border."},
-    {"id": "syria", "name": "Southern Flank", "map": "Syria", "terrain": "Syria", "coming": True,
-     "blurb": "NATO from Turkey and Cyprus against Syria and a Soviet expeditionary force (coming later)."},
+    {"id": "syria", "name": "Southern Flank", "map": "Syria", "terrain": "Syria", "enemy": "Syria and USSR",
+     "blurb": "Turkey, the USAF at Incirlik and the RAF on Cyprus against Syria and a Soviet expeditionary force."},
 ]
 ROLE_PLAIN = {"tank": "tanks", "ifv": "infantry fighting vehicles", "apc": "personnel carriers",
               "recon": "recon vehicles", "artillery": "artillery", "mlrs": "rocket launchers", "truck": "trucks"}

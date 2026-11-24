@@ -10,7 +10,8 @@ from cwdc.engine import airbases, crews, crisis as crisis_mod, planner, rng, wea
 from cwdc.model import (Airbase, Airframe, Campaign, Formation, ObjUnit, Objective, ObjectiveKind,
                         Pilot, Pos, Sector, Side, Squadron, SupplyLink, SupplyNode, Task)
 
-THEATERS = {"fulda_1976": ("theater_fulda_1976.yaml", "oob_fulda_1976.yaml")}
+THEATERS = {"fulda_1976": ("theater_fulda_1976.yaml", "oob_fulda_1976.yaml"),   # campaign.theater ->
+            "syria": ("theater_syria.yaml", "oob_syria.yaml")}                 # (theatre, OOB) files
 
 
 def slug(name: str) -> str:
@@ -35,11 +36,13 @@ def new_campaign(name: str, seed: int = 1976, theater: str = "fulda_1976",
     on the theatre's geography; without it the preset's hand-written OOB is used."""
     if setup is not None:
         from cwdc.engine import generate
+        T.activate(generate.CAMPAIGN_THEATER.get(setup.theatre, "fulda_1976"))
         th = generate.adapt_theatre(setup, seed)
         oob = generate.oob(setup, seed)
-        theater = next(k for k, v in THEATERS.items() if v[0] == generate.THEATRE_FILES[setup.theatre])
+        theater = generate.CAMPAIGN_THEATER[setup.theatre]
     else:
         th_file, oob_file = THEATERS[theater]
+        T.activate(theater)
         th = T.load_data(th_file)
         oob = T.load_data(oob_file)
     names = T.load_data("names.yaml")
@@ -109,9 +112,10 @@ def new_campaign(name: str, seed: int = 1976, theater: str = "fulda_1976",
         crisis_mod.begin(c)
     else:
         from cwdc.engine import news
-        news.post(c, f"{c.time:%d %b %Y}: Warsaw Pact forces have crossed the inner German border. "
-                  f"{'NATO' if setup is not None else 'USAFE'} squadrons are committed to the defence "
-                  "of the Fulda Gap.", "military")
+        text = th.get("war_news") or ("Warsaw Pact forces have crossed the inner German border. "
+                                      f"{'NATO' if setup is not None else 'USAFE'} squadrons are "
+                                      "committed to the defence of the Fulda Gap.")
+        news.post(c, f"{c.time:%d %b %Y}: {text}", "military")
     weather.initial(c)
     planner.plan_turn(c)
     return c
