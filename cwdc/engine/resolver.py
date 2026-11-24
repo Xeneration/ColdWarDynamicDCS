@@ -24,6 +24,7 @@ P_SAM = 0.05                     # per aircraft per covering SAM site (full stre
 P_AAA = 0.015                    # per aircraft per AAA gun at the target
 P_WEAPON = 0.45
 P_SEAD_HIT = 0.4
+FIGHTER_TASKS = (Task.CAP, Task.INTERCEPT, Task.SWEEP)   # fly an area and fight what comes
 AAA_TYPES = ("ZSU", "Vulcan", "Gepard", "Strela", "Chaparral", "ZU-23")
 RADAR_HINTS = ("SNR", "1S91", " sr", " tr", "p-19", "pcp", "str")
 
@@ -105,7 +106,7 @@ class _Sim:
 
     # ------------------------------------------------------------------ phases
     def run(self) -> None:
-        caps = {s: [f for f in self.flights if f.side is s and f.task is Task.CAP] for s in Side}
+        caps = {s: [f for f in self.flights if f.side is s and f.task in FIGHTER_TASKS] for s in Side}
         strikes = [f for f in self.flights if f.target_id]
         engaged: set[str] = set()
 

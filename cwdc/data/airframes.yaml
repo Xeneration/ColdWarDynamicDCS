@@ -16,6 +16,10 @@ F-4E-45MC:
     CAP: CAP
     Escort: CAP
     QRA: QRA
+    Intercept: QRA
+    Sweep: CAP
+    RESCAP: CAS_ROCKEYE
+    Armed Recon: CAS_ROCKEYE
     Strike: STRIKE_M117
     CAS: CAS_ROCKEYE
     BAI: BAI_MAVERICK

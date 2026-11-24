@@ -25,7 +25,7 @@ from cwdc.model import (Campaign, CrewRole, Flight, FlightStatus, Objective, Obj
                         PilotStatus, Pos, Side, Squadron, Task)
 
 FLIGHT_SIZE = 2
-SORTIES = {"player": 3, "default": 2}
+SORTIES = {"player": 4, "default": 2}     # player squadron: CAP, OCA/battlefield, alert reserve
 STATION_NAMES = ["Alpha", "Bravo", "Charlie", "Delta"]
 ENEMY_FIGHTER_REACH = 120_000     # enemy CAP stations this close to a target justify an escort
 OCA_BASE, OCA_PER_SQUADRON = 2.0, 1.5
@@ -55,7 +55,8 @@ DOCTRINE = {
     # NATO: one barrier CAP (the Hawk belt does the rest), escorts and SEAD for packages
     Side.BLUE: {"cap_stations": 1, "cas": 1.0, "bai": 1.0, "interdiction": 1.0, "strike": 1.0, "oca": 0.8,
                 "escort": True, "sead_support": True,
-                "oca_per_day": 1},          # a counter-air package a day when the air war calls for it
+                "oca_per_day": 1,           # a counter-air package a day when the air war calls for it
+                "alert_reserve": 1},        # sorties held back for scrambles / sweeps
     # Warsaw Pact: GCI-directed fighters on CAP, mass on the battlefield, few escorts,
     # and a doctrine of hitting NATO airfields to win the air battle on the ground
     Side.RED: {"cap_stations": 2, "cas": 1.2, "bai": 1.0, "interdiction": 0.8, "strike": 0.8, "oca": 1.0,
@@ -216,6 +217,7 @@ def plan_turn(c: Campaign) -> None:
     r = rng(c.seed, c.turn, "plan")
     night = period(c) == "night"
     pools: dict[Side, _Pool] = {}
+    reserves: dict[Side, dict[str, int]] = {}
 
     for side in Side:
         doc = DOCTRINE[side]
@@ -233,6 +235,13 @@ def plan_turn(c: Campaign) -> None:
         opening = side is Side.RED and c.war_turn == 1 and c.war_start_turn > 1
         if (night and not opening) or not c.at_war:
             continue      # the F-4E/MiGs of 1976 do little at night; no strikes before the war
+        # alert reserve: the player's squadron holds a sortie back for scrambles and sweeps
+        reserve = {}
+        for sq_id in [s.id for s in c.squadrons.values() if s.side is side and s.player_squadron]:
+            if doc.get("alert_reserve") and pool.left.get(sq_id, 0) > doc["alert_reserve"]:
+                reserve[sq_id] = doc["alert_reserve"]
+                pool.left[sq_id] -= doc["alert_reserve"]
+        reserves[side] = reserve
 
         # 2. needs, in priority order, each with its escort and SEAD
         taken: set[str] = set()
@@ -287,6 +296,76 @@ def plan_turn(c: Campaign) -> None:
             _describe(c, pkg)
     if not c.at_war:
         _crisis_ops(c, pools, r)
+    elif not night:
+        for side, reserve in reserves.items():         # release the alert reserve...
+            for sq_id, n in reserve.items():
+                pools[side].left[sq_id] += n
+        _fighter_ops(c, pools, r)                       # ...for scrambles and sweeps
+
+
+INTERCEPT_LEAD = 60_000      # m: scramble to meet a raid this far short of its target
+INTERCEPT_REACH = 60_000     # m: raids on targets this close to one of our airfields are intercepted
+MAX_INTERCEPTS = 2
+P_INTERCEPT = 0.6            # chance a battlefield raid is intercepted rather than a sweep flown
+
+
+def _fighter_ops(c: Campaign, pools: dict, r) -> None:
+    """NATO fighter tasking after both sides have planned: scramble against Warsaw Pact raids
+    on our airfields (and targets near them), else sweep ahead of our own strike packages."""
+    side = Side.BLUE
+    pool = pools.get(side)
+    if pool is None:
+        return
+    bases = [ab.pos for ab in c.airbases.values() if ab.side is side]
+    raids = []
+    for p in c.packages.values():
+        if p.side is side.enemy and p.target_id and p.flight_ids:
+            tgt = c.objectives[p.target_id]
+            deep = tgt.kind not in (ObjectiveKind.ARMOR, ObjectiveKind.ARTILLERY) \
+                or any(tgt.pos.dist(b) <= INTERCEPT_REACH for b in bases)
+            raids.append((not deep, p, tgt))          # deep raids first, then battlefield ones
+    raids.sort(key=lambda x: x[0])
+    raids = [(p, tgt) for _, p, tgt in raids]
+    battlefield = raids and raids[0][1].kind in (ObjectiveKind.ARMOR, ObjectiveKind.ARTILLERY)
+    if battlefield and r.random() > P_INTERCEPT:     # deep raids are always met; battlefield
+        raids = []                                    # ones sometimes give way to a sweep
+    for p, tgt in raids[:MAX_INTERCEPTS]:
+        raid = c.flights[p.flight_ids[0]]
+        red_base = c.airbases[c.squadrons[raid.squadron_id].base_id].pos
+        area = _toward_pos(tgt.pos, red_base, INTERCEPT_LEAD)
+        sq, _ = pool.pick([Task.CAP], near=area)
+        if sq is None:
+            break
+        pkg = _package(c, side, Task.INTERCEPT, f"Scramble - intercept {raid.callsign} raiding {tgt.name}",
+                       area=area)
+        pkg.reason = "a Warsaw Pact raid is inbound: meet it before it reaches the target"
+        f = _flight(c, pool, sq, Task.INTERCEPT, pkg, area=area)
+        f.intercepts = raid.id
+    if raids:
+        return
+    strikes = [p for p in c.packages.values() if p.side is side and p.target_id
+               and _enemy_fighters_near(c, c.objectives[p.target_id].pos, side.enemy)]
+    if not strikes:
+        return
+    tgt = c.objectives[strikes[0].target_id]
+    station = min(c.cap_stations.get(side.enemy, []), key=lambda s: s.dist(tgt.pos), default=None)
+    if station is None:
+        return
+    sq, _ = pool.pick([Task.CAP], near=station)
+    if sq is None:
+        return
+    main = c.flights[strikes[0].flight_ids[0]]
+    pkg = _package(c, side, Task.SWEEP, f"Fighter sweep - clear the MiG patrol ahead of {main.callsign}",
+                   area=station)
+    pkg.reason = "enemy fighters patrol near our strike's target: clear them out first"
+    _flight(c, pool, sq, Task.SWEEP, pkg, area=station)
+
+
+def _toward_pos(a: Pos, b: Pos, dist: float) -> Pos:
+    d = a.dist(b) or 1.0
+    if d <= dist:
+        return b
+    return Pos(x=a.x + (b.x - a.x) * dist / d, z=a.z + (b.z - a.z) * dist / d)
 
 
 OCA_OPENING_TURNS = 8        # the first two days of the war: hit back at their airfields

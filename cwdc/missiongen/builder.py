@@ -61,7 +61,11 @@ START_TYPES = {"ramp": StartType.Warm, "runway": StartType.Runway}
 
 DCS_TASK = {Task.CAP: dtask.CAP, Task.ESCORT: dtask.Escort, Task.STRIKE: dtask.GroundAttack,
             Task.BAI: dtask.GroundAttack, Task.INTERDICTION: dtask.GroundAttack,
-            Task.CAS: dtask.CAS, Task.SEAD: dtask.SEAD, Task.QRA: dtask.Intercept, Task.RECON: dtask.CAP}
+            Task.CAS: dtask.CAS, Task.SEAD: dtask.SEAD, Task.QRA: dtask.Intercept, Task.RECON: dtask.CAP,
+            Task.INTERCEPT: dtask.Intercept, Task.SWEEP: dtask.FighterSweep, Task.RESCAP: dtask.CAS,
+            Task.ARMED_RECON: dtask.CAS}
+FIGHTER_TASKS = (Task.CAP, Task.QRA, Task.INTERCEPT, Task.SWEEP, Task.RESCAP)   # fly to an area and orbit
+SWEEP_TARGET_RADIUS = 30_000    # m: enemy CAP flights this close to a sweep's area are its quarry
 
 # DCS western aircraft callsigns (index used in the unit callsign table)
 WESTERN_CALLSIGNS = {"Enfield": 1, "Springfield": 2, "Uzi": 3, "Colt": 4, "Dodge": 5,
@@ -340,6 +344,18 @@ def select(c: Campaign, player: Flight) -> Plan:
             if min(p.dist(f.area) for p in route) <= FRIENDLY_CAP_RADIUS:
                 plan.flights.append(f)
 
+    # scramble: the raid it is sent against (and its package); sweep: the patrol it hunts
+    if player.task is Task.INTERCEPT and player.intercepts in c.flights:
+        raid_pkg = c.packages.get(c.flights[player.intercepts].package_id)
+        for fid in (raid_pkg.flight_ids if raid_pkg else [player.intercepts]):
+            if c.flights[fid] not in plan.flights:
+                plan.flights.append(c.flights[fid])
+    if player.task is Task.SWEEP:
+        for f in c.flights.values():
+            if f.side is enemy and f.task is Task.CAP and f not in plan.flights \
+                    and f.area.dist(dest) <= SWEEP_TARGET_RADIUS:
+                plan.flights.append(f)
+
     # crisis: the border probes near the player's area are what the mission is about
     if not c.at_war:
         for f in c.flights.values():
@@ -600,6 +616,9 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
                 spawn = _cap_station(c, f, player)
             else:                                           # AI strike: arrive with the player
                 ai_dist = (speed / 3.6) * player_eta
+                raid = c.flights.get(player.intercepts) if player.task is Task.INTERCEPT else None
+                if raid is not None and f.package_id == raid.package_id:
+                    ai_dist += _dest(c, player).dist(dest)  # ...at the scramble point, not the target
                 spawn = _back_along(paths[f.id], ai_dist)[0]
             if f.side is not player.side and spawn.dist(player_spawn) < MIN_CONTACT_DIST:
                 spawn = _beyond(player_spawn, spawn, MIN_CONTACT_DIST)   # no point-blank merges
@@ -664,7 +683,7 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
             along = Pos(x=f.area.x + 20_000, z=f.area.z)
             g.add_waypoint(T.to_point(along), alt, speed, name="PROBE-2")
             g.add_waypoint(T.to_point(Pos(x=along.x, z=along.z + 60_000)), alt, speed, name="EXIT")
-        elif f.task in (Task.CAP, Task.QRA) or (f.task is Task.ESCORT and ai_flown):
+        elif f.task in FIGHTER_TASKS or (f.task is Task.ESCORT and ai_flown):
             probe_g = groups.get(f.intercepts) if f.task is Task.QRA and f.intercepts else None
             if ai_flown and probe_g is not None:
                 # AI QRA: vectored onto the probe, then shadows it
@@ -679,6 +698,9 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
             wp = g.add_waypoint(station, alt, speed, name="CAP")
             g.points[0].tasks = [t for t in g.points[0].tasks       # pydcs' empty default escort task
                                  if not isinstance(t, dtask.EscortTaskAction)]
+            if ai_flown and f.task in (Task.INTERCEPT, Task.SWEEP):
+                # scramble / sweep: engage whatever comes into the area
+                wp.tasks.append(dtask.EngageTargetsInZone(station, CAP_ENGAGE_RADIUS, [dtask.Targets.All.Air]))
             if ai_flown and f.side is not player.side and c.at_war:
                 # enemy fighters in this mission are in the player's fight: they come to it
                 wp.tasks.append(dtask.EngageTargetsInZone(T.to_point(player_station),
@@ -728,6 +750,16 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
              f"Tasking: {c.packages[player.package_id].description}"]
     from cwdc.engine import weather as wxmod
     lines.append("Weather: " + wxmod.describe(c.weather) + ".")
+    if player.task is Task.INTERCEPT and player.intercepts in c.flights:
+        raid = c.flights[player.intercepts]
+        rtgt = c.objectives.get(raid.target_id) if raid.target_id else None
+        lines.append(f"SCRAMBLE: {raid.callsign} ({len(raid.airframe_ids)}x "
+                     f"{c.squadrons[raid.squadron_id].aircraft_type}) inbound"
+                     + (f" to {rtgt.name}" if rtgt else "") + ". Meet it at the scramble point; "
+                     "MAGIC (F10) will vector you.")
+    if player.task is Task.SWEEP:
+        lines.append("SWEEP: clear the enemy fighter patrol from the area before our strike arrives. "
+                     "Don't get drawn deep into their SAM cover.")
     if c.at_war and c.war_turn == 1:
         lines.append(f"WAR: the Warsaw Pact attacked at {c.time:%H%M} today. Expect raids on our "
                      "airfields. ROE: WEAPONS FREE.")
