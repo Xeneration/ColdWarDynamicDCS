@@ -4,7 +4,7 @@ from __future__ import annotations
 from datetime import timedelta
 
 from cwdc.engine import (airbases, apply, crews, factory, ground, logistics, outcome, planner,
-                         resolver)
+                         resolver, stats)
 from cwdc.model import (Airframe, AirframeStatus, Campaign, CrewRole, Debrief, FlightStatus, Pilot,
                         PilotStatus, SortieResult)
 from cwdc.engine import rng
@@ -21,6 +21,9 @@ def end_turn(c: Campaign, dcs_results: list[SortieResult] | None = None,
     if c.outcome is not None:
         raise ValueError(f"the war is over ({c.outcome.title})")
     debrief = [f"=== Turn {c.turn} debrief - {c.time:%d %b %Y %H:%M} ==="]
+    before = stats.counts(c)
+    player_flight = c.pending_mission.player_flight_id if c.pending_mission else next(
+        (f.id for f in c.flights.values() if f.status is FlightStatus.ASSIGNED_PLAYER), None)
     flown = set()
     if dcs_results is not None:
         flown = {r.flight_id for r in dcs_results}
@@ -51,8 +54,11 @@ def end_turn(c: Campaign, dcs_results: list[SortieResult] | None = None,
                        f"You continue as {new.rank} {new.name} (new crew). **")
 
     c.pending_mission = None
-    c.debriefs = (c.debriefs + [Debrief(turn=c.turn, time=c.time, lines=debrief,
+    summary = stats.debrief_stats(c, before, list(dcs_results or []) + sim, player_flight,
+                                  dcs_results is not None)
+    c.debriefs = (c.debriefs + [Debrief(turn=c.turn, time=c.time, lines=debrief, stats=summary,
                                         flown_in_dcs=dcs_results is not None)])[-DEBRIEF_HISTORY:]
+    c.history.append(stats.turn_stats(c))
     crews.rest(c, night=planner.period(c) == "night",
                exclude={pid for f in c.flights.values() for pid in crews.crew_of(f)})
     c.add_news(f"Turn {c.turn}: " + "; ".join(l for l in debrief if l.startswith("[")))

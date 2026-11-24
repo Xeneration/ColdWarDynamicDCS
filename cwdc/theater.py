@@ -59,6 +59,23 @@ def _inside(lat: float, lon: float, poly: list[tuple[float, float]]) -> bool:
     return inside
 
 
+def airbase_name(theater_file: str, ab) -> str:
+    """The name players know a base by (Rhein-Main), not DCS's airport name (Frankfurt)."""
+    for a in load_data(theater_file).get("airbases", []):
+        if a["id"] == ab.id:
+            return a.get("name", ab.dcs_name)
+    return ab.dcs_name
+
+
+def territory_polygons(front_line: list[tuple[float, float]], west: float = 4.5,
+                       east: float = 16.0) -> dict[str, list[tuple[float, float]]]:
+    """Each side's ground for display: the front line closed off to the west / east."""
+    north, south = front_line[0], front_line[-1]
+    s_far, n_far = (south[0] - 3, south[1]), (north[0] + 3, north[1])      # run past the map edges
+    return {"blue": [n_far, *front_line, s_far, (s_far[0], west), (n_far[0], west)],
+            "red": [n_far, *front_line, s_far, (s_far[0], east), (n_far[0], east)]}
+
+
 def side_at(front_line: list[tuple[float, float]], lat: float, lon: float) -> Side:
     return Side.BLUE if _inside(lat, lon, _blue_polygon(front_line)) else Side.RED
 

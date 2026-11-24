@@ -77,12 +77,12 @@ cap_stations:
   red: [[50.95, 10.55], [50.65, 10.75]]
 
 airbases:
-  - {id: hahn, dcs_name: Hahn, side: blue}
-  - {id: rheinmain, dcs_name: Frankfurt, side: blue}   # Rhein-Main AB (USAF)
-  - {id: spangdahlem, dcs_name: Spangdahlem, side: blue}
-  - {id: merseburg, dcs_name: Merseburg, side: red}
-  - {id: allstedt, dcs_name: Allstedt, side: red}
-  - {id: kothen, dcs_name: Kothen, side: red}
+  - {id: hahn, dcs_name: Hahn, name: Hahn AB, side: blue}
+  - {id: rheinmain, dcs_name: Frankfurt, name: Rhein-Main AB, side: blue}   # DCS calls it Frankfurt
+  - {id: spangdahlem, dcs_name: Spangdahlem, name: Spangdahlem AB, side: blue}
+  - {id: merseburg, dcs_name: Merseburg, name: Merseburg, side: red}
+  - {id: allstedt, dcs_name: Allstedt, name: Allstedt, side: red}
+  - {id: kothen, dcs_name: Kothen, name: Koethen, side: red}
 
 objectives:
   # ---------------------------------------------------------------- radar (always spawned)
@@ -520,3 +520,48 @@ supply_links:
   - {id: l_erf_eis, a: rn_erfurt, b: rn_eisenach, mode: rail, capacity: 90}
   - {id: l_erf_mei, a: rn_erfurt, b: rn_meiningen, mode: rail, capacity: 60}
   - {id: l_lei_pla, a: rn_leipzig, b: rn_plauen, mode: rail, capacity: 55}
+
+# Map labels as of 1976 (web UI). rank 1 = city, 2 = town. Period names (Karl-Marx-Stadt).
+map_labels:
+  countries:
+    - {name: "FEDERAL REPUBLIC OF GERMANY", note: "West Germany - NATO", latlon: [50.85, 7.75]}
+    - {name: "GERMAN DEMOCRATIC REPUBLIC", note: "East Germany - Warsaw Pact", latlon: [51.62, 12.55]}
+    - {name: "CZECHOSLOVAKIA", note: "Warsaw Pact", latlon: [49.75, 13.2]}
+  places:
+    - {name: Frankfurt am Main, latlon: [50.11, 8.68], rank: 1}
+    - {name: Wiesbaden, latlon: [50.08, 8.24], rank: 2}
+    - {name: Mainz, latlon: [49.99, 8.27], rank: 2}
+    - {name: Hanau, latlon: [50.13, 8.92], rank: 2}
+    - {name: Aschaffenburg, latlon: [49.97, 9.15], rank: 2}
+    - {name: Giessen, latlon: [50.58, 8.68], rank: 2}
+    - {name: Marburg, latlon: [50.81, 8.77], rank: 2}
+    - {name: Kassel, latlon: [51.31, 9.49], rank: 1}
+    - {name: Goettingen, latlon: [51.54, 9.93], rank: 2}
+    - {name: Eschwege, latlon: [51.19, 10.05], rank: 2}
+    - {name: Bad Hersfeld, latlon: [50.87, 9.71], rank: 2}
+    - {name: Fulda, latlon: [50.55, 9.68], rank: 1}
+    - {name: Bad Kissingen, latlon: [50.20, 10.08], rank: 2}
+    - {name: Schweinfurt, latlon: [50.05, 10.23], rank: 2}
+    - {name: Wuerzburg, latlon: [49.79, 9.93], rank: 1}
+    - {name: Bamberg, latlon: [49.89, 10.89], rank: 2}
+    - {name: Coburg, latlon: [50.26, 10.96], rank: 2}
+    - {name: Hof, latlon: [50.31, 11.92], rank: 2}
+    - {name: Bayreuth, latlon: [49.94, 11.58], rank: 2}
+    - {name: Nuernberg, latlon: [49.45, 11.08], rank: 1}
+    - {name: Trier, latlon: [49.75, 6.64], rank: 2}
+    - {name: Koblenz, latlon: [50.36, 7.59], rank: 2}
+    - {name: Eisenach, latlon: [50.98, 10.32], rank: 2}
+    - {name: Muehlhausen, latlon: [51.21, 10.45], rank: 2}
+    - {name: Nordhausen, latlon: [51.50, 10.79], rank: 2}
+    - {name: Gotha, latlon: [50.95, 10.70], rank: 2}
+    - {name: Erfurt, latlon: [50.98, 11.03], rank: 1}
+    - {name: Weimar, latlon: [50.98, 11.33], rank: 2}
+    - {name: Jena, latlon: [50.93, 11.59], rank: 2}
+    - {name: Gera, latlon: [50.88, 12.08], rank: 2}
+    - {name: Meiningen, latlon: [50.57, 10.42], rank: 2}
+    - {name: Suhl, latlon: [50.61, 10.69], rank: 2}
+    - {name: Plauen, latlon: [50.50, 12.14], rank: 2}
+    - {name: Zwickau, latlon: [50.72, 12.50], rank: 2}
+    - {name: Karl-Marx-Stadt, latlon: [50.83, 12.92], rank: 1}
+    - {name: Leipzig, latlon: [51.34, 12.37], rank: 1}
+    - {name: Halle, latlon: [51.48, 11.97], rank: 1}

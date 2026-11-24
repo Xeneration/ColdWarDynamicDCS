@@ -526,6 +526,13 @@ What's deliberately left for later phases: the web UI (Phase 3), the crisis phas
   - The map draws Warsaw Pact-held territory only as the moved front line (no shaded area).
   - Phase 5's immersion lockdown will need an option to hide enemy intel layers.
 
+**Progress (2026-11-24): web UI made self-explanatory**
+- Map: Esri shaded relief default (topographic / dark / none switcher), 1976 place names, NATO-style SVG symbols (`symbols.js`) for formations (now on the map), sites and airbases; territory tint, hatched captured ground, attack arrows sized by odds; plain-English tooltips on everything (`web/mapdata.py`); legend; nm scale; zoom-dependent detail; selected flight shows route, distance/time and the SAM rings it crosses.
+- Guidance: "what next" stepper card, first-run guide, glossary tooltips, Help dialog.
+- ATO as package cards with the planner's reason (`Package.reason`), distance/time, threat level, loadout description, explained start options and a read-only mission preview (`GET .../flights/{id}`).
+- Mission checklist with copy-file-name / open-folder (local only); War tab gauges, history charts (`Campaign.history`), sector cards, supply bars; crew cards; visual debriefs (`Debrief.stats`). Rhein-Main shown by its real name (theater `name`).
+- Not yet: checked only at 800 px pane width and against a throwaway campaign; the dense Fulda area at zoom 7 still overlaps.
+
 **Phase 4: Crisis phase and immersion**
 - Tension model, QRA/intercept/recon missions, ROE enforcement, the war-start event.
 - Briefings, kneeboards, news and weather.

@@ -260,6 +260,7 @@ class Package(BaseModel):
     flight_ids: list[str]
     target_id: Optional[str] = None
     area: Optional[Pos] = None
+    reason: str = ""                   # why the air commander tasked it, in plain words
 
 
 # ----------------------------------------------------------------------------- results (principle 2)
@@ -313,6 +314,18 @@ class Debrief(BaseModel):
     time: datetime
     lines: list[str]
     flown_in_dcs: bool = False
+    stats: dict = {}                   # structured summary (engine.stats.debrief_stats)
+
+
+class TurnStats(BaseModel):
+    """The state of the war at the end of one turn (for history charts)."""
+    turn: int
+    time: datetime
+    offsets: dict[str, float] = {}     # sector id -> km (+ = into West Germany)
+    ground_power: dict[str, float] = {}
+    air_strength: dict[str, float] = {}
+    aircraft_lost: dict[str, int] = {}  # cumulative, per side
+    aircrew_lost: dict[str, int] = {}
 
 
 class NewsItem(BaseModel):
@@ -364,6 +377,7 @@ class Campaign(BaseModel):
     pending_mission: Optional[MissionRecord] = None
     outcome: Optional[Outcome] = None
     debriefs: list[Debrief] = []       # most recent last; capped at engine.turn.DEBRIEF_HISTORY
+    history: list[TurnStats] = []      # one per closed turn
     news: list[NewsItem] = []
     counters: dict[str, int] = Field(default_factory=dict)
 

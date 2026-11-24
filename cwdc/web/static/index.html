@@ -9,15 +9,16 @@
 </head>
 <body>
 <header>
-  <div class="brand">CWDC <span>Cold War Dynamic Campaign</span></div>
-  <select id="campaign" title="Campaign"></select>
+  <div class="brand" title="Cold War Dynamic Campaign for DCS World">CWDC <span>Cold War Dynamic Campaign</span></div>
+  <select id="campaign" title="Switch campaign"></select>
   <button id="btn-new" class="ghost">New campaign</button>
   <div id="clock" class="clock"></div>
   <div class="spacer"></div>
-  <label class="toggle" title="Ingest a mission automatically when you leave it in DCS">
+  <label class="toggle" title="Close the turn automatically when you leave the mission in DCS">
     <input type="checkbox" id="auto-ingest"> Auto-ingest
   </label>
-  <button id="btn-skip" class="warn" title="Sit this turn out; everything is simulated">Skip turn</button>
+  <button id="btn-skip" class="warn" title="Sit this 6-hour turn out: every sortie is simulated">Skip turn</button>
+  <button id="btn-help" class="ghost" title="Guide and glossary">? Help</button>
 </header>
 
 <div id="banner" hidden></div>
@@ -25,13 +26,14 @@
 <main>
   <div id="map"></div>
   <aside>
+    <div id="next"></div>
     <nav id="tabs">
-      <button data-tab="ato" class="active">ATO</button>
-      <button data-tab="mission">Mission</button>
-      <button data-tab="war">War</button>
-      <button data-tab="squadron">Squadron</button>
-      <button data-tab="debrief">Debrief</button>
-      <button data-tab="news">News</button>
+      <button data-tab="ato" class="active" title="Today's sorties">ATO</button>
+      <button data-tab="mission" title="The mission you are flying">Mission</button>
+      <button data-tab="war" title="Who is winning">War</button>
+      <button data-tab="squadron" title="Your crews and aircraft">Squadron</button>
+      <button data-tab="debrief" title="What happened last turns">Debrief</button>
+      <button data-tab="news" title="News from the front">News</button>
     </nav>
     <section id="tab-ato" class="tab active"></section>
     <section id="tab-mission" class="tab"></section>
@@ -45,9 +47,10 @@
 <dialog id="dlg-new">
   <form method="dialog" id="form-new">
     <h2>New campaign</h2>
-    <label>Name <input name="name" value="Fulda Gap 1976" required></label>
-    <label>Your pilot <input name="pilot" value="Player"></label>
-    <label>Seed <input name="seed" type="number" value="1976"></label>
+    <p class="muted">August 1976: the Warsaw Pact attacks West Germany. You fly F-4E Phantoms for NATO.</p>
+    <label>Campaign name <input name="name" value="Fulda Gap 1976" required></label>
+    <label>Your pilot's name <input name="pilot" value="Player"></label>
+    <label>Seed <span class="muted">(a number: the same seed gives the same war)</span><input name="seed" type="number" value="1976"></label>
     <label class="check"><input name="force" type="checkbox"> Overwrite a campaign with the same name</label>
     <p class="err" id="new-err"></p>
     <menu>
@@ -57,9 +60,24 @@
   </form>
 </dialog>
 
+<dialog id="dlg-guide" class="guide">
+  <div class="guide-body"></div>
+  <div class="guide-foot"><span class="guide-dots"></span>
+    <button class="ghost guide-prev">Back</button><button class="guide-next">Next</button></div>
+</dialog>
+
+<dialog id="dlg-help" class="help">
+  <h2>Help</h2>
+  <p><button id="btn-guide-again" class="ghost">Show the introduction again</button></p>
+  <h3>Glossary</h3>
+  <dl class="help-terms"></dl>
+  <p class="muted">Dotted-underlined words anywhere in the app show their meaning when you hover them.</p>
+  <form method="dialog"><menu><button>Close</button></menu></form>
+</dialog>
+
 <div id="toast" hidden></div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="/static/app.js"></script>
+<script type="module" src="/static/app.js"></script>
 </body>
 </html>

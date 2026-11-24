@@ -136,6 +136,29 @@ def situation(c: Campaign) -> list[str]:
     return lines
 
 
+def situation_data(c: Campaign) -> dict:
+    """The victory conditions as numbers (web UI gauges)."""
+    v = rules(c)
+    out = {"war_day": war_day(c), "max_days": v.get("max_days"), "hold_days": v.get("nato_hold_days"),
+           "breakthrough_km": v.get("breakthrough_km"), "air_exhausted": v.get("air_exhausted", 0.0),
+           "air": {s.value: round(air_strength(c, s), 3) for s in Side},
+           "border_held": bool(c.sectors) and all(s.offset_km <= 0 for s in c.sectors.values())}
+    goals = v.get("red_goals", [])
+    if goals:
+        border = [T.latlon_to_pos(lat, lon) for lat, lon in c.base_front_line]
+
+        def from_border(p: Pos) -> float:
+            return min(math.hypot(p.x - b.x, p.z - b.z) for b in border) / 1000
+
+        near = min(goals, key=lambda g: front_distance_km(c, _goal_pos(g)))
+        out["goal"] = {"name": near["name"], "km": round(front_distance_km(c, _goal_pos(near))),
+                       "start_km": round(from_border(_goal_pos(near)))}
+    deep = max(c.sectors.values(), key=lambda s: s.offset_km, default=None)
+    if deep:
+        out["deepest"] = {"name": deep.name, "km": round(max(0.0, deep.offset_km), 1)}
+    return out
+
+
 def summary(c: Campaign) -> list[str]:
     """The war summary shown once the campaign is over."""
     o = c.outcome

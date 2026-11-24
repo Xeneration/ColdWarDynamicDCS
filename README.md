@@ -14,7 +14,8 @@ results back after you fly, so the war moves on.
 ```powershell
 .\.venv\Scripts\python.exe -m cwdc serve        # opens http://127.0.0.1:8076 in your browser
 ```
-- **Map:** shows the front line and the pre-war border, each sector's position and who is attacking, airbases (an amber ring means damaged), objectives, SAM coverage and the day's flights. The layer menu adds Warsaw Pact flights (intel), the supply network and CAP stations.
+- **Map:** shaded relief with 1976 place names (base-map switcher top right). NATO-style symbols (blue rectangle = NATO, red diamond = Warsaw Pact) for divisions, sites and airbases, attack arrows, hatched ground taken, SAM danger rings. Detail appears as you zoom in; hover anything for a plain-English explanation; **Legend** bottom left.
+- **What next** card (top of the sidebar) always says what to do now; **? Help** has the intro guide and a glossary.
 - **ATO:** amber rows are flights you can fly. Pick a start (runway/ramp/air) and press **Fly**, or **Bot** for an AI-only test mission. Click a row to see its route on the map.
 - **Mission:** shows the briefing and whether DCS has produced a result yet. With **Auto-ingest** on (the default), the turn closes by itself when you leave the mission in DCS. Otherwise press **Ingest now**, or **Ingest from dcs.log** if the hook missed it.
 - **War:** shows the war situation (or the final summary), the ground war by sector and formation, air forces, airfields and supply.

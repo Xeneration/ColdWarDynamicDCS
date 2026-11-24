@@ -68,6 +68,7 @@ class Need:
     target: Objective
     score: float
     label: Optional[str] = None        # e.g. "OCA" for a strike on an airfield
+    reason: str = ""                   # plain words for the player: why this target
 
 
 # ----------------------------------------------------------------------------- helpers
@@ -126,23 +127,34 @@ def needs(c: Campaign, side: Side) -> list[Need]:
                 own, theirs = power(c, sec.id, side), power(c, sec.id, enemy)
                 if sec.attacker is enemy:                       # they are attacking us here
                     crit = theirs / max(own, 1.0)
-                    out.append(Need(Task.CAS, o, (4 + 3 * crit) * frac * doc["cas"]))
+                    out.append(Need(Task.CAS, o, (4 + 3 * crit) * frac * doc["cas"],
+                                    reason=f"they are attacking in the {sec.name} "
+                                           f"({crit:.1f} : 1 against our troops)"))
                     continue
             push = 2.0 if sec is not None and sec.attacker is side else 0.0   # support our offensive
-            out.append(Need(Task.BAI, o, (2 + 0.5 * o.value + push) * frac * doc["bai"]))
+            why = (f"supports our own attack in the {sec.name}" if push
+                   else f"wears down their forces in the {sec.name}" if sec else "enemy formation")
+            out.append(Need(Task.BAI, o, (2 + 0.5 * o.value + push) * frac * doc["bai"], reason=why))
         elif o.kind in (ObjectiveKind.RAIL, ObjectiveKind.CONVOY, ObjectiveKind.DEPOT):
-            s = 2 + 0.5 * o.value + (4 if _feeds_attack(c, o) else 0)
-            out.append(Need(Task.INTERDICTION, o, s * frac * doc["interdiction"]))
+            feeds = _feeds_attack(c, o)
+            s = 2 + 0.5 * o.value + (4 if feeds else 0)
+            out.append(Need(Task.INTERDICTION, o, s * frac * doc["interdiction"],
+                            reason="cuts the supplies feeding their offensive" if feeds
+                            else "cuts an enemy supply line"))
         elif o.kind is ObjectiveKind.SAM:
-            out.append(Need(Task.SEAD, o, (1.5 + 0.3 * o.value) * frac))
+            out.append(Need(Task.SEAD, o, (1.5 + 0.3 * o.value) * frac,
+                            reason="this missile site threatens our aircraft"))
         elif o.kind in (ObjectiveKind.EWR, ObjectiveKind.COMMAND):
-            out.append(Need(Task.STRIKE, o, (1 + 0.3 * o.value) * frac * doc["strike"]))
+            out.append(Need(Task.STRIKE, o, (1 + 0.3 * o.value) * frac * doc["strike"],
+                            reason="blinds their radar / command network" if o.kind is ObjectiveKind.EWR
+                            else "disrupts their command"))
         elif o.kind is ObjectiveKind.AIRBASE and o.airbase_id:
             ab = c.airbases[o.airbase_id]
             based = sum(1 for sq in c.squadrons.values() if sq.base_id == ab.id and sq.side is enemy)
             if based and ab.damage < airbases.CLOSED:            # nothing to gain on an empty / shut base
                 s = (OCA_BASE + OCA_PER_SQUADRON * based) * (1 - ab.damage) * doc["oca"]
-                out.append(Need(Task.STRIKE, o, s, label="OCA"))
+                out.append(Need(Task.STRIKE, o, s, label="OCA",
+                                reason=f"{based} enemy squadron(s) fly from here"))
     return sorted(out, key=lambda n: -n.score)
 
 
@@ -212,6 +224,7 @@ def plan_turn(c: Campaign) -> None:
             sq, task = pool.pick([Task.CAP], near=st)
             if sq:
                 pkg = _package(c, side, Task.CAP, f"Barrier CAP, station {STATION_NAMES[idx % 4]}", area=st)
+                pkg.reason = "keeps enemy aircraft away from our side of the front"
                 _flight(c, pool, sq, Task.CAP, pkg, area=st)
         if night:
             continue                                  # the F-4E/MiGs of 1976 do little at night
@@ -227,6 +240,7 @@ def plan_turn(c: Campaign) -> None:
             taken.add(need.target.id)
             pkg = _package(c, side, task, f"{need.label or task.value} - {need.target.name}",
                            target=need.target)
+            pkg.reason = need.reason
             main = _flight(c, pool, sq, task, pkg, target=need.target)
             if task is Task.SEAD:
                 continue

@@ -14,7 +14,7 @@ import time
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -144,8 +144,20 @@ def create_app(auto_ingest: bool = True, watcher: bool = True) -> FastAPI:
         return {"version": views.version(c), "result": actions.result_status(c)}
 
     @app.get("/api/campaigns/{cid}/map")
-    def map_layers(cid: str, enemy: bool = True):
-        return views.map_layers(load(cid), show_enemy_flights=enemy)
+    def map_layers(cid: str):
+        from cwdc.web import mapdata
+        return mapdata.map_layers(load(cid))
+
+    @app.get("/api/campaigns/{cid}/flights/{fid}")
+    def flight_preview(cid: str, fid: str):
+        c = load(cid)
+        if fid.upper() not in c.flights:
+            raise HTTPException(404, f"no flight {fid} this turn")
+        return views.flight_preview(c, fid.upper())
+
+    @app.get("/api/campaigns/{cid}/history")
+    def history(cid: str):
+        return {"history": views.history(load(cid))}
 
     @app.get("/api/campaigns/{cid}/ato")
     def ato(cid: str):
@@ -196,6 +208,19 @@ def create_app(auto_ingest: bool = True, watcher: bool = True) -> FastAPI:
     def rollback(cid: str, req: RollbackRequest):
         c = act(actions.rollback, cid, req.turn)
         return {"turn": c.turn}
+
+    @app.post("/api/open-missions-folder")
+    def open_missions_folder(request: Request):
+        # Opens a window on this PC: only for a browser on this PC.
+        if request.client is None or request.client.host not in ("127.0.0.1", "::1", "localhost"):
+            raise HTTPException(403, "only available on this PC")
+        import os
+        from cwdc import dcs_paths
+        folder = dcs_paths.missions_dir()
+        if not hasattr(os, "startfile"):
+            raise HTTPException(501, f"open {folder} yourself")
+        os.startfile(folder)                     # noqa: S606 - local folder we created
+        return {"opened": str(folder)}
 
     @app.post("/api/settings")
     def settings(req: Settings):
