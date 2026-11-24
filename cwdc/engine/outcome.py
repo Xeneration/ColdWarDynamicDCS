@@ -78,7 +78,8 @@ def check(c: Campaign) -> Outcome | None:
     def done(winner, title, reason, decisive=True):
         c.outcome = Outcome(winner=winner, decisive=decisive, title=title, reason=reason,
                             turn=c.turn, time=c.time)
-        c.add_news(f"{title}: {reason}")
+        from cwdc.engine import news
+        news.post(c, f"{title}: {reason}", "military")
         return c.outcome
 
     for g in v.get("red_goals", []):

@@ -124,7 +124,8 @@ def on_unit_destroyed(c: Campaign, o: Objective, idx: int) -> None:
     if ready and r.random() < P_AIRCRAFT_LOST:
         a = r.choice(ready)
         a.status = AirframeStatus.DESTROYED
-        c.add_news(f"{c.squadrons[a.squadron_id].name} loses {a.id} on the ground at {ab.dcs_name}.")
+        from cwdc.engine import news
+        news.headline(c, "parked_lost", "air", sq=c.squadrons[a.squadron_id].name, tail=a.id, base=ab.dcs_name)
 
 
 def overrun(c: Campaign, ab: Airbase, owner: Side) -> None:

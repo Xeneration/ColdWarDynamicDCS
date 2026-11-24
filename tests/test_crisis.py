@@ -1,4 +1,4 @@
-import json
+﻿import json
 
 from cwdc.engine import crisis, outcome, planner, turn
 from cwdc.engine.factory import new_campaign
@@ -34,7 +34,7 @@ def test_war_always_starts_by_the_deadline_and_the_clock_starts_then():
         assert c.war_turn == 1 and outcome.war_day(c) == 1
         shift = c.war_start_turn - 1
         assert all(f.arrival_turn == arrivals[f.id] + shift for f in c.formations.values())
-        assert "WAR" in c.news[-1].text
+        assert any(n.text.startswith(c.time.strftime("%d %b %Y")) and "WAR" in n.text for n in c.news[-3:])
         if planner.period(c) != "night":
             assert any(f.target_id for f in c.flights.values())       # strikes planned now
 
@@ -161,3 +161,15 @@ def test_war_opens_with_warsaw_pact_airfield_raids():
         import tempfile
         rec = builder.build(c, blue.id, Path(tempfile.mkdtemp()), start="air")
         assert any(l.startswith("WAR:") for l in rec.briefing)
+from cwdc.engine import news as newsmod
+
+
+def test_news_is_categorised_varied_and_daily():
+    c = _crisis(2)
+    assert c.news[-1].category == "diplomatic" and c.news[-1].source == "Wire report"
+    for _ in range(8):
+        turn.end_turn(c)
+    cats = {n.category for n in c.news}
+    assert cats <= set(newsmod.CATEGORIES) and {"home", "diplomatic"} & cats
+    texts = [newsmod.headline(c, "objective_destroyed", "air", name="Rail yard Gerstungen") for _ in range(12)]
+    assert len(set(texts)) > 1 and all("Gerstungen" in t for t in texts)

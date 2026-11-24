@@ -80,8 +80,9 @@ def new_campaign(name: str, seed: int = 1976, theater: str = "fulda_1976",
     if crisis and crisis_mod.crisis_rules(c):
         crisis_mod.begin(c)
     else:
-        c.add_news(f"{c.time:%d %b %Y}: Warsaw Pact forces have crossed the inner German border. "
-                   "USAFE squadrons are committed to the defence of the Fulda Gap.")
+        from cwdc.engine import news
+        news.post(c, f"{c.time:%d %b %Y}: Warsaw Pact forces have crossed the inner German border. "
+                  "USAFE squadrons are committed to the defence of the Fulda Gap.", "military")
     weather.initial(c)
     planner.plan_turn(c)
     return c

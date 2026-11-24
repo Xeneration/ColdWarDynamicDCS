@@ -78,7 +78,8 @@ def overview(c: Campaign) -> dict:
         "airfields": [{"id": ab.id, "name": base_name(c, ab), "side": ab.side.value,
                        "damage": round(ab.damage, 2), "state": airbases.describe(ab)}
                       for ab in c.airbases.values()],
-        "news": [{"turn": n.turn, "time": n.time.isoformat(), "text": n.text} for n in c.news[-20:]][::-1],
+        "news": [{"turn": n.turn, "time": n.time.isoformat(), "text": n.text, "category": n.category,
+                  "source": n.source} for n in c.news[-30:]][::-1],
     }
 
 

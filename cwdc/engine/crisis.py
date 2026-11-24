@@ -10,7 +10,7 @@ from __future__ import annotations
 from datetime import datetime
 
 from cwdc import theater as T
-from cwdc.engine import rng
+from cwdc.engine import news, rng
 from cwdc.model import Campaign
 
 TENSION_START = 20.0
@@ -48,9 +48,9 @@ def begin(c: Campaign) -> None:
     lo, hi = rules.get("turns", (8, 16))
     c.crisis_deadline_turn = 1 + r.randint(lo, hi)
     c.war_start_turn = c.crisis_deadline_turn
-    c.add_news(f"{c.time:%d %b %Y}: Crisis in Central Europe. Warsaw Pact forces in the GDR and "
+    news.post(c, f"{c.time:%d %b %Y}: Crisis in Central Europe. Warsaw Pact forces in the GDR and "
                "Czechoslovakia are on the move. NATO air defence goes to a higher alert state; "
-               "Quick Reaction Alert aircraft stand ready, weapons tight.")
+               "Quick Reaction Alert aircraft stand ready, weapons tight.", "diplomatic")
 
 
 def raise_tension(c: Campaign, amount: float, why: str = "") -> None:
@@ -58,7 +58,7 @@ def raise_tension(c: Campaign, amount: float, why: str = "") -> None:
         return
     c.tension = max(0.0, min(100.0, c.tension + amount))
     if why:
-        c.add_news(why)
+        news.post(c, why, "military")
 
 
 def bring_forward(c: Campaign, turns: int) -> None:
@@ -76,7 +76,7 @@ def crisis_turn(c: Campaign) -> list[str]:
     if r.random() < P_EVENT:
         delta, text = r.choice(EVENTS)
         c.tension = max(0.0, min(100.0, c.tension + delta))
-        c.add_news(text)
+        news.post(c, text, "diplomatic" if delta < 0 or "Moscow" in text or "Talks" in text else "military")
         lines.append(text)
     lines.append(f"Tension {before:.0f} -> {c.tension:.0f} / 100.")
     return lines
@@ -94,9 +94,9 @@ def start_war(c: Campaign) -> None:
     c.tension = 100.0
     for f in c.formations.values():         # mobilisation timetables run from the war's start
         f.arrival_turn += c.war_start_turn - 1
-    c.add_news(f"{c.time:%d %b %Y %H:%M}: WAR. Warsaw Pact forces have crossed the inner German "
+    news.post(c, f"{c.time:%d %b %Y %H:%M}: WAR. Warsaw Pact forces have crossed the inner German "
                "border. USAFE squadrons are committed to the defence of the Fulda Gap; "
-               "ROE weapons free.")
+               "ROE weapons free.", "military")
 
 
 # ----------------------------------------------------------------------------- air incidents
@@ -130,7 +130,7 @@ def air_ops(c: Campaign, flights) -> list[str]:
                 c.tension = min(100.0, c.tension + SIM_INCIDENT)
                 text = (f"Incident at the border: {probe.callsign} locked up {who} with its radar and "
                         "made a firing pass before turning away. No shots were fired.")
-                c.add_news(text)
+                news.post(c, text, "air")
                 lines.append(text)
         else:
             c.tension = min(100.0, c.tension + UNOPPOSED)
@@ -161,7 +161,7 @@ def dcs_incidents(c: Campaign, mission, data: dict) -> list[str]:
         who = f"{pilot.rank} {pilot.name}" if pilot else unit
         text = (f"ROE BREACH: {who} fired first on a Warsaw Pact aircraft while weapons tight. "
                 "Moscow protests; the pilot is grounded pending an inquiry.")
-        c.add_news(text)
+        news.post(c, text, "air")
         lines.append(text)
         c.counters["roe_breaches"] = c.counters.get("roe_breaches", 0) + 1
         red_down = any(e.get("event") in ("S_EVENT_KILL",) and (e.get("target") or {}).get("coalition") == 1
@@ -169,12 +169,12 @@ def dcs_incidents(c: Campaign, mission, data: dict) -> list[str]:
         if red_down:
             bring_forward(c, KILL_DEADLINE_TURNS)
             text = "A Warsaw Pact aircraft was shot down. War now looks only hours away."
-            c.add_news(text)
+            news.post(c, text, "air")
             lines.append(text)
     elif first_side == 1:
         c.tension = min(100.0, c.tension + HOSTILE_ACT)
         text = "HOSTILE ACT: Warsaw Pact aircraft opened fire on NATO aircraft over the border."
-        c.add_news(text)
+        news.post(c, text, "air")
         lines.append(text)
     intercepted = {(e.get("target") or {}).get("group") for e in events if e.get("event") == "CWDC_INTERCEPT"}
     for fid in mission.spawned_flights:

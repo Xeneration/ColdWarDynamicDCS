@@ -334,6 +334,8 @@ class NewsItem(BaseModel):
     turn: int
     time: datetime
     text: str
+    category: str = "military"         # engine.news.CATEGORIES
+    source: str = ""
 
 
 # ----------------------------------------------------------------------------- campaign root
@@ -413,8 +415,10 @@ class Campaign(BaseModel):
         self.counters[prefix] = n
         return f"{prefix}{n:03d}"
 
-    def add_news(self, text: str) -> None:
-        self.news.append(NewsItem(turn=self.turn, time=self.time, text=text))
+    def add_news(self, text: str, category: str = "military", source: str = "") -> None:
+        """Low level; engine code posts through engine.news."""
+        self.news.append(NewsItem(turn=self.turn, time=self.time, text=text, category=category,
+                                  source=source))
 
     # convenience queries
     def player_pilot(self) -> Pilot:

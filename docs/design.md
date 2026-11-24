@@ -684,6 +684,12 @@ What's deliberately left for later phases: the web UI (Phase 3), the crisis phas
   2. **Threats and comms:** SAM rings in nm, intel, intruders, GCI, friendly flights, divert, codewords, weather.
   3. **Route sketch:** north up, clipped to its box, showing legs, SAM rings, the front line, the target, the bullseye, and a 20 nm scale bar.
 
+**Progress (2026-11-24): Phase 4 step 7 done: news** (`engine/news.py`)
+- **Every news line goes through `news.post`,** tagged with a category (diplomatic, military, air, ground, home, squadron) and a generic source ("Wire report", "Front report"…). `NewsItem` gained `category` and `source`, and older saves default to military.
+- **`news.headline`:** recurring events get seeded alternative wordings. These cover destroyed objectives, aircraft lost on the ground, and formations arriving or destroyed.
+- **`news.daily`:** one wider-world item at each dawn. The crisis and the war each have their own pool (diplomacy, the home front, REFORGER…).
+- **Web News tab:** grouped by turn, each line with a coloured category badge; hovering the badge shows the source.
+
 **Phase 5: Polish**
 - Balance passes, campaign presets (start date 1974–79, other squadrons), packaging into a one-click launcher, multiplayer client slots.
 - **Immersion lockdown, once all phases are finished** (requested 2026-11-23; kept on for now to help testing):

@@ -206,7 +206,12 @@ details.db > summary { font-weight: 600; }
 .db-side.blue { border-top: 3px solid var(--blue); } .db-side.red { border-top: 3px solid var(--red); }
 .db-front ul { margin: 4px 0; padding-left: 18px; font-size: 12.5px; }
 .red { color: #ff8a84; } .blue { color: #8cc4ff; }
-.news-item { display: grid; grid-template-columns: 130px 1fr; gap: 8px; padding: 6px 0; border-bottom: 1px solid #222a32; }
+.news-item { display: grid; grid-template-columns: 96px 1fr; gap: 8px; padding: 6px 0; border-bottom: 1px solid #222a32; }
+.news-turn { margin-bottom: 12px; }
+.news-cat { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; padding: 2px 6px; border-radius: 3px;
+            align-self: start; text-align: center; background: #2a3440; color: #c9d3dc; }
+.cat-diplomatic { background: #3b3357; } .cat-air { background: #1f3f5f; } .cat-ground { background: #4a3a22; }
+.cat-home { background: #2f4a35; } .cat-squadron { background: #5a2f2f; }
 
 /* ------------------------------------------------------------------ dialogs */
 dialog.guide { max-width: 560px; }

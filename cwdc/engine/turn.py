@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from datetime import timedelta
 
-from cwdc.engine import (airbases, apply, crews, crisis, factory, ground, logistics, outcome,
+from cwdc.engine import (airbases, apply, crews, crisis, factory, ground, logistics, news, outcome,
                          planner, resolver, stats, weather)
 from cwdc.model import (Airframe, AirframeStatus, Campaign, CrewRole, Debrief, FlightStatus, Pilot,
                         PilotStatus, SortieResult)
@@ -50,8 +50,8 @@ def end_turn(c: Campaign, dcs_results: list[SortieResult] | None = None,
 
     player = c.player_pilot()
     if player.status is not PilotStatus.ACTIVE:
-        c.add_news(f"{player.rank} {player.name} is {player.status.value.upper()}. "
-                   f"A new pilot joins the {c.squadrons[player.squadron_id].name}.")
+        news.post(c, f"{player.rank} {player.name} is {player.status.value.upper()}. "
+                  f"A new pilot joins the {c.squadrons[player.squadron_id].name}.", "squadron")
         new = factory.add_player_pilot(c, c.player_name)
         debrief.append(f"** Your pilot is {player.status.value.upper()}. "
                        f"You continue as {new.rank} {new.name} (new crew). **")
@@ -64,7 +64,7 @@ def end_turn(c: Campaign, dcs_results: list[SortieResult] | None = None,
     c.history.append(stats.turn_stats(c))
     crews.rest(c, night=planner.period(c) == "night",
                exclude={pid for f in c.flights.values() for pid in crews.crew_of(f)})
-    c.add_news(f"Turn {c.turn}: " + "; ".join(l for l in debrief if l.startswith("[")))
+    news.post(c, f"Turn {c.turn}: " + "; ".join(l for l in debrief if l.startswith("[")), "air")
     if c.at_war and outcome.check(c):
         debrief += ["", *outcome.summary(c)]
         c.packages.clear()                     # the campaign is over: nothing more to fly
@@ -74,6 +74,7 @@ def end_turn(c: Campaign, dcs_results: list[SortieResult] | None = None,
     if crisis.due(c):
         crisis.start_war(c)
         debrief += ["", "** WAR: the Warsaw Pact has attacked. ROE weapons free. **"]
+    news.daily(c)
     planner.plan_turn(c)
     return debrief
 

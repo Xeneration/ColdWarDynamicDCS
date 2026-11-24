@@ -18,7 +18,7 @@ import math
 import random
 
 from cwdc import theater as T
-from cwdc.engine import airbases, rng
+from cwdc.engine import airbases, news, rng
 from cwdc.model import (AirframeStatus, Campaign, Formation, Objective, ObjectiveKind, Pos, Posture,
                         Sector, Side)
 
@@ -85,7 +85,7 @@ def resolve_ground(c: Campaign) -> list[str]:
         if f.arrival_turn == c.turn and c.turn > c.war_start_turn:
             if f.sector_id == "auto":
                 f.sector_id = _commit_sector(c, f.side)
-            c.add_news(f"{f.name} has arrived at the front ({c.sectors[f.sector_id].name}).")
+            news.headline(c, "formation_arrived", "ground", name=f.name, sector=c.sectors[f.sector_id].name)
             lines.append(f"  Reinforcement: {f.name} arrives in {c.sectors[f.sector_id].name}")
     if not (c.supply_links and all(l.id for l in c.supply_links)):
         _supply_proxy(c)                 # old campaigns without a logistics network
@@ -143,7 +143,7 @@ def resolve_ground(c: Campaign) -> list[str]:
             f.strength = min(f.max_strength, f.strength + REGEN_PER_TURN * f.max_strength * f.supply)
         if f.strength <= 0.5 and f.arrival_turn <= c.turn:
             if f.strength > 0:
-                c.add_news(f"{f.name} has been destroyed as a fighting force.")
+                news.headline(c, "formation_destroyed", "ground", name=f.name)
             f.strength = 0.0
     return lines
 
@@ -255,7 +255,7 @@ def check_overruns(c: Campaign) -> list[str]:
         if owner is not node.side:
             node.side, node.stock, node.production = owner, 0.0, 0.0
             msg = f"{node.name} has been overrun."
-            c.add_news(msg)
+            news.post(c, msg, "ground")
             lines.append("  " + msg)
     for o in c.objectives.values():
         if o.sector_id or o.destroyed or o.kind is ObjectiveKind.AIRBASE:
@@ -264,14 +264,14 @@ def check_overruns(c: Campaign) -> list[str]:
             for u in o.units:
                 u.alive = False
             msg = f"{o.name} has been overrun and is lost."
-            c.add_news(msg)
+            news.post(c, msg, "ground")
             lines.append("  " + msg)
     return lines
 
 
 def _overrun_airbase(c: Campaign, ab, owner: Side) -> list[str]:
     lines = [f"  {ab.dcs_name} has been overrun by the {'Warsaw Pact' if owner is Side.RED else 'NATO'}."]
-    c.add_news(lines[0].strip())
+    news.post(c, lines[0].strip(), "ground")
     r = rng(c.seed, c.turn, f"overrun:{ab.id}")
     for sq in [s for s in c.squadrons.values() if s.base_id == ab.id]:
         ready = c.squadron_airframes(sq.id)
@@ -290,7 +290,7 @@ def _overrun_airbase(c: Campaign, ab, owner: Side) -> list[str]:
             for a in c.squadron_airframes(sq.id, None):
                 a.status = AirframeStatus.DESTROYED
             lines.append(f"  {sq.name} has nowhere to go and is lost.")
-        c.add_news(lines[-1].strip())
+        news.post(c, lines[-1].strip(), "ground")
     ab.side = owner
     airbases.overrun(c, ab, owner)
     return lines

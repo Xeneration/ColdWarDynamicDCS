@@ -84,8 +84,15 @@ function renderNext(o, a) {
 }
 
 function renderNews(o) {
-  $("#tab-news").innerHTML = `<h2>News from the front</h2><div class="news">${o.news.map((n) =>
-    `<div class="news-item"><span class="mono muted">${fmtZ(n.time)}</span><div>${esc(n.text)}</div></div>`).join("")}</div>`;
+  // grouped by turn, newest first; each line tagged with its category and source
+  const byTurn = [];
+  for (const n of o.news) {
+    if (!byTurn.length || byTurn[byTurn.length - 1].turn !== n.turn) byTurn.push({ turn: n.turn, time: n.time, items: [] });
+    byTurn[byTurn.length - 1].items.push(n);
+  }
+  $("#tab-news").innerHTML = `<h2>News from the front</h2><div class="news">${byTurn.map((g) =>
+    `<div class="news-turn"><div class="mono muted">Turn ${g.turn} - ${fmtZ(g.time)}</div>${g.items.map((n) =>
+      `<div class="news-item"><span class="news-cat cat-${esc(n.category || "military")}" title="${esc(n.source || "")}">${esc(n.category || "military")}</span><div>${esc(n.text)}</div></div>`).join("")}</div>`).join("")}</div>`;
 }
 
 // ----------------------------------------------------------------------------- data flow

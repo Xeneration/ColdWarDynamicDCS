@@ -20,7 +20,8 @@ def destroy_unit(c: Campaign, uid: str) -> None:
         obj.units[int(idx)].alive = False
         destroy_from_air(c, obj, int(idx))
     if obj.destroyed and not was_destroyed:
-        c.add_news(f"{obj.name} has been destroyed.")
+        from cwdc.engine import news
+        news.headline(c, "objective_destroyed", "air", name=obj.name)
 
 
 def apply_results(c: Campaign, results: Iterable[SortieResult],
