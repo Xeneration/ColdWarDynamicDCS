@@ -1,0 +1,516 @@
+{
+ "unit_type": "MiG-29 Fulcrum",
+ "source": "CoreMods UnitPayloads",
+ "missions_scanned": 0,
+ "payloads": [
+  {
+   "name": "Empty Pylons",
+   "count": 1,
+   "pylons": {
+    "1": "{MIG-29A_EMPTY_APU-73}",
+    "2": "{MIG-29A_EMPTY_APU-73}",
+    "3": "{MIG-29A_EMPTY_APU-470}",
+    "5": "{MIG-29A_EMPTY_APU-470}",
+    "6": "{MIG-29A_EMPTY_APU-73}",
+    "7": "{MIG-29A_EMPTY_APU-73}"
+   }
+  },
+  {
+   "name": "4 * KMGU AO-2.5RT, 2 * R-60M",
+   "count": 1,
+   "pylons": {
+    "1": "{MISSILE_R-60M_APU-60}",
+    "2": "{AB_KMGU2-AO_BDZ-UMK2-B}",
+    "3": "{AB_KMGU2-AO_BDZ-UMK2-B}",
+    "5": "{AB_KMGU2-AO_BDZ-UMK2-B}",
+    "6": "{AB_KMGU2-AO_BDZ-UMK2-B}",
+    "7": "{MISSILE_R-60M_APU-60}"
+   }
+  },
+  {
+   "name": "2 * R-27ER, 4 * R-60M",
+   "count": 1,
+   "pylons": {
+    "1": "{MISSILE_R-60M_APU-60}",
+    "2": "{MISSILE_R-60M_APU-60}",
+    "3": "{MISSILE_R-27ER_APU-470}",
+    "5": "{MISSILE_R-27ER_APU-470}",
+    "6": "{MISSILE_R-60M_APU-60}",
+    "7": "{MISSILE_R-60M_APU-60}"
+   }
+  },
+  {
+   "name": "2 * R-27R, 4 * R-60M",
+   "count": 1,
+   "pylons": {
+    "1": "{MISSILE_R-60M_APU-60}",
+    "2": "{MISSILE_R-60M_APU-60}",
+    "3": "{MISSILE_R-27R_APU-470}",
+    "5": "{MISSILE_R-27R_APU-470}",
+    "6": "{MISSILE_R-60M_APU-60}",
+    "7": "{MISSILE_R-60M_APU-60}"
+   }
+  },
+  {
+   "name": "2 * R-27T, 4 * R-60M",
+   "count": 1,
+   "pylons": {
+    "1": "{MISSILE_R-60M_APU-60}",
+    "2": "{MISSILE_R-60M_APU-60}",
+    "3": "{MISSILE_R-27T_APU-470}",
+    "5": "{MISSILE_R-27T_APU-470}",
+    "6": "{MISSILE_R-60M_APU-60}",
+    "7": "{MISSILE_R-60M_APU-60}"
+   }
+  },
+  {
+   "name": "6 * R-60M, Fuel",
+   "count": 1,
+   "pylons": {
+    "1": "{MISSILE_R-60M_APU-60}",
+    "2": "{MISSILE_R-60M_APU-60}",
+    "3": "{MISSILE_R-60M_APU-60}",
+    "4": "{PTB_1500_MIG29A}",
+    "5": "{MISSILE_R-60M_APU-60}",
+    "6": "{MISSILE_R-60M_APU-60}",
+    "7": "{MISSILE_R-60M_APU-60}"
+   }
+  },
+  {
+   "name": "6 * R-60M",
+   "count": 1,
+   "pylons": {
+    "1": "{MISSILE_R-60M_APU-60}",
+    "2": "{MISSILE_R-60M_APU-60}",
+    "3": "{MISSILE_R-60M_APU-60}",
+    "5": "{MISSILE_R-60M_APU-60}",
+    "6": "{MISSILE_R-60M_APU-60}",
+    "7": "{MISSILE_R-60M_APU-60}"
+   }
+  },
+  {
+   "name": "4 * S-24, 2 * R-60M ",
+   "count": 1,
+   "pylons": {
+    "1": "{MISSILE_R-60M_APU-60}",
+    "2": "{ROCKETS_S24B_BDZ-UMK2-B}",
+    "3": "{ROCKETS_S24B_BDZ-UMK2-B}",
+    "5": "{ROCKETS_S24B_BDZ-UMK2-B}",
+    "6": "{ROCKETS_S24B_BDZ-UMK2-B}",
+    "7": "{MISSILE_R-60M_APU-60}"
+   }
+  },
+  {
+   "name": "80 * S-8OFP, 2 * R-60M",
+   "count": 1,
+   "pylons": {
+    "1": "{MISSILE_R-60M_APU-60}",
+    "2": "{ROCKETS_S8-OFP2_BDZ-UMK2-B}",
+    "3": "{ROCKETS_S8-OFP2_BDZ-UMK2-B}",
+    "5": "{ROCKETS_S8-OFP2_BDZ-UMK2-B}",
+    "6": "{ROCKETS_S8-OFP2_BDZ-UMK2-B}",
+    "7": "{MISSILE_R-60M_APU-60}"
+   }
+  },
+  {
+   "name": "4 * BetAB-500, 2 * R-60",
+   "count": 1,
+   "pylons": {
+    "1": "{MISSILE_R-60_APU-60}",
+    "2": "{AB_BETAB-500_BDZ-UMK2-B}",
+    "3": "{AB_BETAB-500_BDZ-UMK2-B}",
+    "5": "{AB_BETAB-500_BDZ-UMK2-B}",
+    "6": "{AB_BETAB-500_BDZ-UMK2-B}",
+    "7": "{MISSILE_R-60_APU-60}"
+   }
+  },
+  {
+   "name": "6 * R-60",
+   "count": 1,
+   "pylons": {
+    "1": "{MISSILE_R-60_APU-60}",
+    "2": "{MISSILE_R-60_APU-60}",
+    "3": "{MISSILE_R-60_APU-60}",
+    "5": "{MISSILE_R-60_APU-60}",
+    "6": "{MISSILE_R-60_APU-60}",
+    "7": "{MISSILE_R-60_APU-60}"
+   }
+  },
+  {
+   "name": "4 * BetAB-500ShP, 2 * R-73",
+   "count": 1,
+   "pylons": {
+    "1": "{MISSILE_R-73_APU-73}",
+    "2": "{AB_BETAB-500SHP_BDZ-UMK2-B}",
+    "3": "{AB_BETAB-500SHP_BDZ-UMK2-B}",
+    "5": "{AB_BETAB-500SHP_BDZ-UMK2-B}",
+    "6": "{AB_BETAB-500SHP_BDZ-UMK2-B}",
+    "7": "{MISSILE_R-73_APU-73}"
+   }
+  },
+  {
+   "name": "4 * BetAB-500, 2 * R-73",
+   "count": 1,
+   "pylons": {
+    "1": "{MISSILE_R-73_APU-73}",
+    "2": "{AB_BETAB-500_BDZ-UMK2-B}",
+    "3": "{AB_BETAB-500_BDZ-UMK2-B}",
+    "5": "{AB_BETAB-500_BDZ-UMK2-B}",
+    "6": "{AB_BETAB-500_BDZ-UMK2-B}",
+    "7": "{MISSILE_R-73_APU-73}"
+   }
+  },
+  {
+   "name": "4 * FAB-250M-62, 2 * R-73",
+   "count": 1,
+   "pylons": {
+    "1": "{MISSILE_R-73_APU-73}",
+    "2": "{AB_FAB-250-M62_BDZ-UMK2-B}",
+    "3": "{AB_FAB-250-M62_BDZ-UMK2-B}",
+    "5": "{AB_FAB-250-M62_BDZ-UMK2-B}",
+    "6": "{AB_FAB-250-M62_BDZ-UMK2-B}",
+    "7": "{MISSILE_R-73_APU-73}"
+   }
+  },
+  {
+   "name": "4 * FAB-500M-62, 2 * R-73",
+   "count": 1,
+   "pylons": {
+    "1": "{MISSILE_R-73_APU-73}",
+    "2": "{AB_FAB-500_BDZ-UMK2-B}",
+    "3": "{AB_FAB-500_BDZ-UMK2-B}",
+    "5": "{AB_FAB-500_BDZ-UMK2-B}",
+    "6": "{AB_FAB-500_BDZ-UMK2-B}",
+    "7": "{MISSILE_R-73_APU-73}"
+   }
+  },
+  {
+   "name": "4 * KMGU PTAB-2.5KO, 2 * R-73",
+   "count": 1,
+   "pylons": {
+    "1": "{MISSILE_R-73_APU-73}",
+    "2": "{AB_KMGU2-AO_BDZ-UMK2-B}",
+    "3": "{AB_KMGU2-PTAB_BDZ-UMK2-B}",
+    "5": "{AB_KMGU2-PTAB_BDZ-UMK2-B}",
+    "6": "{AB_KMGU2-AO_BDZ-UMK2-B}",
+    "7": "{MISSILE_R-73_APU-73}"
+   }
+  },
+  {
+   "name": "4 * RBK-250 AO-1SCh, 2 * R-73",
+   "count": 1,
+   "pylons": {
+    "1": "{MISSILE_R-73_APU-73}",
+    "2": "{AB_RBK-250-275_BDZ-UMK2-B}",
+    "3": "{AB_RBK-250-275_BDZ-UMK2-B}",
+    "5": "{AB_RBK-250-275_BDZ-UMK2-B}",
+    "6": "{AB_RBK-250-275_BDZ-UMK2-B}",
+    "7": "{MISSILE_R-73_APU-73}"
+   }
+  },
+  {
+   "name": "4 * RBK-250 PTAB-2.5M, 2 * R-73",
+   "count": 1,
+   "pylons": {
+    "1": "{MISSILE_R-73_APU-73}",
+    "2": "{AB_RBK-250_BDZ-UMK2-B}",
+    "3": "{AB_RBK-250_BDZ-UMK2-B}",
+    "5": "{AB_RBK-250_BDZ-UMK2-B}",
+    "6": "{AB_RBK-250_BDZ-UMK2-B}",
+    "7": "{MISSILE_R-73_APU-73}"
+   }
+  },
+  {
+   "name": "4 * RBK-500 PTAB-10, 2 * R-73",
+   "count": 1,
+   "pylons": {
+    "1": "{MISSILE_R-73_APU-73}",
+    "2": "{AB_RBK-500-255-PTAB-10-5_BDZ-UMK2-B}",
+    "3": "{AB_RBK-500-255-PTAB-10-5_BDZ-UMK2-B}",
+    "5": "{AB_RBK-500-255-PTAB-10-5_BDZ-UMK2-B}",
+    "6": "{AB_RBK-500-255-PTAB-10-5_BDZ-UMK2-B}",
+    "7": "{MISSILE_R-73_APU-73}"
+   }
+  },
+  {
+   "name": "4 * RBK-500 PTAB-1M, 2 * R-73",
+   "count": 1,
+   "pylons": {
+    "1": "{MISSILE_R-73_APU-73}",
+    "2": "{AB_RBK-500-PTAB-1M_BDZ-UMK2-B}",
+    "3": "{AB_RBK-500-PTAB-1M_BDZ-UMK2-B}",
+    "5": "{AB_RBK-500-PTAB-1M_BDZ-UMK2-B}",
+    "6": "{AB_RBK-500-PTAB-1M_BDZ-UMK2-B}",
+    "7": "{MISSILE_R-73_APU-73}"
+   }
+  },
+  {
+   "name": "2 * R-27ER, 4 * R-73, Fuel",
+   "count": 1,
+   "pylons": {
+    "1": "{MISSILE_R-73_APU-73}",
+    "2": "{MISSILE_R-73_APU-73}",
+    "3": "{MISSILE_R-27ER_APU-470}",
+    "4": "{PTB_1500_MIG29A}",
+    "5": "{MISSILE_R-27ER_APU-470}",
+    "6": "{MISSILE_R-73_APU-73}",
+    "7": "{MISSILE_R-73_APU-73}"
+   }
+  },
+  {
+   "name": "2 * R-27ER, 4 * R-73",
+   "count": 1,
+   "pylons": {
+    "1": "{MISSILE_R-73_APU-73}",
+    "2": "{MISSILE_R-73_APU-73}",
+    "3": "{MISSILE_R-27ER_APU-470}",
+    "5": "{MISSILE_R-27ER_APU-470}",
+    "6": "{MISSILE_R-73_APU-73}",
+    "7": "{MISSILE_R-73_APU-73}"
+   }
+  },
+  {
+   "name": "2 * R-27ET, 4 * R-73, fuel",
+   "count": 1,
+   "pylons": {
+    "1": "{MISSILE_R-73_APU-73}",
+    "2": "{MISSILE_R-73_APU-73}",
+    "3": "{MISSILE_R-27ET_APU-470}",
+    "4": "{PTB_1500_MIG29A}",
+    "5": "{MISSILE_R-27ET_APU-470}",
+    "6": "{MISSILE_R-73_APU-73}",
+    "7": "{MISSILE_R-73_APU-73}"
+   }
+  },
+  {
+   "name": "2 * R-27ET, 4 * R-73",
+   "count": 1,
+   "pylons": {
+    "1": "{MISSILE_R-73_APU-73}",
+    "2": "{MISSILE_R-73_APU-73}",
+    "3": "{MISSILE_R-27ET_APU-470}",
+    "5": "{MISSILE_R-27ET_APU-470}",
+    "6": "{MISSILE_R-73_APU-73}",
+    "7": "{MISSILE_R-73_APU-73}"
+   }
+  },
+  {
+   "name": "2 * R-27R, 4 * R-73",
+   "count": 1,
+   "pylons": {
+    "1": "{MISSILE_R-73_APU-73}",
+    "2": "{MISSILE_R-73_APU-73}",
+    "3": "{MISSILE_R-27R_APU-470}",
+    "5": "{MISSILE_R-27R_APU-470}",
+    "6": "{MISSILE_R-73_APU-73}",
+    "7": "{MISSILE_R-73_APU-73}"
+   }
+  },
+  {
+   "name": "2 * R-27T, 4 * R-73",
+   "count": 1,
+   "pylons": {
+    "1": "{MISSILE_R-73_APU-73}",
+    "2": "{MISSILE_R-73_APU-73}",
+    "3": "{MISSILE_R-27T_APU-470}",
+    "5": "{MISSILE_R-27T_APU-470}",
+    "6": "{MISSILE_R-73_APU-73}",
+    "7": "{MISSILE_R-73_APU-73}"
+   }
+  },
+  {
+   "name": "6 * R-73, Fuel",
+   "count": 1,
+   "pylons": {
+    "1": "{MISSILE_R-73_APU-73}",
+    "2": "{MISSILE_R-73_APU-73}",
+    "3": "{MISSILE_R-73_APU-73}",
+    "4": "{PTB_1500_MIG29A}",
+    "5": "{MISSILE_R-73_APU-73}",
+    "6": "{MISSILE_R-73_APU-73}",
+    "7": "{MISSILE_R-73_APU-73}"
+   }
+  },
+  {
+   "name": "6 * R-73",
+   "count": 1,
+   "pylons": {
+    "1": "{MISSILE_R-73_APU-73}",
+    "2": "{MISSILE_R-73_APU-73}",
+    "3": "{MISSILE_R-73_APU-73}",
+    "5": "{MISSILE_R-73_APU-73}",
+    "6": "{MISSILE_R-73_APU-73}",
+    "7": "{MISSILE_R-73_APU-73}"
+   }
+  },
+  {
+   "name": "4 * S-24, 2 * R-73",
+   "count": 1,
+   "pylons": {
+    "1": "{MISSILE_R-73_APU-73}",
+    "2": "{ROCKETS_S24B_BDZ-UMK2-B}",
+    "3": "{ROCKETS_S24B_BDZ-UMK2-B}",
+    "5": "{ROCKETS_S24B_BDZ-UMK2-B}",
+    "6": "{ROCKETS_S24B_BDZ-UMK2-B}",
+    "7": "{MISSILE_R-73_APU-73}"
+   }
+  },
+  {
+   "name": "80 * S-8KOM, 2 * R-73",
+   "count": 1,
+   "pylons": {
+    "1": "{MISSILE_R-73_APU-73}",
+    "2": "{ROCKETS_S8-KOM_BDZ-UMK2-B}",
+    "3": "{ROCKETS_S8-KOM_BDZ-UMK2-B}",
+    "5": "{ROCKETS_S8-KOM_BDZ-UMK2-B}",
+    "6": "{ROCKETS_S8-KOM_BDZ-UMK2-B}",
+    "7": "{MISSILE_R-73_APU-73}"
+   }
+  },
+  {
+   "name": "80 * S-8OFP, 2 * R-73",
+   "count": 1,
+   "pylons": {
+    "1": "{MISSILE_R-73_APU-73}",
+    "2": "{ROCKETS_S8-OFP2_BDZ-UMK2-B}",
+    "3": "{ROCKETS_S8-OFP2_BDZ-UMK2-B}",
+    "5": "{ROCKETS_S8-OFP2_BDZ-UMK2-B}",
+    "6": "{ROCKETS_S8-OFP2_BDZ-UMK2-B}",
+    "7": "{MISSILE_R-73_APU-73}"
+   }
+  },
+  {
+   "name": "80 * S-8TsM, 2 * R-73",
+   "count": 1,
+   "pylons": {
+    "1": "{MISSILE_R-73_APU-73}",
+    "2": "{ROCKETS_S8-TSM_BDZ-UMK2-B}",
+    "3": "{ROCKETS_S8-TSM_BDZ-UMK2-B}",
+    "5": "{ROCKETS_S8-TSM_BDZ-UMK2-B}",
+    "6": "{ROCKETS_S8-TSM_BDZ-UMK2-B}",
+    "7": "{MISSILE_R-73_APU-73}"
+   }
+  },
+  {
+   "name": "2 * R-73, Fuel",
+   "count": 1,
+   "pylons": {
+    "1": "{MISSILE_R-73_APU-73}",
+    "4": "{PTB_1500_MIG29A}",
+    "7": "{MISSILE_R-73_APU-73}"
+   }
+  },
+  {
+   "name": "4 * BetAB-500",
+   "count": 1,
+   "pylons": {
+    "2": "{AB_BETAB-500_BDZ-UMK2-B}",
+    "3": "{AB_BETAB-500_BDZ-UMK2-B}",
+    "5": "{AB_BETAB-500_BDZ-UMK2-B}",
+    "6": "{AB_BETAB-500_BDZ-UMK2-B}"
+   }
+  },
+  {
+   "name": "4 * KMGU",
+   "count": 1,
+   "pylons": {
+    "2": "{AB_KMGU2-AO_BDZ-UMK2-B}",
+    "3": "{AB_KMGU2-AO_BDZ-UMK2-B}",
+    "5": "{AB_KMGU2-AO_BDZ-UMK2-B}",
+    "6": "{AB_KMGU2-AO_BDZ-UMK2-B}"
+   }
+  },
+  {
+   "name": "2 * R-27R, 2 * R-60M",
+   "count": 1,
+   "pylons": {
+    "2": "{MISSILE_R-60M_APU-60}",
+    "3": "{MISSILE_R-27R_APU-470}",
+    "5": "{MISSILE_R-27R_APU-470}",
+    "6": "{MISSILE_R-60M_APU-60}"
+   }
+  },
+  {
+   "name": "2 * R-27T, 2 * R-60M",
+   "count": 1,
+   "pylons": {
+    "2": "{MISSILE_R-60M_APU-60}",
+    "3": "{MISSILE_R-27T_APU-470}",
+    "5": "{MISSILE_R-27T_APU-470}",
+    "6": "{MISSILE_R-60M_APU-60}"
+   }
+  },
+  {
+   "name": "2 * R-27R, 2 * R-73",
+   "count": 1,
+   "pylons": {
+    "2": "{MISSILE_R-73_APU-73}",
+    "3": "{MISSILE_R-27R_APU-470}",
+    "5": "{MISSILE_R-27R_APU-470}",
+    "6": "{MISSILE_R-73_APU-73}"
+   }
+  },
+  {
+   "name": "2 * R-27T, 2 * R-73",
+   "count": 1,
+   "pylons": {
+    "2": "{MISSILE_R-73_APU-73}",
+    "3": "{MISSILE_R-27T_APU-470}",
+    "5": "{MISSILE_R-27T_APU-470}",
+    "6": "{MISSILE_R-73_APU-73}"
+   }
+  },
+  {
+   "name": "4 * S-24",
+   "count": 1,
+   "pylons": {
+    "2": "{ROCKETS_S24B_BDZ-UMK2-B}",
+    "3": "{ROCKETS_S24B_BDZ-UMK2-B}",
+    "5": "{ROCKETS_S24B_BDZ-UMK2-B}",
+    "6": "{ROCKETS_S24B_BDZ-UMK2-B}"
+   }
+  },
+  {
+   "name": "80 * S-8OFP",
+   "count": 1,
+   "pylons": {
+    "2": "{ROCKETS_S8-OFP2_BDZ-UMK2-B}",
+    "3": "{ROCKETS_S8-OFP2_BDZ-UMK2-B}",
+    "5": "{ROCKETS_S8-OFP2_BDZ-UMK2-B}",
+    "6": "{ROCKETS_S8-OFP2_BDZ-UMK2-B}"
+   }
+  },
+  {
+   "name": "2 * R-27ER",
+   "count": 1,
+   "pylons": {
+    "3": "{MISSILE_R-27ER_APU-470}",
+    "5": "{MISSILE_R-27ER_APU-470}"
+   }
+  },
+  {
+   "name": "2 * R-27ET",
+   "count": 1,
+   "pylons": {
+    "3": "{MISSILE_R-27ET_APU-470}",
+    "5": "{MISSILE_R-27ET_APU-470}"
+   }
+  },
+  {
+   "name": "2 * R-27R",
+   "count": 1,
+   "pylons": {
+    "3": "{MISSILE_R-27R_APU-470}",
+    "5": "{MISSILE_R-27R_APU-470}"
+   }
+  },
+  {
+   "name": "2 * R-27T",
+   "count": 1,
+   "pylons": {
+    "3": "{MISSILE_R-27T_APU-470}",
+    "5": "{MISSILE_R-27T_APU-470}"
+   }
+  }
+ ]
+}

@@ -107,7 +107,8 @@ class Squadron(BaseModel):
     base_id: str
     callsign: str
     tasks: list[Task]
-    player_squadron: bool = False
+    player_squadron: bool = False        # the player pilot's home squadron
+    player_wing: bool = False            # another squadron of the player's wing: its flights are flyable too
     sorties: int = 0                     # flights planned per turn (0 = planner default)
     establishment_airframes: int = 0     # authorised strength, for replacements
     establishment_pilots: int = 0

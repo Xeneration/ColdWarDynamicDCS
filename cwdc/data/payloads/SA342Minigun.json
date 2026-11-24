@@ -1,0 +1,23 @@
+{
+ "unit_type": "SA342Minigun",
+ "source": "CoreMods UnitPayloads",
+ "missions_scanned": 0,
+ "payloads": [
+  {
+   "name": "IR Deflector, Sand Filter",
+   "count": 1,
+   "pylons": {
+    "3": "{FAS}",
+    "4": "{IR_Deflector}"
+   }
+  },
+  {
+   "name": "Display Team Smoke, Red & Blue",
+   "count": 1,
+   "pylons": {
+    "6": "{INV-SMOKE-RED}",
+    "7": "{INV-SMOKE-BLUE}"
+   }
+  }
+ ]
+}

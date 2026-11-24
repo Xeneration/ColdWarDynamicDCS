@@ -203,34 +203,47 @@ def payload_year(pylons: dict[int, str]) -> int | None:
     return None if any(y is None for y in years) else max(years, default=FIRST_YEAR)
 
 
-def payloads_for(dcs_type_: str, year: int) -> list[dict]:
-    """Shipped payloads of a DCS type whose every store existed in `year`."""
-    out = []
-    for p in shipped(dcs_type_):
-        y = payload_year(p["pylons"])
-        if y is not None and y <= year:
-            out.append({**p, "year": y})
-    return out
-
-
-NOT_WEAPONS = {"fuel", "equipment", "ECM pod", "chaff/flare", "targeting pod", "recon pod"}
+NOT_WEAPONS = {"fuel", "equipment", "training", "ECM pod", "chaff/flare", "targeting pod", "recon pod"}
 ARM = {"AGM-45 Shrike", "AGM-78 Standard ARM", "AGM-88 HARM", "Kh-58", "Kh-28"}
 
 
-def _is_a2a(family: str) -> bool:
-    return family.startswith(("AIM-", "R-"))
+def payloads_for(dcs_type_: str, year: int, trim: bool = True) -> list[dict]:
+    """Shipped payloads of a DCS type that could be carried in `year`. Training stores are never
+    carried. With `trim`, stores too new for the year are emptied from their pylons - a subset of
+    a shipped payload, so the combination stays one DCS accepts (a 1976 F-14 keeps its AIM-54As
+    and AIM-7Fs and loses the 1977 AIM-9Ls); `dropped` counts them. Without it, only payloads
+    whose every store existed are returned."""
+    out = []
+    for p in shipped(dcs_type_):
+        if payload_year(p["pylons"]) is None:
+            continue
+        keep = {n: c for n, c in p["pylons"].items()
+                if weapon_info(c)[0] <= year and weapon_info(c)[1] != "training"}
+        dropped = len(p["pylons"]) - len(keep)
+        if dropped and not trim:
+            continue
+        if keep:
+            out.append({**p, "pylons": keep, "year": payload_year(keep), "dropped": dropped})
+    return out
+
+
+def is_a2a(family: str) -> bool:
+    return family.startswith(("AIM-", "R-", "R5", "R530", "Super 530"))
 
 
 def pick_payload(dcs_type_: str, year: int, kind: str) -> dict | None:
     """The most-shipped payload of `dcs_type_` that existed in `year` and suits `kind`:
-    "air" (air-to-air only), "sead" (carries an anti-radiation missile) or "ground"."""
+    "air" (air-to-air only), "sead" (carries an anti-radiation missile), "ground" or
+    "clean" (guns only: tanks and pods at most)."""
     best, best_score = None, -1.0
     for p in payloads_for(dcs_type_, year):
         fams = [weapon_info(c)[1] for c in p["pylons"].values()]
-        a2a = sum(1 for f in fams if _is_a2a(f))
-        ground = sum(1 for f in fams if f not in NOT_WEAPONS and not _is_a2a(f))
+        a2a = sum(1 for f in fams if is_a2a(f))
+        ground = sum(1 for f in fams if f not in NOT_WEAPONS and not is_a2a(f))
         arm = sum(1 for f in fams if f in ARM)
-        if kind == "air":
+        if kind == "clean":
+            ok, score = a2a == 0 and ground == 0, 1
+        elif kind == "air":
             ok, score = a2a > 0 and ground == 0, a2a
         elif kind == "sead":
             ok, score = arm > 0, arm * 2 + a2a * 0.1
@@ -238,6 +251,7 @@ def pick_payload(dcs_type_: str, year: int, kind: str) -> dict | None:
             ok, score = ground > 0 and arm == 0, ground + a2a * 0.2
         if ok:
             score += min(p.get("count", 1), 50) / 100           # widely shipped = proven
+            score -= 0.3 * p.get("dropped", 0)
             if score > best_score:
                 best, best_score = p, score
     return best
@@ -249,7 +263,7 @@ def weapon_bars(dcs_type_: str) -> list[dict]:
     for p in shipped(dcs_type_):
         for c in p["pylons"].values():
             info = weapon_info(c)
-            if info and info[1] not in ("fuel", "equipment"):
+            if info and info[1] not in ("fuel", "equipment", "training"):
                 fams[info[1]] = min(info[0], fams.get(info[1], 9999))
     return [{"family": f, "year": y} for f, y in sorted(fams.items(), key=lambda kv: (kv[1], kv[0]))]
 

@@ -45,7 +45,7 @@ def overview(c: Campaign) -> dict:
         afs = Counter(a.status for a in c.airframes.values() if a.squadron_id == sq.id)
         squadrons.append({
             "id": sq.id, "name": sq.name, "side": sq.side.value, "type": sq.aircraft_type,
-            "base": base_name(c, c.airbases[sq.base_id]), "player": sq.player_squadron,
+            "base": base_name(c, c.airbases[sq.base_id]), "player": sq.player_squadron or sq.player_wing,
             "ready": afs[AirframeStatus.READY], "repair": afs[AirframeStatus.DAMAGED],
             "lost": afs[AirframeStatus.DESTROYED], "pilots": len(c.squadron_pilots(sq.id)),
             "wsos": len(c.squadron_pilots(sq.id, role=CrewRole.WSO)) if sq.establishment_wsos else None})
@@ -153,9 +153,7 @@ def threats(c: Campaign, f: Flight) -> dict:
 
 def _loadout_text(c: Campaign, f: Flight) -> str:
     from cwdc.missiongen import loadouts
-    name = f.loadout or "default"
-    spec = loadouts.loadouts(c.squadrons[f.squadron_id].aircraft_type).get(name, {})
-    return spec.get("description") or ("standard load for the task" if name == "default" else name)
+    return loadouts.flight_payload(c, f)["text"]
 
 
 def ato(c: Campaign) -> dict:

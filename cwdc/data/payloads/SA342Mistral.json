@@ -1,0 +1,40 @@
+{
+ "unit_type": "SA342Mistral",
+ "source": "CoreMods UnitPayloads",
+ "missions_scanned": 0,
+ "payloads": [
+  {
+   "name": "Mistral x 4",
+   "count": 1,
+   "pylons": {
+    "1": "{MBDA_MistralD}",
+    "2": "{MBDA_MistralG}",
+    "3": "{MBDA_MistralD}",
+    "4": "{MBDA_MistralG}"
+   }
+  },
+  {
+   "name": "Mistral x 4, IR Deflector, Sand Filter",
+   "count": 1,
+   "pylons": {
+    "1": "{MBDA_MistralD}",
+    "2": "{MBDA_MistralG}",
+    "3": "{MBDA_MistralD}",
+    "4": "{MBDA_MistralG}",
+    "5": "{FAS}",
+    "6": "{IR_Deflector}"
+   }
+  },
+  {
+   "name": "Mistral x 4, IR Deflector",
+   "count": 1,
+   "pylons": {
+    "1": "{MBDA_MistralD}",
+    "2": "{MBDA_MistralG}",
+    "3": "{MBDA_MistralD}",
+    "4": "{MBDA_MistralG}",
+    "6": "{IR_Deflector}"
+   }
+  }
+ ]
+}

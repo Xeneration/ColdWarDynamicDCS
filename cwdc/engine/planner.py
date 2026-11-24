@@ -92,6 +92,14 @@ def _flyable(sq: Squadron) -> bool:
     return bool(T.airframe_catalogue().get(sq.aircraft_type, {}).get("flyable"))
 
 
+def player_can_fly(c: Campaign, sq: Squadron) -> bool:
+    """Flights of the player's home squadron and of the rest of the wing are offered to the player,
+    when the type is flyable (and, in a campaign-maker war, a module the player owns)."""
+    if not (sq.player_squadron or sq.player_wing) or not _flyable(sq):
+        return False
+    return sq.aircraft_type in c.era.get("owned", []) if c.era else True
+
+
 def _feeds_attack(c: Campaign, o: Objective) -> bool:
     """Does this logistics target supply a sector where its side is attacking?"""
     nodes = set()
@@ -541,7 +549,7 @@ def _flight(c: Campaign, pool: _Pool, sq: Squadron, task: Task, pkg: Package,
                pilot_ids=[p.id for p in pls], wso_ids=[p.id for p in wsos], target_id=target.id if target else None, area=area,
                loadout=loadouts.get(task.value) or loadouts.get(
                    "CAP" if task in (Task.ESCORT, Task.QRA, Task.RECON) else ""),
-               player_eligible=sq.player_squadron and _flyable(sq), supports=supports)
+               player_eligible=player_can_fly(c, sq), supports=supports)
     c.flights[fid] = f
     pkg.flight_ids.append(fid)
     return f

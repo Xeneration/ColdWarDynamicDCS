@@ -1,14 +1,36 @@
 # Store introduction years (front-line service, rounded; game-first). Each rule's `match` regexes
 # are tried in order against "<CLSID> <pydcs weapon name>" (case-insensitive); first match wins,
-# so specific variants come before generic ones. Family "fuel"/"equipment" are not shown as
-# weapon bars on the year slider.
+# so specific variants come before generic ones. Families "fuel"/"equipment"/"training" are not
+# shown as weapon bars on the year slider; "training" stores (practice bombs, captive rounds,
+# ACMI pods) are never loaded for war.
 weapons:
   # ------------------------------------------------------------ always available
+  - {family: training, year: 1950, match: ['practice', 'BDU', 'training', 'Mk-?106', 'MK76', 'Mk-?76', 'ASQ-T50', 'SUU-?20', 'CATM', 'Captive', '\bTGM', 'Trg Round', 'dummy', 'TCTS', 'ACMI']}
   - {family: fuel, year: 1950, match: ['fuel', 'drop ?tank', 'gal\b', 'gallon', 'DFT-', 'PTB', '\bFPU', 'Bak-|Bak \d', 'XT_']}
   - {family: ATGM, year: 1970, match: ['BGM-?71', '\bTOW\b']}
   - {family: ATGM, year: 1976, match: ['9M114', 'Shturm']}
-  - {family: equipment, year: 1950, match: ['smoke', 'practice', 'BDU', 'training', 'Mk-?106', 'MK76', 'Mk-?76', 'ASQ-T50', 'travel pod', 'cargo', 'baggage', 'pilot', 'SUU-?20', 'CATM', '\bTGM', 'Trg Round', 'dummy']}
+  - {family: equipment, year: 1950, match: ['smoke', 'travel pod', 'cargo', 'baggage', 'pilot']}
   - {family: equipment, year: 1950, match: ['M134', 'M60', 'GAU-?8', 'AKAN', 'gun ?pod.*M61|SUU-?23', 'SUU-?16', 'GPU-?2', 'M3M|M3 ', 'door gun', 'HIPEG', 'GUV', 'ZELL', 'LYSBOMB', 'APK-?9']}
+  - {family: equipment, year: 1950, match: ['Sand Filter', '\{FAS\}', 'FAS\}', 'IR Deflector', 'Empty Pylon', 'PK-3', 'GAU[ _-]?12', 'HMP400', 'M621']}
+  - {family: nuclear, year: 2100, match: ['nuclear', 'RN-2[48]']}
+  - {family: R550 Magic, year: 1975, match: ['R550 ?Magic ?1', 'R550_Magic_1']}
+  - {family: R550 Magic, year: 1986, match: ['Magic ?II', 'MMagicII']}
+  - {family: R530, year: 1963, match: ['R530']}
+  - {family: Super 530, year: 1979, match: ['S530F']}
+  - {family: Super 530, year: 1988, match: ['S530D']}
+  - {family: SNEB rockets, year: 1960, match: ['SNEB', 'MATRA_F[14]', 'TELSON']}
+  - {family: French bombs, year: 1960, match: ['SAMP']}
+  - {family: Durandal, year: 1984, match: ['BAP-?100', 'BAP_100']}
+  - {family: HOT, year: 1985, match: ['HOT-?3']}
+  - {family: Mistral, year: 1988, match: ['Mistral']}
+  - {family: Kh-66, year: 1968, match: ['Kh-?66']}
+  - {family: cluster bombs, year: 1973, match: ['BL-?755']}
+  - {family: cluster bombs, year: 1965, match: ['CBU-?7/']}
+  - {family: ECM pod, year: 1970, match: ['ASO-?2']}
+  - {family: ECM pod, year: 1975, match: ['SPS-?141', 'BARAX']}
+  - {family: ECM pod, year: 1980, match: ['ALQ-?167']}
+  - {family: ECM pod, year: 1987, match: ['ALQ-?164']}
+  - {family: targeting pod, year: 1999, match: ['LITENING', 'AAQ-?28']}
   # ------------------------------------------------------------ countermeasures / pods
   - {family: ECM pod, year: 1967, match: ['ALQ-?71', 'ALQ-?72']}
   - {family: ECM pod, year: 1969, match: ['ALQ-?101']}

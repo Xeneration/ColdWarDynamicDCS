@@ -33,6 +33,7 @@ AD_FALLBACK = {"sam_long": ["sam_medium", "sam_short", "aaa"], "sam_medium": ["s
                "sam_short": ["aaa"], "aaa": [], "ewr": []}
 GROUND_FALLBACK = {"tank": [], "ifv": ["apc"], "apc": ["truck"], "recon": ["apc", "truck"],
                    "artillery": ["mlrs"], "mlrs": ["artillery"], "truck": []}
+WING_EXTRA = 2              # squadrons besides the player's home squadron flying owned types
 P_UPGRADE = 0.35            # a SAM site still in service is re-equipped with a newer system
 P_MODERNISE = 0.7           # a vehicle type with a successor 8+ years newer is replaced by it
 
@@ -51,6 +52,7 @@ class Setup:
     strict: bool = False                   # no stand-ins
     player_airframe: str | None = None     # era airframe id; None = first owned one in service
     player_type: str | None = None         # flyable DCS variant; None = first owned
+    mixed_wing: bool = True                # wing squadrons from any nation (and carrier types) of the side
     owned: list[str] = field(default_factory=list)   # owned DCS types (era.modules.detect)
     mods: list[str] = field(default_factory=list)
     tech: list[str] = field(default_factory=list)
@@ -148,6 +150,34 @@ def player_choice(setup: Setup) -> tuple[era.InService, str]:
     return pick, ptype
 
 
+def wing_choice(setup: Setup, pick: era.InService, ptype: str) -> list[tuple[era.InService, str]]:
+    """Up to WING_EXTRA more squadrons for the player's wing, each flying another owned type in
+    service with the side that year: the player's nation first, land-based and real types first."""
+    inst = setup.installed()
+    cands = [s for s in era.airframes_in(setup.year, setup.active_nations(), side=setup.side,
+                                         strict=setup.strict, installed=inst)
+             if s.airframe.role in FIGHTER_ROLES + STRIKE_ROLES and era.player_types(s.airframe, inst)]
+    if not setup.mixed_wing:
+        cands = [s for s in cands if s.nation == pick.nation and not s.airframe.carrier]
+    cands.sort(key=lambda s: (s.nation != pick.nation, s.airframe.carrier, s.airframe.stand_in,
+                              _group(s.airframe) == _group(pick.airframe), -NATION_WEIGHT.get(s.nation, 1),
+                              s.airframe.id))
+    out, types = [], {ptype}
+    for s in cands:
+        t = era.player_types(s.airframe, inst)[0]
+        if s.airframe.id == pick.airframe.id or t in types:
+            continue
+        out.append((s, t))
+        types.add(t)
+        if len(out) == WING_EXTRA:
+            break
+    return out
+
+
+def _group(af: era.Airframe) -> str:
+    return "fighter" if af.role in ("fighter", "interceptor") else "strike"
+
+
 # ---------------------------------------------------------------------------- air order of battle
 def _tasks(af: era.Airframe, dcs_type: str, year: int) -> list[str]:
     tasks = list(ROLE_TASKS[af.role])
@@ -199,7 +229,10 @@ def oob(setup: Setup, seed: int) -> dict:
     for k in callsigns:
         r.shuffle(callsigns[k])
 
-    def base_for(side: str, nation: str, near_front: bool) -> dict:
+    def base_for(side: str, nation: str, near_front: bool, at: dict | None = None) -> dict:
+        if at is not None:                     # the player's wing shares the home airfield
+            base_load[at["id"]] = base_load.get(at["id"], 0) + 1
+            return at
         bases = gen["bases"][side]
         fits = [b for b in bases if nation in b.get("nations", [])] or bases
         free = [b for b in fits if base_load.get(b["id"], 0) < 2] or [b for b in bases if base_load.get(b["id"], 0) < 2]
@@ -207,34 +240,44 @@ def oob(setup: Setup, seed: int) -> dict:
         base_load[b["id"]] = base_load.get(b["id"], 0) + 1
         return b
 
-    def add(s: era.InService, side: str, group: str, player: bool = False, dcs_type: str | None = None):
+    def add(s: era.InService, side: str, group: str, player: bool = False, dcs_type: str | None = None,
+            wing: bool = False):
         dcs_type = dcs_type or s.dcs_type
-        b = base_for(side, s.nation, near_front=player)
+        b = base_for(side, s.nation, near_front=player, at=squadrons[0]["base_spec"] if wing else None)
         cs = callsigns[side].pop(0) if callsigns[side] else f"{side.title()} {len(squadrons)}"
         size = 18 if s.nation not in ("USSR", "GDR", "Poland", "Czechoslovakia", "Hungary") else 24
         sq = {"id": f"{'b' if side == 'west' else 'r'}_{len(squadrons) + 1:02d}_{s.airframe.id.lower()}",
-              "name": _name(s.nation, group, used_names, r), "side": sides[side],
+              "name": _name("USN" if s.airframe.carrier and s.nation == "USA" else s.nation, group,
+                            used_names, r), "side": sides[side],
               "country": country_of(s.nation), "aircraft_type": dcs_type, "base": b["id"],
               "callsign": cs, "tasks": _tasks(s.airframe, dcs_type, setup.year), "airframes": size, "pilots": size + 2,
-              "tail_prefix": _units()["units"][s.nation]["tail"], "airframe": s.airframe.id,
+              "tail_prefix": _units()["units"]["USN" if s.airframe.carrier and s.nation == "USA" else s.nation]["tail"], "airframe": s.airframe.id,
               "air_rating": max(s.airframe.air, 0.05), "strike_rating": max(s.airframe.strike, 0.05), "nation": s.nation,
               "base_spec": b}
         if player:
             sq["player_squadron"] = True
+        if wing:
+            sq["player_wing"] = True
         squadrons.append(sq)
         return sq
 
     pick, ptype = player_choice(setup)
     used_af = {pick.airframe.id}
-    add(pick, setup.side, "fighter" if pick.airframe.role in ("fighter", "interceptor") else "strike",
-        player=True, dcs_type=ptype)
+    slots = {side: dict(gen["squadrons"][side]) for side in era.SIDES}
+    add(pick, setup.side, _group(pick.airframe), player=True, dcs_type=ptype)
+    for s, t in wing_choice(setup, pick, ptype):
+        used_af.add(s.airframe.id)
+        g = _group(s.airframe)
+        if slots[setup.side].get(g, 0) > 0:        # a wing squadron takes an AI slot of its kind
+            slots[setup.side][g] -= 1
+        add(s, setup.side, g, dcs_type=t, wing=True)
     for side in era.SIDES:
         all_in = [s for s in era.airframes_in(setup.year, nations_on, side=side, strict=setup.strict, installed=inst)
                   if not s.airframe.carrier]
         for group, roles in (("fighter", FIGHTER_ROLES), ("strike", STRIKE_ROLES)):
             cands = [s for s in all_in if s.airframe.role in roles
                      and (group == "fighter" or s.airframe.strike >= 0.3)]
-            for _ in range(gen["squadrons"][side][group]):
+            for _ in range(slots[side][group]):
                 s = _pick(cands, used_af, r)
                 if s is None:
                     break

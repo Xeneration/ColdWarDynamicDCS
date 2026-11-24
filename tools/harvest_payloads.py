@@ -62,25 +62,41 @@ def harvest(dirs: list[Path], unit_type: str) -> dict:
 
 
 def harvest_owned() -> None:
-    """Refresh cwdc/data/payloads/*.json from every installed module (and mod) plus the
-    DCS-shipped AI payloads of the era airframes. Read-only on the DCS folders."""
+    r"""Refresh cwdc/data/payloads/*.json for every era airframe, from:
+      * every installed module's (and mod's) shipped missions and UnitPayloads,
+      * DCS World\CoreMods\aircraft\*\UnitPayloads (module authors' payloads, installed for all),
+      * DCS World\MissionEditor\data\scripts\UnitPayloads (AI types).
+    The user's own Saved Games\DCS\MissionEditor\UnitPayloads is never read. Read-only."""
     from cwdc import era
     from cwdc.era import modules, payloads
     inst = modules.detect()
     wanted = era.all_dcs_types()
+    merged: dict[str, dict] = {}
+    sources: dict[str, list[str]] = {}
+
+    def merge(got: dict, src: str) -> None:
+        for t, rec in got.items():
+            m = merged.setdefault(t, {"missions": 0, "payloads": payloads.Counter(), "named": {}})
+            m["missions"] += rec["missions"]
+            m["payloads"].update(rec["payloads"])
+            for k, v in rec["named"].items():
+                m["named"].setdefault(k, v)
+            sources.setdefault(t, []).append(src)
+
     for folder, path in sorted(inst.module_dirs.items()):
         types = {t for t, f in inst.flyable.items() if f == folder} & wanted
-        if not types:
+        if types:
+            merge(payloads.harvest_dirs([path], types), f"{'mod' if folder in inst.mods else 'module'} {folder}")
+    root = modules.install_dir()
+    merge(payloads.harvest_dirs([root / "CoreMods" / "aircraft"], wanted), "CoreMods UnitPayloads")
+    merge(payloads.harvest_dirs([root / "MissionEditor" / "data" / "scripts"], wanted),
+          "MissionEditor UnitPayloads")
+    for t in sorted(merged):
+        rec = merged[t]
+        if not rec["payloads"]:
             continue
-        got = payloads.harvest_dirs([path], types)
-        src = f"{'mod' if folder in inst.mods else 'module'} {folder}"
-        for f in payloads.write(got, src):
-            print(f"{src}: wrote {f.name}")
-    me = modules.install_dir() / "MissionEditor" / "data" / "scripts"
-    ai = {t for t in wanted if t not in inst.flyable}
-    got = payloads.harvest_dirs([me], ai)
-    for f in payloads.write(got, "DCS MissionEditor UnitPayloads"):
-        print(f"AI: wrote {f.name}")
+        for f in payloads.write({t: rec}, ", ".join(sources[t])):
+            print(f"{f.name}: {len(rec['payloads'])} payloads ({', '.join(sources[t])})")
 
 
 def main() -> None:

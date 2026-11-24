@@ -1,11 +1,11 @@
 {
  "unit_type": "AJS37",
- "source": "module AJS37",
+ "source": "module AJS37, CoreMods UnitPayloads",
  "missions_scanned": 119,
  "payloads": [
   {
-   "name": null,
-   "count": 51,
+   "name": "Bombs Low-drag: SB71LD*16, RB-24J*2, XT",
+   "count": 52,
    "pylons": {
     "1": "{Robot24J}",
     "2": "{M71BOMB}",
@@ -28,8 +28,8 @@
    }
   },
   {
-   "name": null,
-   "count": 24,
+   "name": "Bombs High-drag: SB71HD*16, XT, RB-24J",
+   "count": 26,
    "pylons": {
     "1": "{Robot24J}",
     "2": "{M71BOMBD}",
@@ -41,15 +41,15 @@
    }
   },
   {
-   "name": null,
-   "count": 22,
+   "name": "Ferry Flight: XT",
+   "count": 23,
    "pylons": {
     "4": "{VIGGEN_X-TANK}"
    }
   },
   {
-   "name": null,
-   "count": 12,
+   "name": "Rocket Full Load HE:  ARAK HE*4, RB-24J, XT",
+   "count": 13,
    "pylons": {
     "1": "{Robot24J}",
     "2": "{ARAKM70BHE}",
@@ -85,14 +85,73 @@
    }
   },
   {
-   "name": null,
-   "count": 7,
+   "name": "Strike: BK90 (MJ1)*2, RB-74*2, XT",
+   "count": 8,
    "pylons": {
     "2": "{BK90MJ1}",
     "3": "{Robot74}",
     "4": "{VIGGEN_X-TANK}",
     "5": "{Robot74}",
     "6": "{BK90MJ1}"
+   }
+  },
+  {
+   "name": "Battlefield Air Interdiction: RB-75*4, RB-24J*2, XT",
+   "count": 7,
+   "pylons": {
+    "1": "{Robot24J}",
+    "2": "{RB75}",
+    "3": "{RB75}",
+    "4": "{VIGGEN_X-TANK}",
+    "5": "{RB75}",
+    "6": "{RB75}",
+    "7": "{Robot24J}"
+   }
+  },
+  {
+   "name": "CAP (6 AAM): RB-74*4, RB-24J*2, XT",
+   "count": 7,
+   "pylons": {
+    "1": "{Robot24J}",
+    "2": "{Robot74}",
+    "3": "{Robot74}",
+    "4": "{VIGGEN_X-TANK}",
+    "5": "{Robot74}",
+    "6": "{Robot74}",
+    "7": "{Robot24J}"
+   }
+  },
+  {
+   "name": "CAP (Gun): AKAN*2, RB-74*2, XT",
+   "count": 7,
+   "pylons": {
+    "2": "{AKAN}",
+    "3": "{Robot74}",
+    "4": "{VIGGEN_X-TANK}",
+    "5": "{Robot74}",
+    "6": "{AKAN}"
+   }
+  },
+  {
+   "name": "Countermeasures Escort: U/22A, KB",
+   "count": 7,
+   "pylons": {
+    "2": "{KB}",
+    "3": "{Robot74}",
+    "4": "{VIGGEN_X-TANK}",
+    "5": "{Robot74}",
+    "6": "{U22A}"
+   }
+  },
+  {
+   "name": "Anti-ship: RB-04E*2, RB-74*2, XT",
+   "count": 7,
+   "pylons": {
+    "2": "{Rb04_HB}",
+    "3": "{Robot74}",
+    "4": "{VIGGEN_X-TANK}",
+    "5": "{Robot74}",
+    "6": "{Rb04_HB}"
    }
   },
   {
@@ -104,6 +163,17 @@
     "4": "{VIGGEN_X-TANK}",
     "5": "{Robot74}",
     "6": "{Rb15AI}"
+   }
+  },
+  {
+   "name": "Anti-ship (RB05): RB-05A*2, RB-74*2, XT",
+   "count": 7,
+   "pylons": {
+    "2": "{Robot74}",
+    "3": "{Robot05}",
+    "4": "{VIGGEN_X-TANK}",
+    "5": "{Robot05}",
+    "6": "{Robot74}"
    }
   },
   {
@@ -136,70 +206,11 @@
    "name": null,
    "count": 6,
    "pylons": {
-    "1": "{Robot24J}",
-    "2": "{RB75}",
-    "3": "{RB75}",
-    "4": "{VIGGEN_X-TANK}",
-    "5": "{RB75}",
-    "6": "{RB75}",
-    "7": "{Robot24J}"
-   }
-  },
-  {
-   "name": null,
-   "count": 6,
-   "pylons": {
-    "1": "{Robot24J}",
-    "2": "{Robot74}",
-    "3": "{Robot74}",
-    "4": "{VIGGEN_X-TANK}",
-    "5": "{Robot74}",
-    "6": "{Robot74}",
-    "7": "{Robot24J}"
-   }
-  },
-  {
-   "name": null,
-   "count": 6,
-   "pylons": {
-    "2": "{AKAN}",
-    "3": "{Robot74}",
-    "4": "{VIGGEN_X-TANK}",
-    "5": "{Robot74}",
-    "6": "{AKAN}"
-   }
-  },
-  {
-   "name": null,
-   "count": 6,
-   "pylons": {
-    "2": "{KB}",
-    "3": "{Robot74}",
-    "4": "{VIGGEN_X-TANK}",
-    "5": "{Robot74}",
-    "6": "{U22A}"
-   }
-  },
-  {
-   "name": null,
-   "count": 6,
-   "pylons": {
     "2": "{RB75T}",
     "3": "{Robot24J}",
     "4": "{VIGGEN_X-TANK}",
     "5": "{Robot24J}",
     "6": "{RB75T}"
-   }
-  },
-  {
-   "name": null,
-   "count": 6,
-   "pylons": {
-    "2": "{Rb04_HB}",
-    "3": "{Robot74}",
-    "4": "{VIGGEN_X-TANK}",
-    "5": "{Robot74}",
-    "6": "{Rb04_HB}"
    }
   },
   {
@@ -222,6 +233,17 @@
     "4": "{VIGGEN_X-TANK}",
     "5": "{Robot05}",
     "6": "{Robot24J}"
+   }
+  },
+  {
+   "name": "CAP: RB-74*4, XT",
+   "count": 5,
+   "pylons": {
+    "2": "{Robot74}",
+    "3": "{Robot74}",
+    "4": "{VIGGEN_X-TANK}",
+    "5": "{Robot74}",
+    "6": "{Robot74}"
    }
   },
   {
@@ -288,6 +310,17 @@
    }
   },
   {
+   "name": "CAS: ARAK M70 HE*4, XT",
+   "count": 4,
+   "pylons": {
+    "2": "{ARAKM70BHE}",
+    "3": "{ARAKM70BHE}",
+    "4": "{VIGGEN_X-TANK}",
+    "5": "{ARAKM70BHE}",
+    "6": "{ARAKM70BHE}"
+   }
+  },
+  {
    "name": null,
    "count": 4,
    "pylons": {
@@ -305,28 +338,6 @@
     "2": "{Rb04AI}",
     "4": "{VIGGEN_X-TANK}",
     "6": "{Rb04AI}"
-   }
-  },
-  {
-   "name": null,
-   "count": 4,
-   "pylons": {
-    "2": "{Robot74}",
-    "3": "{Robot05}",
-    "4": "{VIGGEN_X-TANK}",
-    "5": "{Robot05}",
-    "6": "{Robot74}"
-   }
-  },
-  {
-   "name": null,
-   "count": 4,
-   "pylons": {
-    "2": "{Robot74}",
-    "3": "{Robot74}",
-    "4": "{VIGGEN_X-TANK}",
-    "5": "{Robot74}",
-    "6": "{Robot74}"
    }
   },
   {
@@ -368,14 +379,13 @@
    }
   },
   {
-   "name": null,
+   "name": "CAS: AKAN, RB-05A",
    "count": 3,
    "pylons": {
-    "2": "{ARAKM70BHE}",
-    "3": "{ARAKM70BHE}",
-    "4": "{VIGGEN_X-TANK}",
-    "5": "{ARAKM70BHE}",
-    "6": "{ARAKM70BHE}"
+    "2": "{AKAN}",
+    "3": "{Robot05}",
+    "5": "{Robot05}",
+    "6": "{AKAN}"
    }
   },
   {
@@ -387,6 +397,17 @@
     "4": "{VIGGEN_X-TANK}",
     "5": "{Robot24J}",
     "6": "{KB}"
+   }
+  },
+  {
+   "name": "Anti-ship (Heavy Mav): RB-75T*4, XT",
+   "count": 3,
+   "pylons": {
+    "2": "{RB75T}",
+    "3": "{RB75T}",
+    "4": "{VIGGEN_X-TANK}",
+    "5": "{RB75T}",
+    "6": "{RB75T}"
    }
   },
   {
@@ -505,6 +526,19 @@
    }
   },
   {
+   "name": "Hard Target (Countermeasures): RB-05, XT, KB, U22",
+   "count": 2,
+   "pylons": {
+    "1": "{Robot24J}",
+    "2": "{KB}",
+    "3": "{Robot05}",
+    "4": "{VIGGEN_X-TANK}",
+    "5": "{Robot05}",
+    "6": "{U22}",
+    "7": "{Robot24J}"
+   }
+  },
+  {
    "name": null,
    "count": 2,
    "pylons": {
@@ -554,16 +588,6 @@
    "name": null,
    "count": 2,
    "pylons": {
-    "2": "{AKAN}",
-    "3": "{Robot05}",
-    "5": "{Robot05}",
-    "6": "{AKAN}"
-   }
-  },
-  {
-   "name": null,
-   "count": 2,
-   "pylons": {
     "2": "{KB}",
     "3": "{RB75}",
     "4": "{VIGGEN_X-TANK}",
@@ -594,14 +618,14 @@
    }
   },
   {
-   "name": null,
+   "name": "Anti-Ship (Modern): RB-15F*2, RB-74*2, XT",
    "count": 2,
    "pylons": {
-    "2": "{RB75T}",
-    "3": "{RB75T}",
+    "2": "{Rb15_HB}",
+    "3": "{Robot74}",
     "4": "{VIGGEN_X-TANK}",
-    "5": "{RB75T}",
-    "6": "{RB75T}"
+    "5": "{Robot74}",
+    "6": "{Rb15_HB}"
    }
   },
   {
@@ -623,25 +647,21 @@
    }
   },
   {
+   "name": "RB-05*2, XT",
+   "count": 2,
+   "pylons": {
+    "3": "{Robot05}",
+    "4": "{VIGGEN_X-TANK}",
+    "5": "{Robot05}"
+   }
+  },
+  {
    "name": null,
    "count": 2,
    "pylons": {
     "3": "{Robot74}",
     "4": "{VIGGEN_X-TANK}",
     "5": "{Robot74}"
-   }
-  },
-  {
-   "name": null,
-   "count": 1,
-   "pylons": {
-    "1": "{Robot24J}",
-    "2": "{KB}",
-    "3": "{Robot05}",
-    "4": "{VIGGEN_X-TANK}",
-    "5": "{Robot05}",
-    "6": "{U22}",
-    "7": "{Robot24J}"
    }
   },
   {
@@ -678,6 +698,16 @@
    }
   },
   {
+   "name": "CAS (75 GUN): RB-75*2, AKAN",
+   "count": 1,
+   "pylons": {
+    "2": "{AKAN}",
+    "3": "{RB75}",
+    "5": "{RB75}",
+    "6": "{AKAN}"
+   }
+  },
+  {
    "name": null,
    "count": 1,
    "pylons": {
@@ -685,6 +715,39 @@
     "3": "{Robot74}",
     "5": "{Robot74}",
     "6": "{AKAN}"
+   }
+  },
+  {
+   "name": "Illumination: LYSB*4, U22A, KB, XT",
+   "count": 1,
+   "pylons": {
+    "2": "{KB}",
+    "3": "{LYSBOMB_S7V}",
+    "4": "{VIGGEN_X-TANK}",
+    "5": "{LYSBOMB_S7H}",
+    "6": "{U22A}"
+   }
+  },
+  {
+   "name": "SEAD: RB-75T*2, U22/A, KB, XT",
+   "count": 1,
+   "pylons": {
+    "2": "{KB}",
+    "3": "{RB75T}",
+    "4": "{VIGGEN_X-TANK}",
+    "5": "{RB75T}",
+    "6": "{U22}"
+   }
+  },
+  {
+   "name": "Illumination: LYSB*2, Rb24J, U22A, KB, XT",
+   "count": 1,
+   "pylons": {
+    "2": "{KB}",
+    "3": "{Robot24J}",
+    "4": "{VIGGEN_X-TANK}",
+    "5": "{LYSBOMB_S7H}",
+    "6": "{U22A}"
    }
   },
   {
@@ -714,14 +777,36 @@
    }
   },
   {
-   "name": null,
+   "name": "Illumination: LYSB*8, XT",
    "count": 1,
    "pylons": {
-    "2": "{Rb15_HB}",
+    "2": "{LYSBOMB_V7V}",
+    "3": "{LYSBOMB_S7V}",
+    "4": "{VIGGEN_X-TANK}",
+    "5": "{LYSBOMB_S7H}",
+    "6": "{LYSBOMB_V7H}"
+   }
+  },
+  {
+   "name": "Anti-ship (Light Mav): RB-75*4, XT",
+   "count": 1,
+   "pylons": {
+    "2": "{RB75}",
+    "3": "{RB75}",
+    "4": "{VIGGEN_X-TANK}",
+    "5": "{RB75}",
+    "6": "{RB75}"
+   }
+  },
+  {
+   "name": "ECM Escort Anti-ship: RB-04E, KB, RB-74*2, XT",
+   "count": 1,
+   "pylons": {
+    "2": "{Rb04_HB}",
     "3": "{Robot74}",
     "4": "{VIGGEN_X-TANK}",
     "5": "{Robot74}",
-    "6": "{Rb15_HB}"
+    "6": "{KB}"
    }
   },
   {
@@ -736,12 +821,36 @@
    }
   },
   {
-   "name": null,
+   "name": "CAP (AJ37): RB-24J*2",
    "count": 1,
    "pylons": {
-    "3": "{Robot05}",
+    "2": "{Robot24J}",
+    "3": "{Robot24J}",
     "4": "{VIGGEN_X-TANK}",
-    "5": "{Robot05}"
+    "5": "{Robot24J}",
+    "6": "{Robot24J}"
+   }
+  },
+  {
+   "name": "Rocket Half Load HE: ARAK HE*2, RB-74*2, XT",
+   "count": 1,
+   "pylons": {
+    "2": "{Robot74}",
+    "3": "{ARAKM70BHE}",
+    "4": "{VIGGEN_X-TANK}",
+    "5": "{ARAKM70BHE}",
+    "6": "{Robot74}"
+   }
+  },
+  {
+   "name": "Hard Target (MAV): RB-75T*2, RB-74*2, XT",
+   "count": 1,
+   "pylons": {
+    "2": "{Robot74}",
+    "3": "{RB75T}",
+    "4": "{VIGGEN_X-TANK}",
+    "5": "{RB75T}",
+    "6": "{Robot74}"
    }
   },
   {

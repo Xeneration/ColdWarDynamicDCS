@@ -1,0 +1,47 @@
+{
+ "unit_type": "MiG-15bis",
+ "source": "CoreMods UnitPayloads",
+ "missions_scanned": 0,
+ "payloads": [
+  {
+   "name": "Fuel tank 300",
+   "count": 2,
+   "pylons": {
+    "1": "PTB300_MIG15",
+    "2": "PTB300_MIG15"
+   }
+  },
+  {
+   "name": "2*400L",
+   "count": 2,
+   "pylons": {
+    "1": "PTB400_MIG15",
+    "2": "PTB400_MIG15"
+   }
+  },
+  {
+   "name": "2*FAB-100M",
+   "count": 1,
+   "pylons": {
+    "1": "FAB_100M",
+    "2": "FAB_100M"
+   }
+  },
+  {
+   "name": "2*FAB-50",
+   "count": 1,
+   "pylons": {
+    "1": "FAB_50",
+    "2": "FAB_50"
+   }
+  },
+  {
+   "name": "2*600L",
+   "count": 1,
+   "pylons": {
+    "1": "PTB600_MIG15",
+    "2": "PTB600_MIG15"
+   }
+  }
+ ]
+}

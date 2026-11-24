@@ -1,6 +1,6 @@
 {
  "unit_type": "F-100D",
- "source": "module F-100D",
+ "source": "module F-100D, CoreMods UnitPayloads",
  "missions_scanned": 35,
  "payloads": [
   {
@@ -12,11 +12,55 @@
    }
   },
   {
+   "name": "4*MK-20, 2*AGM_45A",
+   "count": 2,
+   "pylons": {
+    "1": "{ADD3FAE1-EBF6-4EF9-8EFC-B36B5DDF1E6B}",
+    "2": "{ADD3FAE1-EBF6-4EF9-8EFC-B36B5DDF1E6B}",
+    "3": "{AGM_45A}",
+    "5": "{AGM_45A}",
+    "6": "{ADD3FAE1-EBF6-4EF9-8EFC-B36B5DDF1E6B}",
+    "7": "{ADD3FAE1-EBF6-4EF9-8EFC-B36B5DDF1E6B}"
+   }
+  },
+  {
+   "name": "8*MK-82, 2*Tank 335 Gal",
+   "count": 2,
+   "pylons": {
+    "1": "{BCE4E030-38E9-423E-98ED-24BE3DA87C32}",
+    "2": "{GD_F100_335_GAL_TANK_L}",
+    "3": "{GD_F100_TER_MK-82_x3}",
+    "5": "{GD_F100_TER_MK-82_x3}",
+    "6": "{GD_F100_335_GAL_TANK_R}",
+    "7": "{BCE4E030-38E9-423E-98ED-24BE3DA87C32}"
+   }
+  },
+  {
    "name": null,
    "count": 2,
    "pylons": {
     "2": "{GD_F100_335_GAL_TANK_L_EMPTY}",
     "6": "{GD_F100_335_GAL_TANK_R_EMPTY}"
+   }
+  },
+  {
+   "name": "4*AIM-9B, 2*Tank 335 Gal",
+   "count": 2,
+   "pylons": {
+    "2": "{GD_F100_335_GAL_TANK_L}",
+    "3": "{GD_F100_AIM-9B_x2}",
+    "5": "{GD_F100_AIM-9B_x2}",
+    "6": "{GD_F100_335_GAL_TANK_R}"
+   }
+  },
+  {
+   "name": "4*AIM-9E, 2*Tank 335 Gal",
+   "count": 2,
+   "pylons": {
+    "2": "{GD_F100_335_GAL_TANK_L}",
+    "3": "{GD_F100_AIM-9E_x2}",
+    "5": "{GD_F100_AIM-9E_x2}",
+    "6": "{GD_F100_335_GAL_TANK_R}"
    }
   },
   {
@@ -28,14 +72,26 @@
    }
   },
   {
-   "name": null,
+   "name": "6*M117, 2*Tank 335 Gal",
+   "count": 1,
+   "pylons": {
+    "1": "{00F5DAC4-0466-4122-998F-B1A298E34113}",
+    "2": "{GD_F100_335_GAL_TANK_L}",
+    "3": "{GD_F100_TER_M117_x2}",
+    "5": "{GD_F100_TER_M117_x2}",
+    "6": "{GD_F100_335_GAL_TANK_R}",
+    "7": "{00F5DAC4-0466-4122-998F-B1A298E34113}"
+   }
+  },
+  {
+   "name": "8*MK-20, 2*Tank 335 Gal",
    "count": 1,
    "pylons": {
     "1": "{ADD3FAE1-EBF6-4EF9-8EFC-B36B5DDF1E6B}",
-    "2": "{ADD3FAE1-EBF6-4EF9-8EFC-B36B5DDF1E6B}",
-    "3": "{AGM_45A}",
-    "5": "{AGM_45A}",
-    "6": "{ADD3FAE1-EBF6-4EF9-8EFC-B36B5DDF1E6B}",
+    "2": "{GD_F100_335_GAL_TANK_L}",
+    "3": "{GD_F100_TER_ROCKEYE_x3}",
+    "5": "{GD_F100_TER_ROCKEYE_x3}",
+    "6": "{GD_F100_335_GAL_TANK_R}",
     "7": "{ADD3FAE1-EBF6-4EF9-8EFC-B36B5DDF1E6B}"
    }
   },
@@ -52,15 +108,51 @@
    }
   },
   {
-   "name": null,
+   "name": "5*MK-82, 2*Tank 335 Gal, 2*AIM-9J",
    "count": 1,
    "pylons": {
     "1": "{BCE4E030-38E9-423E-98ED-24BE3DA87C32}",
     "2": "{GD_F100_335_GAL_TANK_L}",
-    "3": "{GD_F100_TER_MK-82_x3}",
+    "3": "{GD_F100_AIM-9J_x2}",
     "5": "{GD_F100_TER_MK-82_x3}",
     "6": "{GD_F100_335_GAL_TANK_R}",
     "7": "{BCE4E030-38E9-423E-98ED-24BE3DA87C32}"
+   }
+  },
+  {
+   "name": "2*CBU-7/A, 2*Tank 335 Gal, 2*AGM_45A",
+   "count": 1,
+   "pylons": {
+    "1": "{GD_F100_CBU-7/A}",
+    "2": "{GD_F100_335_GAL_TANK_L}",
+    "3": "{AGM_45A}",
+    "5": "{AGM_45A}",
+    "6": "{GD_F100_335_GAL_TANK_R}",
+    "7": "{GD_F100_CBU-7/A}"
+   }
+  },
+  {
+   "name": "4*CBU-7/A, 2*AGM_45A",
+   "count": 1,
+   "pylons": {
+    "1": "{GD_F100_CBU-7/A}",
+    "2": "{GD_F100_CBU-7/A}",
+    "3": "{AGM_45A}",
+    "5": "{AGM_45A}",
+    "6": "{GD_F100_CBU-7/A}",
+    "7": "{GD_F100_CBU-7/A}"
+   }
+  },
+  {
+   "name": "2*LAU-3 FFAR HEAT, 2*Tank 335 Gal, 2*AGM_45A",
+   "count": 1,
+   "pylons": {
+    "1": "{LAU3_FFAR_MK5HEAT}",
+    "2": "{GD_F100_335_GAL_TANK_L}",
+    "3": "{AGM_45A}",
+    "5": "{AGM_45A}",
+    "6": "{GD_F100_335_GAL_TANK_R}",
+    "7": "{LAU3_FFAR_MK5HEAT}"
    }
   },
   {
@@ -85,6 +177,18 @@
     "5": "{BCE4E030-38E9-423E-98ED-24BE3DA87C32}",
     "6": "{BCE4E030-38E9-423E-98ED-24BE3DA87C32}",
     "7": "{LAU3_FFAR_WP156}"
+   }
+  },
+  {
+   "name": "8*MK-82 Snakeye, 2*Tank 335 Gal",
+   "count": 1,
+   "pylons": {
+    "1": "{Mk82SNAKEYE}",
+    "2": "{GD_F100_335_GAL_TANK_L}",
+    "3": "{GD_F100_TER_MK-82_Snakeye_x3}",
+    "5": "{GD_F100_TER_MK-82_Snakeye_x3}",
+    "6": "{GD_F100_335_GAL_TANK_R}",
+    "7": "{Mk82SNAKEYE}"
    }
   },
   {
@@ -116,22 +220,12 @@
    }
   },
   {
-   "name": null,
+   "name": "4*AIM-9J, 2*Tank 335 Gal",
    "count": 1,
    "pylons": {
     "2": "{GD_F100_335_GAL_TANK_L}",
-    "3": "{GD_F100_AIM-9B_x2}",
-    "5": "{GD_F100_AIM-9B_x2}",
-    "6": "{GD_F100_335_GAL_TANK_R}"
-   }
-  },
-  {
-   "name": null,
-   "count": 1,
-   "pylons": {
-    "2": "{GD_F100_335_GAL_TANK_L}",
-    "3": "{GD_F100_AIM-9E_x2}",
-    "5": "{GD_F100_AIM-9E_x2}",
+    "3": "{GD_F100_AIM-9J_x2}",
+    "5": "{GD_F100_AIM-9J_x2}",
     "6": "{GD_F100_335_GAL_TANK_R}"
    }
   },

@@ -168,7 +168,7 @@ def _kneeboard_info(c: Campaign, player: Flight, plan: Plan, group, lines: list[
     threats = [f"{o.name}: {o.threat_range_m / 1852:.0f} nm ring" for o in enemy_sams]
     threats += [l for l in lines if l.startswith(("Intel:", "Intruders", "Target defences"))]
     comms = [l for l in lines if l.startswith(("GCI:", "Friendly flights", "Divert:", "Codewords:", "Weather:"))]
-    head = [l for l in lines if l.startswith(("Flight:", "Crews:", "Tasking:", "Target:", "CRISIS", "WAR:",
+    head = [l for l in lines if l.startswith(("Flight:", "Loadout:", "Crews:", "Tasking:", "Target:", "CRISIS", "WAR:",
                                               "SITUATION:"))]
     bull = None
     if magic:
@@ -485,23 +485,16 @@ def _unit_name(f: Flight, i: int) -> str:
     return f"{f.id}-{i + 1} {f.callsign}"
 
 
-AIR_TASKS = (Task.CAP, Task.ESCORT, Task.QRA, Task.INTERCEPT, Task.SWEEP, Task.RECON)
-
-
-def _apply_loadout(group, f: Flight, type_id: str, dcs_task, year: int | None = None) -> None:
-    if f.loadout and f.loadout != "default" and loadouts.loadouts(type_id):
-        named_year = era.payload_year(loadouts.resolve(f.loadout, type_id))
-        if year is None or (named_year is not None and named_year <= year):
-            loadouts.apply(group, f.loadout, type_id)
-            return
-    if year is not None:                       # campaign maker: a shipped payload of the year
-        kind = "air" if f.task in AIR_TASKS else "sead" if f.task is Task.SEAD else "ground"
-        p = era.pick_payload(type_id, year, kind) or (era.pick_payload(type_id, year, "ground")
-                                                      if kind == "sead" else None)
-        if p is not None:
+def _apply_loadout(group, f: Flight, type_id: str, dcs_task, c: Campaign | None = None) -> None:
+    if c is not None:
+        pay = loadouts.flight_payload(c, f)
+        if pay["pylons"] is not None:
             for unit in group.units:
-                unit.pylons = {n: {"CLSID": cl} for n, cl in p["pylons"].items()}
+                unit.pylons = {n: {"CLSID": cl} for n, cl in pay["pylons"].items()}
             return
+    elif f.loadout and f.loadout != "default" and loadouts.loadouts(type_id):
+        loadouts.apply(group, f.loadout, type_id)
+        return
     plane = plane_map[type_id]
     for tk in (dcs_task, dtask.GroundAttack, dtask.CAS, dtask.CAP):
         if plane.loadout(tk):
@@ -707,7 +700,7 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
         groups[f.id] = g
         if f.id in plan.delay:
             _delay(g, plan.delay[f.id])
-        _apply_loadout(g, f, sq.aircraft_type, dcs_task, c.time.year if c.era else None)
+        _apply_loadout(g, f, sq.aircraft_type, dcs_task, c)
         _set_callsign(g, f, sq.callsign)
 
         for i, unit in enumerate(g.units):
@@ -838,6 +831,7 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
     lines += [f"{c.name} - turn {c.turn}, {c.time:%d %b %Y %H:%M} local",
              f"Flight: {player.callsign} ({sq.name}), {len(player.airframe_ids)}x {sq.aircraft_type}"
              f" from {c.airbases[sq.base_id].dcs_name} ({start} start)",
+             f"Loadout: {loadouts.flight_payload(c, player)['text']}",
              f"Tasking: {c.packages[player.package_id].description}"]
     from cwdc.engine import weather as wxmod
     lines.append("Weather: " + wxmod.describe(c.weather) + ".")

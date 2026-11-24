@@ -1,0 +1,65 @@
+{
+ "unit_type": "SA342L",
+ "source": "CoreMods UnitPayloads",
+ "missions_scanned": 0,
+ "payloads": [
+  {
+   "name": "2x HMP400, IR Deflector, Sand Filter",
+   "count": 1,
+   "pylons": {
+    "1": "{FN_HMP400}",
+    "2": "{FN_HMP400}",
+    "3": "{FAS}",
+    "4": "{IR_Deflector}"
+   }
+  },
+  {
+   "name": "M621, 8x SNEB68 EAP, IR Deflector, Sand Filter",
+   "count": 1,
+   "pylons": {
+    "1": "{GIAT_M621_APHE}",
+    "2": "{TELSON8_SNEBT251}",
+    "3": "{FAS}",
+    "4": "{IR_Deflector}"
+   }
+  },
+  {
+   "name": "4x HOT3, IR Deflector, Sand Filter",
+   "count": 1,
+   "pylons": {
+    "1": "{HOT3_R2}",
+    "2": "{HOT3_L2}",
+    "3": "{FAS}",
+    "4": "{IR_Deflector}"
+   }
+  },
+  {
+   "name": "2x Mistral, IR Deflector, Sand Filter",
+   "count": 1,
+   "pylons": {
+    "1": "{SA342_Mistral_R1}",
+    "2": "{SA342_Mistral_L1}",
+    "3": "{FAS}",
+    "4": "{IR_Deflector}"
+   }
+  },
+  {
+   "name": "4x Mistral, IR Deflector, Sand Filter",
+   "count": 1,
+   "pylons": {
+    "1": "{SA342_Mistral_R2}",
+    "2": "{SA342_Mistral_L2}",
+    "3": "{FAS}",
+    "4": "{IR_Deflector}"
+   }
+  },
+  {
+   "name": "Display Team Smoke, Red & Blue",
+   "count": 1,
+   "pylons": {
+    "6": "{INV-SMOKE-RED}",
+    "7": "{INV-SMOKE-BLUE}"
+   }
+  }
+ ]
+}

@@ -15,7 +15,7 @@ from __future__ import annotations
 import json
 import re
 import zipfile
-from collections import Counter
+from collections import Counter  # noqa: F401  (re-exported for tools)
 from functools import lru_cache
 from pathlib import Path
 

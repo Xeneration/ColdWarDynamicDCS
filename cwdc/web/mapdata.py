@@ -173,7 +173,7 @@ def airbase_info(c: Campaign, ab) -> dict:
     dcs = f" (in DCS: {ab.dcs_name})" if name.split()[0] != ab.dcs_name else ""
     return {"id": ab.id, "name": name, "side": ab.side.value, "at": ll(ab.pos),
             "damage": round(ab.damage, 2), "squadrons": [s.name for s in sqs],
-            "player": any(s.player_squadron for s in sqs),
+            "player": any(s.player_squadron or s.player_wing for s in sqs),
             "text": f"{whose(ab.side)} airbase {name}{dcs}: {state}. Home of: {units}."}
 
 

@@ -1,0 +1,35 @@
+{
+ "unit_type": "SA342M",
+ "source": "CoreMods UnitPayloads",
+ "missions_scanned": 0,
+ "payloads": [
+  {
+   "name": "2x HOT3, IR Deflector, Sand Filter",
+   "count": 1,
+   "pylons": {
+    "1": "{HOT3_R1_M}",
+    "2": "{HOT3_L1_M}",
+    "3": "FAS}",
+    "4": "{IR_Deflector}"
+   }
+  },
+  {
+   "name": "4x HOT3, IR Deflector, Sand Filter",
+   "count": 1,
+   "pylons": {
+    "1": "{HOT3_R2_M}",
+    "2": "{HOT3_L2_M}",
+    "3": "FAS}",
+    "4": "{IR_Deflector}"
+   }
+  },
+  {
+   "name": "Display Team Smoke, Red & Blue",
+   "count": 1,
+   "pylons": {
+    "6": "{INV-SMOKE-RED}",
+    "7": "{INV-SMOKE-BLUE}"
+   }
+  }
+ ]
+}

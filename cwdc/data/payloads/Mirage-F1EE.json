@@ -1,0 +1,253 @@
+{
+ "unit_type": "Mirage-F1EE",
+ "source": "CoreMods UnitPayloads",
+ "missions_scanned": 0,
+ "payloads": [
+  {
+   "name": "2*AIM-9JULI, 8*BLU107 Durandal",
+   "count": 1,
+   "pylons": {
+    "1": "{AIM-9JULI}",
+    "2": "{BLU107B_DURANDAL}",
+    "3": "{BLU107B_DURANDAL}",
+    "4": "{CLB4_BLU107}",
+    "5": "{BLU107B_DURANDAL}",
+    "6": "{BLU107B_DURANDAL}",
+    "7": "{AIM-9JULI}"
+   }
+  },
+  {
+   "name": "2*AIM-9JULI, 8*SAMP 250 HD",
+   "count": 1,
+   "pylons": {
+    "1": "{AIM-9JULI}",
+    "2": "{SAMP250HD}",
+    "3": "{SAMP250HD}",
+    "4": "{CLB4_SAMP250HD}",
+    "5": "{SAMP250HD}",
+    "6": "{SAMP250HD}",
+    "7": "{AIM-9JULI}"
+   }
+  },
+  {
+   "name": "2*AIM-9JULI, 8*SAMP 400 LD",
+   "count": 1,
+   "pylons": {
+    "1": "{AIM-9JULI}",
+    "2": "{SAMP400LD}",
+    "3": "{SAMP400LD}",
+    "4": "{CLB4_SAMP400LD}",
+    "5": "{SAMP400LD}",
+    "6": "{SAMP400LD}",
+    "7": "{AIM-9JULI}"
+   }
+  },
+  {
+   "name": "2*AIM9-JULI, 1*R530IR, 2*Fuel Tank",
+   "count": 1,
+   "pylons": {
+    "1": "{AIM-9JULI}",
+    "3": "PTB-1200-F1",
+    "4": "{R530F_IR}",
+    "5": "PTB-1200-F1",
+    "7": "{AIM-9JULI}"
+   }
+  },
+  {
+   "name": "2*AIM9-JULI, 2*R530EM, 1*Fuel Tank",
+   "count": 1,
+   "pylons": {
+    "1": "{AIM-9JULI}",
+    "3": "{R530F_EM}",
+    "4": "PTB-1200-F1",
+    "5": "{R530F_EM}",
+    "7": "{AIM-9JULI}"
+   }
+  },
+  {
+   "name": "2*AIM9-JULI, 2*R530IR, 1*Fuel Tank",
+   "count": 1,
+   "pylons": {
+    "1": "{AIM-9JULI}",
+    "3": "{R530F_IR}",
+    "4": "PTB-1200-F1",
+    "5": "{R530F_IR}",
+    "7": "{AIM-9JULI}"
+   }
+  },
+  {
+   "name": "2*AIM9-JULI, 2*S530F, 1*Fuel Tank",
+   "count": 1,
+   "pylons": {
+    "1": "{AIM-9JULI}",
+    "3": "{S530F}",
+    "4": "PTB-1200-F1",
+    "5": "{S530F}",
+    "7": "{AIM-9JULI}"
+   }
+  },
+  {
+   "name": "2*AIM9-JULI, 1*R530EM",
+   "count": 1,
+   "pylons": {
+    "1": "{AIM-9JULI}",
+    "4": "{R530F_EM}",
+    "7": "{AIM-9JULI}"
+   }
+  },
+  {
+   "name": "2*AIM9-J, 2*MATRA F4 SNEB251 (HE), 2*R530IR, 1*Fuel Tank",
+   "count": 1,
+   "pylons": {
+    "1": "{AIM-9J}",
+    "2": "{MATRA_F4_SNEBT251}",
+    "3": "{R530F_IR}",
+    "4": "PTB-1200-F1",
+    "5": "{R530F_IR}",
+    "6": "{MATRA_F4_SNEBT251}",
+    "7": "{AIM-9J}"
+   }
+  },
+  {
+   "name": "2*AIM-9J, 2*Fuel Tank, 4*SAMP 400 HD",
+   "count": 1,
+   "pylons": {
+    "1": "{AIM-9J}",
+    "3": "PTB-1200-F1",
+    "4": "{CLB4_SAMP400HD}",
+    "5": "PTB-1200-F1",
+    "7": "{AIM-9J}"
+   }
+  },
+  {
+   "name": "2*AIM-9J, 2*Fuel Tank, 4*SAMP 400 LD",
+   "count": 1,
+   "pylons": {
+    "1": "{AIM-9J}",
+    "3": "PTB-1200-F1",
+    "4": "{CLB4_SAMP400LD}",
+    "5": "PTB-1200-F1",
+    "7": "{AIM-9J}"
+   }
+  },
+  {
+   "name": "2*R550 Magic I, 4*MATRA F1 SNEB253 (Shaped Charge), 1*Fuel Tank",
+   "count": 1,
+   "pylons": {
+    "1": "{R550_Magic_1}",
+    "2": "{MATRA_F1_SNEBT253}",
+    "3": "{MATRA_F1_SNEBT253}",
+    "4": "PTB-1200-F1",
+    "5": "{MATRA_F1_SNEBT253}",
+    "6": "{MATRA_F1_SNEBT253}",
+    "7": "{R550_Magic_1}"
+   }
+  },
+  {
+   "name": "2*R550 Magic I, 4*MATRA F1 SNEB256 (AP), 1*Fuel Tank",
+   "count": 1,
+   "pylons": {
+    "1": "{R550_Magic_1}",
+    "2": "{MATRA_F1_SNEBT256}",
+    "3": "{MATRA_F1_SNEBT256}",
+    "4": "PTB-1200-F1",
+    "5": "{MATRA_F1_SNEBT256}",
+    "6": "{MATRA_F1_SNEBT256}",
+    "7": "{R550_Magic_1}"
+   }
+  },
+  {
+   "name": "2*R550 Magic I, 4*MATRA F4 SNEB253 (Shaped Charge), 1*Fuel Tank",
+   "count": 1,
+   "pylons": {
+    "1": "{R550_Magic_1}",
+    "2": "{MATRA_F4_SNEBT253}",
+    "3": "{MATRA_F4_SNEBT253}",
+    "4": "PTB-1200-F1",
+    "5": "{MATRA_F4_SNEBT253}",
+    "6": "{MATRA_F4_SNEBT253}",
+    "7": "{R550_Magic_1}"
+   }
+  },
+  {
+   "name": "2*R550 Magic I, 4*MATRA F4 SNEB256 (AP), 1*Fuel Tank",
+   "count": 1,
+   "pylons": {
+    "1": "{R550_Magic_1}",
+    "2": "{MATRA_F4_SNEBT256}",
+    "3": "{MATRA_F4_SNEBT256}",
+    "4": "PTB-1200-F1",
+    "5": "{MATRA_F4_SNEBT256}",
+    "6": "{MATRA_F4_SNEBT256}",
+    "7": "{R550_Magic_1}"
+   }
+  },
+  {
+   "name": "2*R550 Magic I, 2*SAMP 250 HD, 2 MATRA F1 SNEB256 (AP), 1*Fuel Tank",
+   "count": 1,
+   "pylons": {
+    "1": "{R550_Magic_1}",
+    "2": "{SAMP250HD}",
+    "3": "{MATRA_F1_SNEBT256}",
+    "4": "PTB-1200-F1",
+    "5": "{MATRA_F1_SNEBT256}",
+    "6": "{SAMP250HD}",
+    "7": "{R550_Magic_1}"
+   }
+  },
+  {
+   "name": "2*R550 Magic I, 1*R530IR, 2*Fuel Tank",
+   "count": 1,
+   "pylons": {
+    "1": "{R550_Magic_1}",
+    "3": "PTB-1200-F1",
+    "4": "{R530F_IR}",
+    "5": "PTB-1200-F1",
+    "7": "{R550_Magic_1}"
+   }
+  },
+  {
+   "name": "2*R550 Magic I, 2*R530IR, 1*Fuel Tank",
+   "count": 1,
+   "pylons": {
+    "1": "{R550_Magic_1}",
+    "3": "{R530F_IR}",
+    "4": "PTB-1200-F1",
+    "5": "{R530F_IR}",
+    "7": "{R550_Magic_1}"
+   }
+  },
+  {
+   "name": "2*R550 Magic I, 2*S530F, 1*Fuel Tank, 1*BARAX ECM Pod",
+   "count": 1,
+   "pylons": {
+    "1": "{R550_Magic_1}",
+    "3": "{S530F}",
+    "4": "PTB-1200-F1",
+    "5": "{S530F}",
+    "6": "BARAX_ECM",
+    "7": "{R550_Magic_1}"
+   }
+  },
+  {
+   "name": "2*R550 Magic I, 2*S530F, 1*Fuel Tank",
+   "count": 1,
+   "pylons": {
+    "1": "{R550_Magic_1}",
+    "3": "{S530F}",
+    "4": "PTB-1200-F1",
+    "5": "{S530F}",
+    "7": "{R550_Magic_1}"
+   }
+  },
+  {
+   "name": "2*R550 Magic I, 1*R530IR",
+   "count": 1,
+   "pylons": {
+    "1": "{R550_Magic_1}",
+    "4": "{R530F_IR}",
+    "7": "{R550_Magic_1}"
+   }
+  }
+ ]
+}

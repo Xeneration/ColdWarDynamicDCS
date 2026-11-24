@@ -1,0 +1,103 @@
+{
+ "unit_type": "F-86F Sabre",
+ "source": "CoreMods UnitPayloads",
+ "missions_scanned": 0,
+ "payloads": [
+  {
+   "name": "HVAR*16",
+   "count": 1,
+   "pylons": {
+    "1": "{HVARx2}",
+    "2": "{HVARx2}",
+    "3": "{HVARx2}",
+    "4": "{HVARx2}",
+    "7": "{HVARx2}",
+    "8": "{HVARx2}",
+    "9": "{HVARx2}",
+    "10": "{HVARx2}"
+   }
+  },
+  {
+   "name": "200gal Fuel*2, HVARx2*4",
+   "count": 1,
+   "pylons": {
+    "1": "{PTB_200_F86F35}",
+    "3": "{HVARx2}",
+    "4": "{HVARx2}",
+    "7": "{HVARx2}",
+    "8": "{HVARx2}",
+    "10": "{PTB_200_F86F35}"
+   }
+  },
+  {
+   "name": "200gal Fuel*2, AN-M64*2",
+   "count": 1,
+   "pylons": {
+    "1": "{PTB_200_F86F35}",
+    "4": "{F86ANM64}",
+    "7": "{F86ANM64}",
+    "10": "{PTB_200_F86F35}"
+   }
+  },
+  {
+   "name": "120gal Fuel*2, 200gal Fuel*2",
+   "count": 1,
+   "pylons": {
+    "1": "{PTB_200_F86F35}",
+    "4": "{PTB_120_F86F35}",
+    "7": "{PTB_120_F86F35}",
+    "10": "{PTB_200_F86F35}"
+   }
+  },
+  {
+   "name": "200gal Fuel*2",
+   "count": 1,
+   "pylons": {
+    "1": "{PTB_200_F86F35}",
+    "10": "{PTB_200_F86F35}"
+   }
+  },
+  {
+   "name": "M117*2",
+   "count": 1,
+   "pylons": {
+    "4": "{00F5DAC4-0466-4122-998F-B1A298E34113}",
+    "7": "{00F5DAC4-0466-4122-998F-B1A298E34113}"
+   }
+  },
+  {
+   "name": "AN-M64*2",
+   "count": 1,
+   "pylons": {
+    "4": "{F86ANM64}",
+    "7": "{F86ANM64}"
+   }
+  },
+  {
+   "name": "120gal Fuel*2, AIM-9B*2",
+   "count": 1,
+   "pylons": {
+    "4": "{PTB_120_F86F35}",
+    "5": "{GAR-8}",
+    "6": "{GAR-8}",
+    "7": "{PTB_120_F86F35}"
+   }
+  },
+  {
+   "name": "120gal Fuel*2",
+   "count": 1,
+   "pylons": {
+    "4": "{PTB_120_F86F35}",
+    "7": "{PTB_120_F86F35}"
+   }
+  },
+  {
+   "name": "AIM-9B*2",
+   "count": 1,
+   "pylons": {
+    "5": "{GAR-8}",
+    "6": "{GAR-8}"
+   }
+  }
+ ]
+}

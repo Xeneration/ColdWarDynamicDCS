@@ -1,0 +1,261 @@
+{
+ "unit_type": "A6E",
+ "source": "CoreMods UnitPayloads",
+ "missions_scanned": 0,
+ "payloads": [
+  {
+   "name": "GBU-16*5",
+   "count": 1,
+   "pylons": {
+    "1": "{0D33DDAE-524F-4A4E-B5B8-621754FE3ADE}",
+    "2": "{0D33DDAE-524F-4A4E-B5B8-621754FE3ADE}",
+    "3": "{0D33DDAE-524F-4A4E-B5B8-621754FE3ADE}",
+    "4": "{0D33DDAE-524F-4A4E-B5B8-621754FE3ADE}",
+    "5": "{0D33DDAE-524F-4A4E-B5B8-621754FE3ADE}"
+   }
+  },
+  {
+   "name": "GBU-10*4",
+   "count": 1,
+   "pylons": {
+    "1": "{51F9AAE5-964F-4D21-83FB-502E3BFE5F8A}",
+    "2": "{51F9AAE5-964F-4D21-83FB-502E3BFE5F8A}",
+    "4": "{51F9AAE5-964F-4D21-83FB-502E3BFE5F8A}",
+    "5": "{51F9AAE5-964F-4D21-83FB-502E3BFE5F8A}"
+   }
+  },
+  {
+   "name": "Mk84*5",
+   "count": 1,
+   "pylons": {
+    "1": "{AB8B8299-F1CC-4359-89B5-2172E0CF4A5A}",
+    "2": "{AB8B8299-F1CC-4359-89B5-2172E0CF4A5A}",
+    "3": "{AB8B8299-F1CC-4359-89B5-2172E0CF4A5A}",
+    "4": "{AB8B8299-F1CC-4359-89B5-2172E0CF4A5A}",
+    "5": "{AB8B8299-F1CC-4359-89B5-2172E0CF4A5A}"
+   }
+  },
+  {
+   "name": "HARM*2, Mk20*10, AERO-1D Fuel Tank 300 GAL",
+   "count": 1,
+   "pylons": {
+    "1": "{B06DD79A-F21E-4EB9-BD9D-AB3844618C93}",
+    "2": "{HB_A6E_MK20_MER_5x_LEFT}",
+    "3": "{HB_A6E_AERO1D}",
+    "4": "{HB_A6E_MK20_MER_5x_RIGHT}",
+    "5": "{B06DD79A-F21E-4EB9-BD9D-AB3844618C93}"
+   }
+  },
+  {
+   "name": "HARM, MK83*2, AERO-1D Fuel Tank 300 GAL, AGM-65F, AIM-9M",
+   "count": 1,
+   "pylons": {
+    "1": "{B06DD79A-F21E-4EB9-BD9D-AB3844618C93}",
+    "2": "{HB_A6E_MK83_MER_2x_LEFT}",
+    "3": "{HB_A6E_AERO1D}",
+    "4": "LAU_117_AGM_65F",
+    "5": "{HB_A6E_LAU7_AIM9M}"
+   }
+  },
+  {
+   "name": "HARPOON*2, AIM-9M, ALQ-167, AERO-1D Fuel Tank 300 GAL",
+   "count": 1,
+   "pylons": {
+    "1": "{F14-ALQ167-POD}",
+    "2": "{AGM_84D}",
+    "3": "{HB_A6E_AERO1D}",
+    "4": "{AGM_84D}",
+    "5": "{HB_A6E_LAU7_AIM9M}"
+   }
+  },
+  {
+   "name": "D-704 Refueling Pod, AERO-1D Fuel Tank 300 GAL*2",
+   "count": 1,
+   "pylons": {
+    "1": "{HB_A6E_AERO1D}",
+    "2": "LAU_117_AGM_65F",
+    "3": "{HB_A6E_D704}",
+    "5": "{HB_A6E_AERO1D}"
+   }
+  },
+  {
+   "name": "AERO-1D Fuel Tank 300 GAL*2, HARPOON, MK20*3, GBU-16",
+   "count": 1,
+   "pylons": {
+    "1": "{HB_A6E_AERO1D}",
+    "2": "{AGM_84D}",
+    "3": "{HB_A6E_AERO1D}",
+    "4": "{HB_A6E_MK20_MER_3x_RIGHT}",
+    "5": "{0D33DDAE-524F-4A4E-B5B8-621754FE3ADE}"
+   }
+  },
+  {
+   "name": "AERO-1D Fuel Tank 300 GAL*5",
+   "count": 1,
+   "pylons": {
+    "1": "{HB_A6E_AERO1D}",
+    "2": "{HB_A6E_AERO1D}",
+    "3": "{HB_A6E_AERO1D}",
+    "4": "{HB_A6E_AERO1D}",
+    "5": "{HB_A6E_AERO1D}"
+   }
+  },
+  {
+   "name": "D-704 Refueling Pod, AERO-1D Fuel Tank 300 GAL*4",
+   "count": 1,
+   "pylons": {
+    "1": "{HB_A6E_AERO1D}",
+    "2": "{HB_A6E_AERO1D}",
+    "3": "{HB_A6E_D704}",
+    "4": "{HB_A6E_AERO1D}",
+    "5": "{HB_A6E_AERO1D}"
+   }
+  },
+  {
+   "name": "AERO-1D Fuel Tank 300 GAL*4",
+   "count": 1,
+   "pylons": {
+    "1": "{HB_A6E_AERO1D}",
+    "2": "{HB_A6E_AERO1D}",
+    "4": "{HB_A6E_AERO1D}",
+    "5": "{HB_A6E_AERO1D}"
+   }
+  },
+  {
+   "name": "D-704 Refueling Pod, AERO-1D Fuel Tank 300 GAL*2 (Outboard)",
+   "count": 1,
+   "pylons": {
+    "1": "{HB_A6E_AERO1D}",
+    "3": "{HB_A6E_D704}",
+    "5": "{HB_A6E_AERO1D}"
+   }
+  },
+  {
+   "name": "GBU-12*8, AERO-1D Fuel Tank 300 GAL",
+   "count": 1,
+   "pylons": {
+    "1": "{HB_A6E_GBU12_MER_2x_LEFT}",
+    "2": "{HB_A6E_GBU12_MER_2x_LEFT}",
+    "3": "{HB_A6E_AERO1D}",
+    "4": "{HB_A6E_GBU12_MER_2x_RIGHT}",
+    "5": "{HB_A6E_GBU12_MER_2x_RIGHT}"
+   }
+  },
+  {
+   "name": "Zuni*10",
+   "count": 1,
+   "pylons": {
+    "1": "{HB_A6E_LAU10_TER_3x}",
+    "2": "{HB_A6E_LAU10_TER_2x_LEFT}",
+    "4": "{HB_A6E_LAU10_TER_2x_RIGHT}",
+    "5": "{HB_A6E_LAU10_TER_3x}"
+   }
+  },
+  {
+   "name": "LAU-61*10",
+   "count": 1,
+   "pylons": {
+    "1": "{HB_A6E_LAU61MK151_TER_3x}",
+    "2": "{HB_A6E_LAU61MK151_TER_2x_LEFT}",
+    "4": "{HB_A6E_LAU61MK151_TER_2x_RIGHT}",
+    "5": "{HB_A6E_LAU61MK151_TER_3x}"
+   }
+  },
+  {
+   "name": "Mk82*6, GBU-16*2, AIM-9L*2",
+   "count": 1,
+   "pylons": {
+    "1": "{HB_A6E_LAU7_AIM9L}",
+    "2": "{0D33DDAE-524F-4A4E-B5B8-621754FE3ADE}",
+    "3": "{HB_A6E_MK82_MER_6x}",
+    "4": "{0D33DDAE-524F-4A4E-B5B8-621754FE3ADE}",
+    "5": "{HB_A6E_LAU7_AIM9L}"
+   }
+  },
+  {
+   "name": "Mk20*28",
+   "count": 1,
+   "pylons": {
+    "1": "{HB_A6E_MK20_MER_6x}",
+    "2": "{HB_A6E_MK20_MER_5x_LEFT}",
+    "3": "{HB_A6E_MK20_MER_6x}",
+    "4": "{HB_A6E_MK20_MER_5x_RIGHT}",
+    "5": "{HB_A6E_MK20_MER_6x}"
+   }
+  },
+  {
+   "name": "Mk81*28",
+   "count": 1,
+   "pylons": {
+    "1": "{HB_A6E_MK81_MER_6x}",
+    "2": "{HB_A6E_MK81_MER_5x_LEFT}",
+    "3": "{HB_A6E_MK81_MER_6x}",
+    "4": "{HB_A6E_MK81_MER_5x_RIGHT}",
+    "5": "{HB_A6E_MK81_MER_6x}"
+   }
+  },
+  {
+   "name": "Mk82SE*27",
+   "count": 1,
+   "pylons": {
+    "1": "{HB_A6E_MK82SE_MER_6x}",
+    "2": "{HB_A6E_MK82SE_MER_5x_LEFT}",
+    "3": "{HB_A6E_MK82SE_MER_5x}",
+    "4": "{HB_A6E_MK82SE_MER_5x_RIGHT}",
+    "5": "{HB_A6E_MK82SE_MER_6x}"
+   }
+  },
+  {
+   "name": "Mk82*12, AERO-1D Fuel Tank 300 GAL*3",
+   "count": 1,
+   "pylons": {
+    "1": "{HB_A6E_MK82_MER_6x}",
+    "2": "{HB_A6E_AERO1D}",
+    "3": "{HB_A6E_AERO1D}",
+    "4": "{HB_A6E_AERO1D}",
+    "5": "{HB_A6E_MK82_MER_6x}"
+   }
+  },
+  {
+   "name": "Mk82*28",
+   "count": 1,
+   "pylons": {
+    "1": "{HB_A6E_MK82_MER_6x}",
+    "2": "{HB_A6E_MK82_MER_5x_LEFT}",
+    "3": "{HB_A6E_MK82_MER_6x}",
+    "4": "{HB_A6E_MK82_MER_5x_RIGHT}",
+    "5": "{HB_A6E_MK82_MER_6x}"
+   }
+  },
+  {
+   "name": "Mk83*15",
+   "count": 1,
+   "pylons": {
+    "1": "{HB_A6E_MK83_MER_3x_FWD}",
+    "2": "{HB_A6E_MK83_MER_3x_AFT}",
+    "3": "{HB_A6E_MK83_MER_3x_FWD}",
+    "4": "{HB_A6E_MK83_MER_3x_AFT}",
+    "5": "{HB_A6E_MK83_MER_3x_FWD}"
+   }
+  },
+  {
+   "name": "HARM*2, TALD*4, Mk20*6",
+   "count": 1,
+   "pylons": {
+    "1": "{HB_A6E_TALD_MER_4x}",
+    "2": "{B06DD79A-F21E-4EB9-BD9D-AB3844618C93}",
+    "4": "{B06DD79A-F21E-4EB9-BD9D-AB3844618C93}",
+    "5": "{HB_A6E_MK20_MER_6x}"
+   }
+  },
+  {
+   "name": "D-704 Refueling Pod, AERO-1D Fuel Tank 300 GAL*2 (Inboard)",
+   "count": 1,
+   "pylons": {
+    "2": "{HB_A6E_AERO1D}",
+    "3": "{HB_A6E_D704}",
+    "4": "{HB_A6E_AERO1D}"
+   }
+  }
+ ]
+}

@@ -1,0 +1,109 @@
+{
+ "unit_type": "MiG-19P",
+ "source": "CoreMods UnitPayloads",
+ "missions_scanned": 0,
+ "payloads": [
+  {
+   "name": "K-13A x 2, ORO-57K x 2, PTB-760 x 2",
+   "count": 1,
+   "pylons": {
+    "1": "{K-13A}",
+    "2": "PTB760_MIG19",
+    "3": "{ORO57K_S5M_HEFRAG}",
+    "4": "{ORO57K_S5M_HEFRAG}",
+    "5": "PTB760_MIG19",
+    "6": "{K-13A}"
+   }
+  },
+  {
+   "name": "K-13A x 2, PTB-760 x 2",
+   "count": 1,
+   "pylons": {
+    "1": "{K-13A}",
+    "2": "PTB760_MIG19",
+    "5": "PTB760_MIG19",
+    "6": "{K-13A}"
+   }
+  },
+  {
+   "name": "K-13A x 2",
+   "count": 1,
+   "pylons": {
+    "1": "{K-13A}",
+    "6": "{K-13A}"
+   }
+  },
+  {
+   "name": "FAB-100M x 2, ORO-57K x 2",
+   "count": 1,
+   "pylons": {
+    "2": "FAB_100M",
+    "3": "{ORO57K_S5M_HEFRAG}",
+    "4": "{ORO57K_S5M_HEFRAG}",
+    "5": "FAB_100M"
+   }
+  },
+  {
+   "name": "FAB-100M x 2",
+   "count": 1,
+   "pylons": {
+    "2": "FAB_100M",
+    "5": "FAB_100M"
+   }
+  },
+  {
+   "name": "ORO-57K x 2, PTB-760 x 2",
+   "count": 1,
+   "pylons": {
+    "2": "PTB760_MIG19",
+    "3": "{ORO57K_S5M_HEFRAG}",
+    "4": "{ORO57K_S5M_HEFRAG}",
+    "5": "PTB760_MIG19"
+   }
+  },
+  {
+   "name": "PTB-760 x 2",
+   "count": 1,
+   "pylons": {
+    "2": "PTB760_MIG19",
+    "5": "PTB760_MIG19"
+   }
+  },
+  {
+   "name": "FAB-250 x 2, ORO-57K x 2",
+   "count": 1,
+   "pylons": {
+    "2": "{3C612111-C7AD-476E-8A8E-2485812F4E5C}",
+    "3": "{ORO57K_S5M_HEFRAG}",
+    "4": "{ORO57K_S5M_HEFRAG}",
+    "5": "{3C612111-C7AD-476E-8A8E-2485812F4E5C}"
+   }
+  },
+  {
+   "name": "FAB-250 x 2",
+   "count": 1,
+   "pylons": {
+    "2": "{3C612111-C7AD-476E-8A8E-2485812F4E5C}",
+    "5": "{3C612111-C7AD-476E-8A8E-2485812F4E5C}"
+   }
+  },
+  {
+   "name": "ORO-57K x 4",
+   "count": 1,
+   "pylons": {
+    "2": "{ORO57K_S5M_HEFRAG}",
+    "3": "{ORO57K_S5M_HEFRAG}",
+    "4": "{ORO57K_S5M_HEFRAG}",
+    "5": "{ORO57K_S5M_HEFRAG}"
+   }
+  },
+  {
+   "name": "ORO-57K x 2",
+   "count": 1,
+   "pylons": {
+    "3": "{ORO57K_S5M_HEFRAG}",
+    "4": "{ORO57K_S5M_HEFRAG}"
+   }
+  }
+ ]
+}

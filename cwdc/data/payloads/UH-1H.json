@@ -1,6 +1,6 @@
 {
  "unit_type": "UH-1H",
- "source": "module Uh-1H",
+ "source": "module Uh-1H, MissionEditor UnitPayloads",
  "missions_scanned": 65,
  "payloads": [
   {
@@ -56,8 +56,8 @@
    }
   },
   {
-   "name": null,
-   "count": 5,
+   "name": "M134 Minigun*2, XM158*2",
+   "count": 6,
    "pylons": {
     "1": "M134_L",
     "2": "XM158_MK5",

@@ -129,3 +129,52 @@ def apply(group, name: str, aircraft: str = F4E) -> None:
     pylons = resolve(name, aircraft)
     for unit in group.units:
         unit.pylons = {p: {"CLSID": c} for p, c in pylons.items()}
+
+
+# ---------------------------------------------------------------------------- per-flight payload
+AIR_TASK_NAMES = {"CAP", "Escort", "QRA", "Intercept", "Sweep", "Recon"}
+PICK_ORDER = {"air": ("air", "clean"), "sead": ("sead", "ground", "clean"), "ground": ("ground", "clean")}
+
+
+def _store_text(clsid: str) -> str:
+    name = _clsid_names().get(clsid)
+    if not name:                               # mod stores (A-4E-C) have no pydcs name
+        return clsid.strip("{}").replace("_", " ")
+    return name.split(" - ")[0].strip()
+
+
+def describe(pylons: dict[int, str]) -> str:
+    """'6x Mk-82, 2x AIM-9B, 2x Fuel Tank 120 gallons' (most numerous first)."""
+    from collections import Counter
+    counts = Counter(_store_text(c) for c in pylons.values())
+    return ", ".join(f"{n}x {s}" if n > 1 else s for s, n in counts.most_common()) or "clean (guns only)"
+
+
+def flight_payload(c, f) -> dict:
+    """The stores a flight carries: {"pylons": {pylon: CLSID} or None, "text", "source"}.
+
+    * a named loadout (airframes.yaml / loadouts_*.yaml) - unless a campaign-maker war is set
+      before its newest store existed;
+    * campaign-maker wars: the most-shipped payload of the year that suits the task
+      (era.pick_payload), else guns and tanks, else clean - never a DCS default that may be
+      decades too new;
+    * otherwise None: the builder lets DCS load its task default.
+    """
+    from cwdc import era
+    type_id = c.squadrons[f.squadron_id].aircraft_type
+    year = c.time.year if c.era else None
+    if f.loadout and f.loadout != "default" and loadouts(type_id):
+        pylons = resolve(f.loadout, type_id)
+        named_year = era.payload_year(pylons)
+        if year is None or (named_year is not None and named_year <= year):
+            spec = loadouts(type_id)[f.loadout]
+            return {"pylons": pylons, "text": spec.get("description") or describe(pylons), "source": "named"}
+    if year is None:
+        return {"pylons": None, "text": "standard load for the task", "source": "default"}
+    task = f.task.value
+    kind = "air" if task in AIR_TASK_NAMES else "sead" if task == "SEAD" else "ground"
+    for k in PICK_ORDER[kind]:                 # a strike flight never swaps its bombs for missiles
+        p = era.pick_payload(type_id, year, k)
+        if p is not None:
+            return {"pylons": dict(p["pylons"]), "text": describe(p["pylons"]), "source": "era"}
+    return {"pylons": {}, "text": "clean (guns only)", "source": "era"}

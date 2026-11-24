@@ -1,11 +1,11 @@
 {
  "unit_type": "F-5E-3",
- "source": "module F-5E",
+ "source": "module F-5E, CoreMods UnitPayloads",
  "missions_scanned": 91,
  "payloads": [
   {
-   "name": null,
-   "count": 92,
+   "name": "AIM-9P5*2, Fuel 275*3",
+   "count": 93,
    "pylons": {
     "1": "{AIM-9P5}",
     "3": "{0395076D-2F77-4420-9D33-087A4398130B}",
@@ -15,8 +15,8 @@
    }
   },
   {
-   "name": null,
-   "count": 63,
+   "name": "AIM-9P5*2, Fuel 275",
+   "count": 64,
    "pylons": {
     "1": "{AIM-9P5}",
     "4": "{0395076D-2F77-4420-9D33-087A4398130B}",
@@ -24,8 +24,8 @@
    }
   },
   {
-   "name": null,
-   "count": 23,
+   "name": "AIM-9P5*2, Fuel 150",
+   "count": 24,
    "pylons": {
     "1": "{AIM-9P5}",
     "4": "{PTB-150GAL}",
@@ -42,8 +42,8 @@
    }
   },
   {
-   "name": null,
-   "count": 18,
+   "name": "AIM-9P*2, Fuel 275*3",
+   "count": 19,
    "pylons": {
     "1": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}",
     "3": "{0395076D-2F77-4420-9D33-087A4398130B}",
@@ -53,8 +53,8 @@
    }
   },
   {
-   "name": null,
-   "count": 17,
+   "name": "AIM-9P5*2, Fuel 150*3",
+   "count": 18,
    "pylons": {
     "1": "{AIM-9P5}",
     "3": "{PTB-150GAL}",
@@ -64,16 +64,16 @@
    }
   },
   {
-   "name": null,
-   "count": 15,
+   "name": "AIM-9P5*2",
+   "count": 16,
    "pylons": {
     "1": "{AIM-9P5}",
     "7": "{AIM-9P5}"
    }
   },
   {
-   "name": null,
-   "count": 10,
+   "name": "AIM-9P*2, Fuel 150*3",
+   "count": 11,
    "pylons": {
     "1": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}",
     "3": "{PTB-150GAL}",
@@ -83,11 +83,24 @@
    }
   },
   {
-   "name": null,
-   "count": 10,
+   "name": "AIM-9B*2",
+   "count": 11,
    "pylons": {
     "1": "{AIM-9B}",
     "7": "{AIM-9B}"
+   }
+  },
+  {
+   "name": "LAU-3 HE*2,Mk-82LD,AIM-9P*2,Fuel 275*2",
+   "count": 9,
+   "pylons": {
+    "1": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}",
+    "2": "LAU3_HE151",
+    "3": "{0395076D-2F77-4420-9D33-087A4398130B}",
+    "4": "{BCE4E030-38E9-423E-98ED-24BE3DA87C32}",
+    "5": "{0395076D-2F77-4420-9D33-087A4398130B}",
+    "6": "LAU3_HE151",
+    "7": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}"
    }
   },
   {
@@ -107,15 +120,10 @@
    }
   },
   {
-   "name": null,
-   "count": 8,
+   "name": "AIM-9P*2",
+   "count": 7,
    "pylons": {
     "1": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}",
-    "2": "LAU3_HE151",
-    "3": "{0395076D-2F77-4420-9D33-087A4398130B}",
-    "4": "{BCE4E030-38E9-423E-98ED-24BE3DA87C32}",
-    "5": "{0395076D-2F77-4420-9D33-087A4398130B}",
-    "6": "LAU3_HE151",
     "7": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}"
    }
   },
@@ -141,14 +149,6 @@
     "3": "{PTB-150GAL}",
     "5": "{PTB-150GAL}",
     "6": "{FC85D2ED-501A-48ce-9863-49D468DDD5FC}",
-    "7": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}"
-   }
-  },
-  {
-   "name": null,
-   "count": 6,
-   "pylons": {
-    "1": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}",
     "7": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}"
    }
   },
@@ -248,6 +248,19 @@
    }
   },
   {
+   "name": "LAU-68 HE*4,AIM-9P*2,Fuel 275",
+   "count": 2,
+   "pylons": {
+    "1": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}",
+    "2": "{A021F29D-18AB-4d3e-985C-FC9C60E35E9E}",
+    "3": "{A021F29D-18AB-4d3e-985C-FC9C60E35E9E}",
+    "4": "{0395076D-2F77-4420-9D33-087A4398130B}",
+    "5": "{A021F29D-18AB-4d3e-985C-FC9C60E35E9E}",
+    "6": "{A021F29D-18AB-4d3e-985C-FC9C60E35E9E}",
+    "7": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}"
+   }
+  },
+  {
    "name": null,
    "count": 2,
    "pylons": {
@@ -270,12 +283,30 @@
    }
   },
   {
+   "name": "AIM-9P*2, Fuel 150",
+   "count": 2,
+   "pylons": {
+    "1": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}",
+    "4": "{PTB-150GAL}",
+    "7": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}"
+   }
+  },
+  {
    "name": null,
    "count": 2,
    "pylons": {
     "1": "{AIM-9B}",
     "3": "{PTB-150GAL}",
     "5": "{PTB-150GAL}",
+    "7": "{AIM-9B}"
+   }
+  },
+  {
+   "name": "AIM-9B*2, Fuel 150",
+   "count": 2,
+   "pylons": {
+    "1": "{AIM-9B}",
+    "4": "{PTB-150GAL}",
     "7": "{AIM-9B}"
    }
   },
@@ -323,6 +354,19 @@
    }
   },
   {
+   "name": "LAU-3 HE*4,AIM-9P*2,Fuel 275",
+   "count": 1,
+   "pylons": {
+    "1": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}",
+    "2": "LAU3_HE151",
+    "3": "LAU3_HE151",
+    "4": "{0395076D-2F77-4420-9D33-087A4398130B}",
+    "5": "LAU3_HE151",
+    "6": "LAU3_HE151",
+    "7": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}"
+   }
+  },
+  {
    "name": null,
    "count": 1,
    "pylons": {
@@ -331,6 +375,19 @@
     "3": "LAU3_HE151",
     "5": "LAU3_HE151",
     "6": "LAU3_HE151",
+    "7": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}"
+   }
+  },
+  {
+   "name": "LAU-3 HEAT*4,AIM-9P*2,Fuel 275",
+   "count": 1,
+   "pylons": {
+    "1": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}",
+    "2": "LAU3_HE5",
+    "3": "LAU3_HE5",
+    "4": "{0395076D-2F77-4420-9D33-087A4398130B}",
+    "5": "LAU3_HE5",
+    "6": "LAU3_HE5",
     "7": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}"
    }
   },
@@ -348,15 +405,132 @@
    }
   },
   {
-   "name": null,
+   "name": "M-117*5,AIM-9*2",
+   "count": 1,
+   "pylons": {
+    "1": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}",
+    "2": "{00F5DAC4-0466-4122-998F-B1A298E34113}",
+    "3": "{00F5DAC4-0466-4122-998F-B1A298E34113}",
+    "4": "{00F5DAC4-0466-4122-998F-B1A298E34113}",
+    "5": "{00F5DAC4-0466-4122-998F-B1A298E34113}",
+    "6": "{00F5DAC4-0466-4122-998F-B1A298E34113}",
+    "7": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}"
+   }
+  },
+  {
+   "name": "M-117*4,AIM-9P*2,Fuel 275",
+   "count": 1,
+   "pylons": {
+    "1": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}",
+    "2": "{00F5DAC4-0466-4122-998F-B1A298E34113}",
+    "3": "{00F5DAC4-0466-4122-998F-B1A298E34113}",
+    "4": "{0395076D-2F77-4420-9D33-087A4398130B}",
+    "5": "{00F5DAC4-0466-4122-998F-B1A298E34113}",
+    "6": "{00F5DAC4-0466-4122-998F-B1A298E34113}",
+    "7": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}"
+   }
+  },
+  {
+   "name": "LAU-68 HEAT*4,AIM-9P*2,Fuel 275",
+   "count": 1,
+   "pylons": {
+    "1": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}",
+    "2": "{174C6E6D-0C3D-42ff-BCB3-0853CB371F5C}",
+    "3": "{174C6E6D-0C3D-42ff-BCB3-0853CB371F5C}",
+    "4": "{0395076D-2F77-4420-9D33-087A4398130B}",
+    "5": "{174C6E6D-0C3D-42ff-BCB3-0853CB371F5C}",
+    "6": "{174C6E6D-0C3D-42ff-BCB3-0853CB371F5C}",
+    "7": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}"
+   }
+  },
+  {
+   "name": "LAU-68 HE*2,Mk-82LD,AIM-9P*2,Fuel 275*2",
    "count": 1,
    "pylons": {
     "1": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}",
     "2": "{A021F29D-18AB-4d3e-985C-FC9C60E35E9E}",
-    "3": "{A021F29D-18AB-4d3e-985C-FC9C60E35E9E}",
-    "4": "{0395076D-2F77-4420-9D33-087A4398130B}",
-    "5": "{A021F29D-18AB-4d3e-985C-FC9C60E35E9E}",
+    "3": "{0395076D-2F77-4420-9D33-087A4398130B}",
+    "4": "{BCE4E030-38E9-423E-98ED-24BE3DA87C32}",
+    "5": "{0395076D-2F77-4420-9D33-087A4398130B}",
     "6": "{A021F29D-18AB-4d3e-985C-FC9C60E35E9E}",
+    "7": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}"
+   }
+  },
+  {
+   "name": "Mk-82LD*7,AIM-9P*2, Fuel 275*2",
+   "count": 1,
+   "pylons": {
+    "1": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}",
+    "2": "{BCE4E030-38E9-423E-98ED-24BE3DA87C32}",
+    "3": "{0395076D-2F77-4420-9D33-087A4398130B}",
+    "4": "{MER-5E_MK82x5}",
+    "5": "{0395076D-2F77-4420-9D33-087A4398130B}",
+    "6": "{BCE4E030-38E9-423E-98ED-24BE3DA87C32}",
+    "7": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}"
+   }
+  },
+  {
+   "name": "Mk-82LD*4,AIM-9P*2,Fuel 275",
+   "count": 1,
+   "pylons": {
+    "1": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}",
+    "2": "{BCE4E030-38E9-423E-98ED-24BE3DA87C32}",
+    "3": "{BCE4E030-38E9-423E-98ED-24BE3DA87C32}",
+    "4": "{0395076D-2F77-4420-9D33-087A4398130B}",
+    "5": "{BCE4E030-38E9-423E-98ED-24BE3DA87C32}",
+    "6": "{BCE4E030-38E9-423E-98ED-24BE3DA87C32}",
+    "7": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}"
+   }
+  },
+  {
+   "name": "Mk-82LD*5,AIM-9*2",
+   "count": 1,
+   "pylons": {
+    "1": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}",
+    "2": "{BCE4E030-38E9-423E-98ED-24BE3DA87C32}",
+    "3": "{BCE4E030-38E9-423E-98ED-24BE3DA87C32}",
+    "4": "{BCE4E030-38E9-423E-98ED-24BE3DA87C32}",
+    "5": "{BCE4E030-38E9-423E-98ED-24BE3DA87C32}",
+    "6": "{BCE4E030-38E9-423E-98ED-24BE3DA87C32}",
+    "7": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}"
+   }
+  },
+  {
+   "name": "CBU-52B*4,AIM-9P*2,Fuel 275",
+   "count": 1,
+   "pylons": {
+    "1": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}",
+    "2": "{CBU-52B}",
+    "3": "{CBU-52B}",
+    "4": "{0395076D-2F77-4420-9D33-087A4398130B}",
+    "5": "{CBU-52B}",
+    "6": "{CBU-52B}",
+    "7": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}"
+   }
+  },
+  {
+   "name": "CBU-52B*5,AIM-9*2",
+   "count": 1,
+   "pylons": {
+    "1": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}",
+    "2": "{CBU-52B}",
+    "3": "{CBU-52B}",
+    "4": "{CBU-52B}",
+    "5": "{CBU-52B}",
+    "6": "{CBU-52B}",
+    "7": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}"
+   }
+  },
+  {
+   "name": "GBU-12*4,AIM-9P*2,Fuel 275",
+   "count": 1,
+   "pylons": {
+    "1": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}",
+    "2": "{DB769D48-67D7-42ED-A2BE-108D566C8B1E}",
+    "3": "{DB769D48-67D7-42ED-A2BE-108D566C8B1E}",
+    "4": "{0395076D-2F77-4420-9D33-087A4398130B}",
+    "5": "{DB769D48-67D7-42ED-A2BE-108D566C8B1E}",
+    "6": "{DB769D48-67D7-42ED-A2BE-108D566C8B1E}",
     "7": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}"
    }
   },
@@ -374,12 +548,60 @@
    }
   },
   {
-   "name": null,
+   "name": "Mk-82SE*7,AIM-9P*2, Fuel 275*2",
+   "count": 1,
+   "pylons": {
+    "1": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}",
+    "2": "{Mk82SNAKEYE}",
+    "3": "{0395076D-2F77-4420-9D33-087A4398130B}",
+    "4": "{MER-5E_Mk82SNAKEYEx5}",
+    "5": "{0395076D-2F77-4420-9D33-087A4398130B}",
+    "6": "{Mk82SNAKEYE}",
+    "7": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}"
+   }
+  },
+  {
+   "name": "Mk-82SE*4,AIM-9P*2,Fuel 275",
+   "count": 1,
+   "pylons": {
+    "1": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}",
+    "2": "{Mk82SNAKEYE}",
+    "3": "{Mk82SNAKEYE}",
+    "4": "{0395076D-2F77-4420-9D33-087A4398130B}",
+    "5": "{Mk82SNAKEYE}",
+    "6": "{Mk82SNAKEYE}",
+    "7": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}"
+   }
+  },
+  {
+   "name": "Mk-82SE*5,AIM-9*2",
+   "count": 1,
+   "pylons": {
+    "1": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}",
+    "2": "{Mk82SNAKEYE}",
+    "3": "{Mk82SNAKEYE}",
+    "4": "{Mk82SNAKEYE}",
+    "5": "{Mk82SNAKEYE}",
+    "6": "{Mk82SNAKEYE}",
+    "7": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}"
+   }
+  },
+  {
+   "name": "AIM-9P*2, Fuel 275",
+   "count": 1,
+   "pylons": {
+    "1": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}",
+    "4": "{0395076D-2F77-4420-9D33-087A4398130B}",
+    "7": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}"
+   }
+  },
+  {
+   "name": "AN/ASQ-T50, AIM-9P, Fuel 150",
    "count": 1,
    "pylons": {
     "1": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}",
     "4": "{PTB-150GAL}",
-    "7": "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}"
+    "7": "{AIS_ASQ_T50}"
    }
   },
   {
@@ -407,12 +629,47 @@
    }
   },
   {
-   "name": null,
+   "name": "AIM-9B*2, Fuel 275*3",
    "count": 1,
    "pylons": {
     "1": "{AIM-9B}",
-    "4": "{PTB-150GAL}",
+    "3": "{0395076D-2F77-4420-9D33-087A4398130B}",
+    "4": "{0395076D-2F77-4420-9D33-087A4398130B}",
+    "5": "{0395076D-2F77-4420-9D33-087A4398130B}",
     "7": "{AIM-9B}"
+   }
+  },
+  {
+   "name": "AIM-9B*2, Fuel 150*3",
+   "count": 1,
+   "pylons": {
+    "1": "{AIM-9B}",
+    "3": "{PTB-150GAL}",
+    "4": "{PTB-150GAL}",
+    "5": "{PTB-150GAL}",
+    "7": "{AIM-9B}"
+   }
+  },
+  {
+   "name": "AIM-9B*2, Fuel 275",
+   "count": 1,
+   "pylons": {
+    "1": "{AIM-9B}",
+    "4": "{0395076D-2F77-4420-9D33-087A4398130B}",
+    "7": "{AIM-9B}"
+   }
+  },
+  {
+   "name": "Antiship Mk82",
+   "count": 1,
+   "pylons": {
+    "1": "{AIM-9P5}",
+    "2": "{BCE4E030-38E9-423E-98ED-24BE3DA87C32}",
+    "3": "{BCE4E030-38E9-423E-98ED-24BE3DA87C32}",
+    "4": "{PTB-150GAL}",
+    "5": "{BCE4E030-38E9-423E-98ED-24BE3DA87C32}",
+    "6": "{BCE4E030-38E9-423E-98ED-24BE3DA87C32}",
+    "7": "{AIM-9P5}"
    }
   },
   {

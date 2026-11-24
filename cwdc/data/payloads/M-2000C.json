@@ -1,0 +1,203 @@
+{
+ "unit_type": "M-2000C",
+ "source": "CoreMods UnitPayloads",
+ "missions_scanned": 0,
+ "payloads": [
+  {
+   "name": "Kilo / 4xMk-82 / Magic",
+   "count": 1,
+   "pylons": {
+    "1": "{MMagicII}",
+    "2": "{M2KC_02_RPL541}",
+    "3": "{BCE4E030-38E9-423E-98ED-24BE3DA87C32}",
+    "4": "{BCE4E030-38E9-423E-98ED-24BE3DA87C32}",
+    "5": "{M2KC_RPL_522}",
+    "6": "{BCE4E030-38E9-423E-98ED-24BE3DA87C32}",
+    "7": "{BCE4E030-38E9-423E-98ED-24BE3DA87C32}",
+    "8": "{M2KC_08_RPL541}",
+    "9": "{MMagicII}"
+   }
+  },
+  {
+   "name": "Bravo / 4xMk-82 / Magic",
+   "count": 1,
+   "pylons": {
+    "1": "{MMagicII}",
+    "2": "{M2KC_02_RPL541}",
+    "3": "{BCE4E030-38E9-423E-98ED-24BE3DA87C32}",
+    "4": "{BCE4E030-38E9-423E-98ED-24BE3DA87C32}",
+    "6": "{BCE4E030-38E9-423E-98ED-24BE3DA87C32}",
+    "7": "{BCE4E030-38E9-423E-98ED-24BE3DA87C32}",
+    "8": "{M2KC_08_RPL541}",
+    "9": "{MMagicII}"
+   }
+  },
+  {
+   "name": "Bravo / 4xSnakeEye / Magic",
+   "count": 1,
+   "pylons": {
+    "1": "{MMagicII}",
+    "2": "{M2KC_02_RPL541}",
+    "3": "{Mk82SNAKEYE}",
+    "4": "{Mk82SNAKEYE}",
+    "6": "{Mk82SNAKEYE}",
+    "7": "{Mk82SNAKEYE}",
+    "8": "{M2KC_08_RPL541}",
+    "9": "{MMagicII}"
+   }
+  },
+  {
+   "name": "Bravo / GBU-16 / Magic",
+   "count": 1,
+   "pylons": {
+    "1": "{MMagicII}",
+    "2": "{M2KC_02_RPL541}",
+    "5": "{0D33DDAE-524F-4A4E-B5B8-621754FE3ADE}",
+    "8": "{M2KC_08_RPL541}",
+    "9": "{MMagicII}"
+   }
+  },
+  {
+   "name": "Bravo / GBU-24 / Magic",
+   "count": 1,
+   "pylons": {
+    "1": "{MMagicII}",
+    "2": "{M2KC_02_RPL541}",
+    "5": "{34759BBC-AF1E-4AEE-A581-498FF7A6EBCE}",
+    "8": "{M2KC_08_RPL541}",
+    "9": "{MMagicII}"
+   }
+  },
+  {
+   "name": "Bravo / GBU-12 / Magic",
+   "count": 1,
+   "pylons": {
+    "1": "{MMagicII}",
+    "2": "{M2KC_02_RPL541}",
+    "5": "{DB769D48-67D7-42ED-A2BE-108D566C8B1E}",
+    "8": "{M2KC_08_RPL541}",
+    "9": "{MMagicII}"
+   }
+  },
+  {
+   "name": "Bravo / BAP-100 / Magic",
+   "count": 1,
+   "pylons": {
+    "1": "{MMagicII}",
+    "2": "{M2KC_02_RPL541}",
+    "5": "{M2KC_BAP100_18_RACK}",
+    "8": "{M2KC_08_RPL541}",
+    "9": "{MMagicII}"
+   }
+  },
+  {
+   "name": "Bravo / 2xGBU-12 / Magic",
+   "count": 1,
+   "pylons": {
+    "1": "{MMagicII}",
+    "2": "{M2KC_02_RPL541}",
+    "5": "{M2KC_RAFAUT_GBU12}",
+    "8": "{M2KC_08_RPL541}",
+    "9": "{MMagicII}"
+   }
+  },
+  {
+   "name": "Kilo / Magic",
+   "count": 1,
+   "pylons": {
+    "1": "{MMagicII}",
+    "2": "{M2KC_02_RPL541}",
+    "5": "{M2KC_RPL_522}",
+    "8": "{M2KC_08_RPL541}",
+    "9": "{MMagicII}"
+   }
+  },
+  {
+   "name": "Bravo / Magic",
+   "count": 1,
+   "pylons": {
+    "1": "{MMagicII}",
+    "2": "{M2KC_02_RPL541}",
+    "8": "{M2KC_08_RPL541}",
+    "9": "{MMagicII}"
+   }
+  },
+  {
+   "name": "Fox / S530D / Magic",
+   "count": 1,
+   "pylons": {
+    "1": "{MMagicII}",
+    "2": "{Matra_S530D}",
+    "5": "{M2KC_RPL_522}",
+    "8": "{Matra_S530D}",
+    "9": "{MMagicII}"
+   }
+  },
+  {
+   "name": "Fox / S530D / Magic / Eclair",
+   "count": 1,
+   "pylons": {
+    "1": "{MMagicII}",
+    "2": "{Matra_S530D}",
+    "5": "{M2KC_RPL_522}",
+    "8": "{Matra_S530D}",
+    "9": "{MMagicII}",
+    "10": "{Eclair}"
+   }
+  },
+  {
+   "name": "Fox / 4xMk-82 / Magic",
+   "count": 1,
+   "pylons": {
+    "1": "{MMagicII}",
+    "3": "{BCE4E030-38E9-423E-98ED-24BE3DA87C32}",
+    "4": "{BCE4E030-38E9-423E-98ED-24BE3DA87C32}",
+    "5": "{M2KC_RPL_522}",
+    "6": "{BCE4E030-38E9-423E-98ED-24BE3DA87C32}",
+    "7": "{BCE4E030-38E9-423E-98ED-24BE3DA87C32}",
+    "9": "{MMagicII}"
+   }
+  },
+  {
+   "name": "Fox / Magic (QRA)",
+   "count": 1,
+   "pylons": {
+    "1": "{MMagicII}",
+    "5": "{M2KC_RPL_522}",
+    "9": "{MMagicII}"
+   }
+  },
+  {
+   "name": "Kilo",
+   "count": 1,
+   "pylons": {
+    "2": "{M2KC_02_RPL541}",
+    "5": "{M2KC_RPL_522}",
+    "8": "{M2KC_08_RPL541}"
+   }
+  },
+  {
+   "name": "Bravo",
+   "count": 1,
+   "pylons": {
+    "2": "{M2KC_02_RPL541}",
+    "8": "{M2KC_08_RPL541}"
+   }
+  },
+  {
+   "name": "Alpha / S530D",
+   "count": 1,
+   "pylons": {
+    "2": "{Matra_S530D}",
+    "8": "{Matra_S530D}"
+   }
+  },
+  {
+   "name": "Fox",
+   "count": 1,
+   "pylons": {
+    "5": "{M2KC_RPL_522}"
+   }
+  }
+ ]
+}

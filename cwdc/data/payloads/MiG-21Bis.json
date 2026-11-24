@@ -1,0 +1,277 @@
+{
+ "unit_type": "MiG-21Bis",
+ "source": "CoreMods UnitPayloads",
+ "missions_scanned": 0,
+ "payloads": [
+  {
+   "name": "Long range, JAMMER",
+   "count": 3,
+   "pylons": {
+    "1": "{PTB_490_MIG21}",
+    "2": "{R-3R}",
+    "3": "{SPS-141-100}",
+    "4": "{R-3S}",
+    "5": "{PTB_490_MIG21}"
+   }
+  },
+  {
+   "name": "Escort",
+   "count": 3,
+   "pylons": {
+    "1": "{R-3S}",
+    "2": "{R-3R}",
+    "3": "{PTB_800_MIG21}",
+    "4": "{R-3R}",
+    "5": "{R-3S}",
+    "6": "{ASO-2}"
+   }
+  },
+  {
+   "name": "Night, ILLUMINATOR",
+   "count": 1,
+   "pylons": {
+    "1": "{0511E528-EA28-4caf-A212-00D1408DF10A}",
+    "2": "{0511E528-EA28-4caf-A212-00D1408DF10A}",
+    "3": "{PTB_800_MIG21}",
+    "4": "{0511E528-EA28-4caf-A212-00D1408DF10A}",
+    "5": "{0511E528-EA28-4caf-A212-00D1408DF10A}",
+    "6": "{ASO-2}"
+   }
+  },
+  {
+   "name": "Hard targets, BOMBS",
+   "count": 1,
+   "pylons": {
+    "1": "{3C612111-C7AD-476E-8A8E-2485812F4E5C}",
+    "2": "{3C612111-C7AD-476E-8A8E-2485812F4E5C}",
+    "3": "{PTB_800_MIG21}",
+    "4": "{3C612111-C7AD-476E-8A8E-2485812F4E5C}",
+    "5": "{3C612111-C7AD-476E-8A8E-2485812F4E5C}",
+    "6": "{ASO-2}"
+   }
+  },
+  {
+   "name": "Few big targets, GROM + BOMBS",
+   "count": 1,
+   "pylons": {
+    "1": "{3C612111-C7AD-476E-8A8E-2485812F4E5C}",
+    "2": "{Kh-66_Grom}",
+    "3": "{PTB_800_MIG21}",
+    "4": "{Kh-66_Grom}",
+    "5": "{3C612111-C7AD-476E-8A8E-2485812F4E5C}",
+    "6": "{ASO-2}"
+   }
+  },
+  {
+   "name": "Unknown or mixed targets, BOMBS + ROCKETS",
+   "count": 1,
+   "pylons": {
+    "1": "{3C612111-C7AD-476E-8A8E-2485812F4E5C}",
+    "2": "{UB-32_S5M}",
+    "3": "{PTB_800_MIG21}",
+    "4": "{UB-32_S5M}",
+    "5": "{3C612111-C7AD-476E-8A8E-2485812F4E5C}",
+    "6": "{ASO-2}"
+   }
+  },
+  {
+   "name": "Soft targets, scattered",
+   "count": 1,
+   "pylons": {
+    "1": "{3C612111-C7AD-476E-8A8E-2485812F4E5C}",
+    "2": "{UPK-23-250 MiG-21}",
+    "3": "{PTB_800_MIG21}",
+    "4": "{UPK-23-250 MiG-21}",
+    "5": "{3C612111-C7AD-476E-8A8E-2485812F4E5C}",
+    "6": "{ASO-2}"
+   }
+  },
+  {
+   "name": "Soft targets, CLUSTERS",
+   "count": 1,
+   "pylons": {
+    "1": "{4203753F-8198-4E85-9924-6F8FF679F9FF}",
+    "2": "{08164777-5E9C-4B08-B48E-5AA7AFB246E2}",
+    "3": "{PTB_800_MIG21}",
+    "4": "{08164777-5E9C-4B08-B48E-5AA7AFB246E2}",
+    "5": "{4203753F-8198-4E85-9924-6F8FF679F9FF}",
+    "6": "{ASO-2}"
+   }
+  },
+  {
+   "name": "Aerial attack, hard targets, CLUSTERS",
+   "count": 1,
+   "pylons": {
+    "1": "{4203753F-8198-4E85-9924-6F8FF679F9FF}",
+    "2": "{4203753F-8198-4E85-9924-6F8FF679F9FF}",
+    "3": "{PTB_800_MIG21}",
+    "4": "{4203753F-8198-4E85-9924-6F8FF679F9FF}",
+    "5": "{4203753F-8198-4E85-9924-6F8FF679F9FF}",
+    "6": "{ASO-2}"
+   }
+  },
+  {
+   "name": "Soft targets, CLUSTERS + ROCKETS",
+   "count": 1,
+   "pylons": {
+    "1": "{4203753F-8198-4E85-9924-6F8FF679F9FF}",
+    "2": "{UB-32_S5M}",
+    "3": "{PTB_800_MIG21}",
+    "4": "{UB-32_S5M}",
+    "5": "{4203753F-8198-4E85-9924-6F8FF679F9FF}",
+    "6": "{ASO-2}"
+   }
+  },
+  {
+   "name": "Soft targets, UPK + CLUSTERS",
+   "count": 1,
+   "pylons": {
+    "1": "{4203753F-8198-4E85-9924-6F8FF679F9FF}",
+    "2": "{UPK-23-250 MiG-21}",
+    "3": "{PTB_800_MIG21}",
+    "4": "{UPK-23-250 MiG-21}",
+    "5": "{4203753F-8198-4E85-9924-6F8FF679F9FF}",
+    "6": "{ASO-2}"
+   }
+  },
+  {
+   "name": "Very hard target, PENETRATION",
+   "count": 1,
+   "pylons": {
+    "1": "{FB3CE165-BF07-4979-887C-92B87F13276B}",
+    "2": "{35B698AC-9FEF-4EC4-AD29-484A0085F62B}",
+    "3": "{PTB_800_MIG21}",
+    "4": "{35B698AC-9FEF-4EC4-AD29-484A0085F62B}",
+    "5": "{FB3CE165-BF07-4979-887C-92B87F13276B}",
+    "6": "{ASO-2}"
+   }
+  },
+  {
+   "name": "Long range, RADAR GUIDED MISSILES",
+   "count": 1,
+   "pylons": {
+    "1": "{PTB_490_MIG21}",
+    "2": "{R-3R}",
+    "3": "{PTB_490C_MIG21}",
+    "4": "{R-3R}",
+    "5": "{PTB_490_MIG21}",
+    "6": "{ASO-2}"
+   }
+  },
+  {
+   "name": "Long range, MIX",
+   "count": 1,
+   "pylons": {
+    "1": "{PTB_490_MIG21}",
+    "2": "{R-3R}",
+    "3": "{PTB_490C_MIG21}",
+    "4": "{R-3S}",
+    "5": "{PTB_490_MIG21}",
+    "6": "{ASO-2}"
+   }
+  },
+  {
+   "name": "NUCLEAR A",
+   "count": 1,
+   "pylons": {
+    "1": "{PTB_490_MIG21}",
+    "2": "{R-3R}",
+    "3": "{RN-24}",
+    "4": "{R-3S}",
+    "5": "{PTB_490_MIG21}",
+    "6": "{ASO-2}"
+   }
+  },
+  {
+   "name": "NUCLEAR B",
+   "count": 1,
+   "pylons": {
+    "1": "{PTB_490_MIG21}",
+    "2": "{R-3R}",
+    "3": "{RN-28}",
+    "4": "{R-3S}",
+    "5": "{PTB_490_MIG21}",
+    "6": "{ASO-2}"
+   }
+  },
+  {
+   "name": "Long range, INFRA RED MISSILES",
+   "count": 1,
+   "pylons": {
+    "1": "{PTB_490_MIG21}",
+    "2": "{R-3S}",
+    "3": "{PTB_490C_MIG21}",
+    "4": "{R-3S}",
+    "5": "{PTB_490_MIG21}",
+    "6": "{ASO-2}"
+   }
+  },
+  {
+   "name": "Patrol, short range",
+   "count": 1,
+   "pylons": {
+    "1": "{R-60 2L}",
+    "2": "{R-3R}",
+    "3": "{PTB_490C_MIG21}",
+    "4": "{R-3R}",
+    "5": "{R-60 2R}",
+    "6": "{ASO-2}"
+   }
+  },
+  {
+   "name": "Patrol, medium range",
+   "count": 1,
+   "pylons": {
+    "1": "{R-60 2L}",
+    "2": "{R-3R}",
+    "3": "{PTB_800_MIG21}",
+    "4": "{R-3R}",
+    "5": "{R-60 2R}",
+    "6": "{ASO-2}"
+   }
+  },
+  {
+   "name": "Hard targets, ROCKETS, PENETRATION",
+   "count": 1,
+   "pylons": {
+    "1": "{S-24A}",
+    "2": "{S-24A}",
+    "3": "{PTB_800_MIG21}",
+    "4": "{S-24A}",
+    "5": "{S-24A}",
+    "6": "{ASO-2}"
+   }
+  },
+  {
+   "name": "Soft targets, ROCKETS, BLAST-FRAGMENTS",
+   "count": 1,
+   "pylons": {
+    "1": "{S-24B}",
+    "2": "{S-24B}",
+    "3": "{PTB_800_MIG21}",
+    "4": "{S-24B}",
+    "5": "{S-24B}",
+    "6": "{ASO-2}"
+   }
+  },
+  {
+   "name": "Soft targets, UPK + ROCKETS",
+   "count": 1,
+   "pylons": {
+    "1": "{UB-16_S5M}",
+    "2": "{UPK-23-250 MiG-21}",
+    "3": "{PTB_800_MIG21}",
+    "4": "{UPK-23-250 MiG-21}",
+    "5": "{UB-16_S5M}",
+    "6": "{ASO-2}"
+   }
+  },
+  {
+   "name": "AEROBATIC",
+   "count": 1,
+   "pylons": {
+    "7": "{SMOKE_WHITE}"
+   }
+  }
+ ]
+}
