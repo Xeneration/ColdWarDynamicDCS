@@ -4,7 +4,7 @@ from __future__ import annotations
 from datetime import timedelta
 
 from cwdc.engine import (airbases, apply, crews, crisis, factory, ground, logistics, news, outcome,
-                         planner, resolver, stats, weather)
+                         planner, rescue, resolver, stats, weather)
 from cwdc.model import (Airframe, AirframeStatus, Campaign, CrewRole, Debrief, FlightStatus, Pilot,
                         PilotStatus, SortieResult)
 from cwdc.engine import rng
@@ -47,6 +47,11 @@ def end_turn(c: Campaign, dcs_results: list[SortieResult] | None = None,
     airfield_lines = airbases.airbase_turn(c)
     if airfield_lines:
         debrief += ["-- Airfields --", *airfield_lines]
+
+    if c.at_war:
+        rescue_lines = rescue.rescue_turn(c, remaining)
+        if rescue_lines:
+            debrief += ["-- Search and rescue --", *rescue_lines]
 
     player = c.player_pilot()
     if player.status is not PilotStatus.ACTIVE:

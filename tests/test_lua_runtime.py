@@ -250,3 +250,20 @@ def test_magic_gci_menu_bogey_dope_picture_and_threat_calls():
     assert lua.eval("#GMSGS") == 1                                 # not repeated within 60 s
     lua.execute("DETECTED['BLUE-EWR'] = {}; CWDC.magic_bogey_dope('BLUE-Hawk1')")
     assert "picture clean" in lua.eval("CWDC.magic.last")
+
+
+def test_rescue_pickup_after_the_helicopter_lands_at_the_survivor():
+    cfg = config_lua("t-005", ["BLUE-Hawk1"], rescue={"helo": "Dustoff 1", "x": 1000, "z": 2000,
+                                                       "radius": 300, "hold": 20})
+    lua = mission_runtime(cfg, None, pre_runtime=UNITS + """
+      H = mkunit("Dustoff 1-1", "UH-1H", 2, nil, "Dustoff 1", 1000 + 4000, 2000)
+      H._air = true
+      mkgroup("Dustoff 1", {H})
+    """)
+    lua.execute("run_due(5)")
+    assert "green smoke" in lua.eval("MSGS[#MSGS]")                # within 5 km: smoke out
+    lua.execute("H:setPoint(1100, 0, 2050); H._air = false; run_due(15)")
+    assert lua.eval("CWDC.rescue_state.done") is False             # on the ground, not 20 s yet
+    lua.execute("run_due(35)")
+    events = json.loads(lua.eval("CWDC_export()"))["events"]
+    assert [e["event"] for e in events if e["event"] == "CWDC_PICKUP"] == ["CWDC_PICKUP"]

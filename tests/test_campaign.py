@@ -131,7 +131,8 @@ def test_ingest_flown_strike_then_end_turn(camp, tmp_path, monkeypatch):
     results, destroyed = results_from_dcs(c, rec, data)
     mine = next(r for r in results if r.flight_id == f.id)
     assert mine.airframes_lost == [f.airframe_ids[1]]
-    assert mine.pilot_fates[0].status is PilotStatus.POW
+    assert mine.pilot_fates[0].status is PilotStatus.MIA          # down in the GDR: evading
+    assert mine.pilot_fates[0].pos is not None
     assert [k.air for k in mine.kills] == [False, True]
     assert len(destroyed) == 2 and all(d.startswith(f.target_id) for d in destroyed)
 
@@ -139,7 +140,7 @@ def test_ingest_flown_strike_then_end_turn(camp, tmp_path, monkeypatch):
     player = c.player_pilot()
     lines = turn.end_turn(c, results, destroyed)
     assert c.turn == 2 and c.pending_mission is None
-    assert c.pilots[wingman].status is PilotStatus.POW
+    assert c.pilots[wingman].status in (PilotStatus.MIA, PilotStatus.POW)   # evading or caught
     assert c.airframes[f.airframe_ids[1]].status is AirframeStatus.DESTROYED
     assert player.sorties == 1 and player.air_kills == 1 and player.ground_kills == 1
     assert sum(not u.alive for u in c.objectives[f.target_id].units) >= 2

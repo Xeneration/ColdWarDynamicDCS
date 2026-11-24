@@ -173,7 +173,8 @@ def ingest(c: Campaign, from_log: bool = False) -> tuple[list[str], list[str]]:
     data, notes = load_result(c, from_log)
     from cwdc.engine import crisis
     dcs_results, destroyed = results_from_dcs(c, c.pending_mission, data)
-    incidents = crisis.dcs_incidents(c, c.pending_mission, data)
+    from cwdc.engine import rescue
+    incidents = crisis.dcs_incidents(c, c.pending_mission, data) + rescue.dcs_pickups(c, c.pending_mission, data)
     lines = turn.end_turn(c, dcs_results, destroyed)
     if incidents:
         lines[1:1] = ["-- Crisis incidents --", *incidents]

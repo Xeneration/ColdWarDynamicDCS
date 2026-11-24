@@ -362,6 +362,63 @@ if CWDC.config.intercept then
 end
 
 ------------------------------------------------------------------------
+-- RESCAP: the survivor pops green smoke when the rescue helicopter is
+-- within 5 km; a pickup counts once the helicopter has been on the ground
+-- within `radius` m of the survivor for `hold` s (CWDC_PICKUP event).
+--   CWDC_CONFIG.rescue = { helo = "...", x = .., z = .., radius = 300, hold = 20 }
+------------------------------------------------------------------------
+CWDC.rescue_state = { smoke = false, held = 0, done = false }
+
+function CWDC.rescue_check(step)
+  local rc = CWDC.config.rescue
+  local st = CWDC.rescue_state
+  if not rc or st.done then return end
+  local g = Group.getByName(rc.helo)
+  if not g or not g:isExist() then return end
+  for _, u in ipairs(g:getUnits() or {}) do
+    if u and u:isExist() then
+      local p = u:getPoint()
+      local d = math.sqrt((p.x - rc.x) ^ 2 + (p.z - rc.z) ^ 2)
+      if d <= 5000 and not st.smoke then
+        st.smoke = true
+        local y = 0
+        if land and land.getHeight then
+          y = safe(function() return land.getHeight({ x = rc.x, y = rc.z }) end) or 0
+        end
+        if trigger.action.smoke then
+          trigger.action.smoke({ x = rc.x, y = y, z = rc.z }, (trigger.smokeColor or {}).Green or 0)
+        end
+        trigger.action.outText("Survivor: green smoke is out - I hear the helicopter!", 15)
+      end
+      if d <= (rc.radius or 300) and not u:inAir() then
+        st.held = st.held + step
+      else
+        st.held = 0
+      end
+      if st.held >= (rc.hold or 20) then
+        st.done = true
+        CWDC.seq = CWDC.seq + 1
+        local rec = { seq = CWDC.seq, t = timer.getTime(), id = -2, event = "CWDC_PICKUP",
+                      initiator = object_info(u) }
+        CWDC.events[#CWDC.events + 1] = rec
+        CWDC.emit("EV", rec)
+        trigger.action.outText("Dustoff 1: survivor aboard, heading home!", 20)
+      end
+      return
+    end
+  end
+end
+
+if CWDC.config.rescue then
+  timer.scheduleFunction(function(_, t)
+    if CWDC.ended then return nil end
+    local ok, err = pcall(CWDC.rescue_check, 5)
+    if not ok then log("rescue error: " .. tostring(err)) end
+    return t + 5
+  end, nil, timer.getTime() + 5)
+end
+
+------------------------------------------------------------------------
 -- MAGIC: ground-controlled intercept over the F10 radio menu
 --   CWDC_CONFIG.magic = { callsign = "MAGIC", side = 2, groups = {player groups},
 --                         radars = {friendly EWR / SAM / fighter groups},

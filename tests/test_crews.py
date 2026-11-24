@@ -127,7 +127,7 @@ def test_dcs_ingest_gives_each_seat_its_own_parachute(camp, tmp_path):
     results, _ = results_from_dcs(camp, rec, {"events": events, "snapshot": {}})
     fates = {x.pilot_id: x.status for r in results for x in r.pilot_fates}
     assert fates[f.pilot_ids[0]] is PilotStatus.ACTIVE      # came down at home
-    assert fates[f.wso_ids[0]] is PilotStatus.POW           # drifted over the GDR
+    assert fates[f.wso_ids[0]] is PilotStatus.MIA           # drifted over the GDR: evading
 
 
 def test_sync_gives_older_campaigns_their_wsos(camp):

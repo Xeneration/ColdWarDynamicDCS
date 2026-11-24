@@ -183,6 +183,51 @@ def _kneeboard_info(c: Campaign, player: Flight, plan: Plan, group, lines: list[
         bullseye=bull, target=c.objectives[player.target_id].pos if player.target_id else None)
 
 
+RESCAP_ENGAGE_RADIUS = 10_000     # m around the survivor an AI RESCAP attacks ground units
+HELO_SPEED = 180                  # km/h
+HELO_START = 60_000               # m from the survivor the rescue helicopter starts (our side)
+SEARCH_PARTY_DIST = 3_000         # m from the survivor the enemy search party starts
+PICKUP_RADIUS, PICKUP_HOLD = 300, 20
+
+
+def _rescue_party(m: Mission, c: Campaign, player: Flight, player_eta: float, tracked: list) -> dict | None:
+    """RESCAP: the rescue helicopter (from our nearest airfield's side) and an enemy search party
+    closing on the survivor. Returns the runtime's pickup watch config (+ briefing names)."""
+    from dcs.helicopters import helicopter_map
+    from dcs.point import PointAction
+    pilot = c.pilots.get(player.rescue_of) if player.rescue_of else None
+    if pilot is None:
+        return None
+    pickup = player.area
+    home = min((ab for ab in c.airbases.values() if ab.side is player.side),
+               key=lambda ab: ab.pos.dist(pickup))
+    start = _toward(pickup, home.pos, HELO_START)
+    sq = c.squadrons[player.squadron_id]
+    hg = m.flight_group_inflight(m.country(sq.country), "Dustoff 1", helicopter_map["UH-1H"],
+                                 T.to_point(start), altitude=150, speed=HELO_SPEED,
+                                 maintask=dtask.Transport, group_size=1)
+    delay = int(player_eta + 300 - start.dist(pickup) / (HELO_SPEED / 3.6))
+    if delay > 0:
+        _delay(hg, delay)                              # arrives once the RESCAP is on station
+    wp = hg.add_waypoint(T.to_point(pickup), 100, HELO_SPEED, name="PICKUP")
+    wp.tasks.append(dtask.Land(T.to_point(pickup), duration=120))
+    hg.add_waypoint(T.to_point(start), 150, HELO_SPEED, name="EXIT")
+    hg.land_at(m.terrain.airports[home.dcs_name])
+    tracked.append(hg.name)
+    red = next(s for s in c.squadrons.values() if s.side is player.side.enemy)
+    east = SEARCH_PARTY_DIST if player.side is Side.BLUE else -SEARCH_PARTY_DIST
+    party_at = Pos(x=pickup.x, z=pickup.z + east)
+    vg = m.vehicle_group(m.country(red.country), "Search party", vehicle_map["BRDM-2"],
+                         T.to_point(party_at), group_size=2)
+    v = m.vehicle("Search party AAA", vehicle_map["Ural-375 ZU-23"])
+    v.position = T.to_point(Pos(x=party_at.x + 60, z=party_at.z))
+    vg.add_unit(v)
+    vg.add_waypoint(T.to_point(pickup), PointAction.OffRoad, 15)
+    tracked.append(vg.name)
+    return {"helo": hg.name, "x": pickup.x, "z": pickup.z, "radius": PICKUP_RADIUS, "hold": PICKUP_HOLD,
+            "who": f"{pilot.rank} {pilot.name}", "callsign": "Dustoff 1"}
+
+
 def _theater(c: Campaign) -> dict:
     from cwdc.engine.factory import THEATERS
     return T.load_data(THEATERS[c.theater][0])
@@ -698,6 +743,11 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
             wp = g.add_waypoint(station, alt, speed, name="CAP")
             g.points[0].tasks = [t for t in g.points[0].tasks       # pydcs' empty default escort task
                                  if not isinstance(t, dtask.EscortTaskAction)]
+            if ai_flown and f.task is Task.RESCAP:
+                # cover the survivor: hit anything on the ground closing in
+                wp.tasks.append(dtask.OptROE(dtask.OptROE.Values.OpenFireWeaponFree))
+                wp.tasks.append(dtask.EngageTargetsInZone(station, RESCAP_ENGAGE_RADIUS,
+                                                          [dtask.Targets.All.GroundUnits]))
             if ai_flown and f.task in (Task.INTERCEPT, Task.SWEEP):
                 # scramble / sweep: engage whatever comes into the area
                 wp.tasks.append(dtask.EngageTargetsInZone(station, CAP_ENGAGE_RADIUS, [dtask.Targets.All.Air]))
@@ -739,6 +789,8 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
             g.land_at(airport)
         tracked.append(gname)
 
+    rescue_cfg = _rescue_party(m, c, player, player_eta, tracked) if player.task is Task.RESCAP else None
+
     # --- briefing
     sq = c.squadrons[player.squadron_id]
     lines = (["BOT MISSION (AI only): spectate with F10 / F2 and speed up with Ctrl+Z. It ends "
@@ -757,6 +809,12 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
                      f"{c.squadrons[raid.squadron_id].aircraft_type}) inbound"
                      + (f" to {rtgt.name}" if rtgt else "") + ". Meet it at the scramble point; "
                      "MAGIC (F10) will vector you.")
+    if rescue_cfg:
+        lat, lon = T.pos_to_latlon(player.area)
+        lines.append(f"RESCAP: {rescue_cfg['who']} is down and evading at {lat:.3f}N {lon:.3f}E. "
+                     f"{rescue_cfg['callsign']} (UH-1H) is inbound for the pickup; an enemy search party "
+                     "is closing in. Hold the area, keep the helicopter alive - the survivor pops green "
+                     "smoke when it is close.")
     if player.task is Task.SWEEP:
         lines.append("SWEEP: clear the enemy fighter patrol from the area before our strike arrives. "
                      "Don't get drawn deep into their SAM cover.")
@@ -830,7 +888,8 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
     intercept = ({"focus": [f"{player.id} {player.callsign}"], "targets": probes,
                   "range": INTERCEPT_RANGE, "hold": INTERCEPT_HOLD} if probes else None)
     inject_runtime(m, mission_id, tracked, end_when=end_when, tracked_statics=tracked_statics,
-                   roe="weapons_free" if c.at_war else "weapons_tight", intercept=intercept, magic=magic)
+                   roe="weapons_free" if c.at_war else "weapons_tight", intercept=intercept, magic=magic,
+                   rescue=rescue_cfg and {k: rescue_cfg[k] for k in ("helo", "x", "z", "radius", "hold")})
     out_dir.mkdir(parents=True, exist_ok=True)
     path = out_dir / mission_filename(c, player, bot)
     with tempfile.TemporaryDirectory() as tmp:

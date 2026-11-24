@@ -24,6 +24,7 @@ P_SAM = 0.05                     # per aircraft per covering SAM site (full stre
 P_AAA = 0.015                    # per aircraft per AAA gun at the target
 P_WEAPON = 0.45
 P_SEAD_HIT = 0.4
+P_CAPTURED = 0.5                 # crews down over enemy territory taken at once (else evading)
 FIGHTER_TASKS = (Task.CAP, Task.INTERCEPT, Task.SWEEP)   # fly an area and fight what comes
 AAA_TYPES = ("ZSU", "Vulcan", "Gepard", "Strela", "Chaparral", "ZU-23")
 RADAR_HINTS = ("SNR", "1S91", " sr", " tr", "p-19", "pcp", "str")
@@ -72,8 +73,12 @@ class _Sim:
                 st = PilotStatus.ACTIVE if roll < 0.8 else PilotStatus.WIA
                 out.append(PilotFate(pilot_id=pid, status=st, note="ejected and was recovered"))
             else:
-                st = PilotStatus.POW if roll < 0.7 else PilotStatus.MIA
-                out.append(PilotFate(pilot_id=pid, status=st, note="ejected over enemy territory"))
+                if roll < P_CAPTURED:
+                    out.append(PilotFate(pilot_id=pid, status=PilotStatus.POW,
+                                         note="ejected over enemy territory and was captured"))
+                else:                                    # evading: a RESCAP may still get them out
+                    out.append(PilotFate(pilot_id=pid, status=PilotStatus.MIA, pos=where,
+                                         note="ejected over enemy territory - evading capture"))
         return out
 
     def air_combat(self, a: Flight, b: Flight, a_factor: float = 1.0) -> None:

@@ -147,8 +147,8 @@ def _fate(c: Campaign, pilot_id: str, uname: str, ejected, landed: Pos | None,
     if T.side_at(c.front_line, lat, lon) is side:
         return PilotFate(pilot_id=pilot_id, status=PilotStatus.ACTIVE,
                          note=f"ejected over friendly territory and was recovered ({lat:.2f}N {lon:.2f}E)")
-    return PilotFate(pilot_id=pilot_id, status=PilotStatus.POW,
-                     note=f"ejected over enemy territory and was captured ({lat:.2f}N {lon:.2f}E)")
+    return PilotFate(pilot_id=pilot_id, status=PilotStatus.MIA, pos=where,
+                     note=f"ejected over enemy territory - evading capture ({lat:.2f}N {lon:.2f}E)")
 
 
 def _side_of(c: Campaign, entry: dict | None, obj: dict) -> Side | None:

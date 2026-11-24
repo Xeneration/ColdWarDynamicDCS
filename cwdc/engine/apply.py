@@ -47,6 +47,8 @@ def apply_results(c: Campaign, results: Iterable[SortieResult],
         for fate in r.pilot_fates:
             p = c.pilots[fate.pilot_id]
             p.status = fate.status
+            if fate.status is PilotStatus.MIA and fate.pos is not None:
+                p.down_pos, p.down_turn = fate.pos, c.turn          # evading: rescue possible
             if fate.status is PilotStatus.WIA:
                 p.recovery_turns = WIA_RECOVERY_TURNS
             if fate.status is not PilotStatus.ACTIVE or p.is_player:

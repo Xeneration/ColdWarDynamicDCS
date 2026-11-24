@@ -78,6 +78,8 @@ class Pilot(BaseModel):
     recovery_turns: int = 0
     role: CrewRole = CrewRole.PILOT
     fatigue: float = 0.0     # 0 = rested; grounded at engine.crews.GROUNDED
+    down_pos: Optional[Pos] = None     # evading behind enemy lines (MIA): where (engine.rescue)
+    down_turn: int = 0
 
 
 class AirframeStatus(str, Enum):
@@ -276,6 +278,7 @@ class PilotFate(BaseModel):
     pilot_id: str
     status: PilotStatus
     note: str = ""
+    pos: Optional[Pos] = None          # where an evading (MIA) crew came down
 
 
 class Kill(BaseModel):

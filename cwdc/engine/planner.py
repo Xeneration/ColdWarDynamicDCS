@@ -316,6 +316,18 @@ def _fighter_ops(c: Campaign, pools: dict, r) -> None:
     pool = pools.get(side)
     if pool is None:
         return
+    from cwdc.engine import rescue
+    for p in rescue.evaders(c, side)[:1]:              # a downed crew comes first
+        others = {s.id for s in c.squadrons.values() if s.side is side and not s.player_squadron}
+        sq, _ = pool.pick([Task.CAS, Task.CAP], near=p.down_pos, exclude=others)
+        sq = sq or pool.pick([Task.CAS, Task.CAP], near=p.down_pos)[0]
+        if sq is None:
+            break
+        pkg = _package(c, side, Task.RESCAP, f"RESCAP - cover the rescue of {p.rank} {p.name}",
+                       area=p.down_pos)
+        pkg.reason = f"{p.rank} {p.name} is down behind enemy lines and evading capture"
+        f = _flight(c, pool, sq, Task.RESCAP, pkg, area=p.down_pos)
+        f.rescue_of = p.id
     bases = [ab.pos for ab in c.airbases.values() if ab.side is side]
     raids = []
     for p in c.packages.values():
