@@ -357,7 +357,18 @@ def _land(g, airport, deck) -> None:
     mp.type, mp.action = "Land", PointAction.Landing
     mp.helipad_id = mp.link_unit = deck.units[0].id
     mp.alt, mp.speed, mp.properties = 0, 0, PointProperties()
+    mp.ETA_locked = False          # pydcs locks every raw MovingPoint's ETA; DCS rejects a 2nd time lock
     g.add_point(mp)
+
+
+def unlock_etas(m) -> None:
+    """Only an air group's first waypoint (its spawn time) may have a locked ETA. DCS warns
+    "waypoints have locked speed and surrounded by waypoints with locked time" otherwise."""
+    for co in m.coalition.values():
+        for country in co.countries.values():
+            for g in country.plane_group + country.helicopter_group:
+                for pt in g.points[1:]:
+                    pt.ETA_locked = False
 
 
 def _base(c: Campaign, f: Flight) -> Pos:
@@ -1095,6 +1106,7 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
                    rescue=rescue_cfg and {k: rescue_cfg[k] for k in ("helo", "x", "z", "radius", "hold")},
                    fac=fac_cfg,
                    impacts={"groups": [f"{player.id} {player.callsign}"]} if player.loadout == RUNWAY_LOADOUT else None)
+    unlock_etas(m)
     out_dir.mkdir(parents=True, exist_ok=True)
     path = out_dir / mission_filename(c, player, bot)
     with tempfile.TemporaryDirectory() as tmp:

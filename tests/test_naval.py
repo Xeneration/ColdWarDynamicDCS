@@ -65,6 +65,10 @@ def test_carrier_mission_launches_and_recovers_on_deck(navy):
              if g.name == f"{f.id} {f.callsign}")
     assert g.points[0].type == "TakeOff" and g.points[0].link_unit == cv.units[0].id
     assert g.points[-1].type == "Land" and g.points[-1].link_unit == cv.units[0].id
+    # only the spawn waypoint may have a locked time, or DCS warns about every carrier flight
+    air = [g for co in m.coalition.values() for cc in co.countries.values()
+           for g in cc.plane_group + cc.helicopter_group]
+    assert not [g.name for g in air if any(p.ETA_locked for p in g.points[1:])]
     assert all(rec.manifest[u.name]["kind"] == "objective" for u in cv.units)
 
 
