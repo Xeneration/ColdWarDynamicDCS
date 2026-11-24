@@ -49,7 +49,9 @@ CAN_FLY = {
     Task.STRIKE: [Task.STRIKE, Task.BAI, Task.INTERDICTION],
     Task.INTERDICTION: [Task.INTERDICTION, Task.STRIKE, Task.BAI],
     Task.SEAD: [Task.SEAD],
+    Task.ARMED_RECON: [Task.CAS, Task.BAI, Task.STRIKE],
 }
+ARMED_RECON_PER_DAY = 1      # NATO: one road hunt a day against a Warsaw Pact supply column
 
 DOCTRINE = {
     # NATO: one barrier CAP (the Hawk belt does the rest), escorts and SEAD for packages
@@ -255,11 +257,30 @@ def plan_turn(c: Campaign) -> None:
                 forced_oca = oca[0].target.id
                 side_needs.remove(oca[0])
                 side_needs.insert(0, oca[0])
+        player_left = sum(n for sq_id, n in pool.left.items() if c.squadrons[sq_id].player_squadron)
+        if side is Side.BLUE and c.counters.get(f"recon:{c.time:%Y%m%d}", 0) < ARMED_RECON_PER_DAY \
+                and player_left - (1 if forced_oca else 0) >= 2:
+            columns = [n for n in side_needs if n.target.kind is ObjectiveKind.CONVOY]
+            if columns:                               # the daily road hunt is flown, not out-scored
+                side_needs.remove(columns[0])
+                side_needs.insert(1 if forced_oca else 0, columns[0])
         wx = weather.strike_factor(c.weather)
         for need in side_needs:
             if need.target.id in taken:
                 continue
+            recon = (side is Side.BLUE and need.target.kind is ObjectiveKind.CONVOY
+                     and c.counters.get(f"recon:{c.time:%Y%m%d}", 0) < ARMED_RECON_PER_DAY)
             sq, task = pool.pick(CAN_FLY[need.task], near=need.target.pos)
+            if recon:                                 # a road hunt instead of a set-piece attack
+                own = {s.id for s in c.squadrons.values() if s.side is side and not s.player_squadron}
+                rsq, _ = pool.pick(CAN_FLY[Task.ARMED_RECON], near=need.target.pos, exclude=own)
+                rsq = rsq or pool.pick(CAN_FLY[Task.ARMED_RECON], near=need.target.pos)[0]
+                if rsq is not None and rsq.player_squadron and pool.left[rsq.id] < 2:
+                    rsq = None                        # keep the player's last sortie for the battlefield
+                if rsq is not None:
+                    sq, task = rsq, Task.ARMED_RECON
+                    need.label = "Armed recon"
+                    need.reason = "hunt the supply columns on the roads behind their front"
             if need.target.id == forced_oca:          # the player's squadron takes its turn on OCA
                 own = [s.id for s in c.squadrons.values() if s.side is side and not s.player_squadron]
                 psq, ptask = pool.pick(CAN_FLY[need.task], near=need.target.pos, exclude=set(own))
@@ -271,6 +292,9 @@ def plan_turn(c: Campaign) -> None:
                 pool.left[sq.id] -= 1                 # weather scrub: that sortie stays on the ground
                 continue
             taken.add(need.target.id)
+            if task is Task.ARMED_RECON:
+                key = f"recon:{c.time:%Y%m%d}"
+                c.counters[key] = c.counters.get(key, 0) + 1
             if need.target.id == forced_oca:
                 key = f"oca:{side.value}:{c.time:%Y%m%d}"
                 c.counters[key] = c.counters.get(key, 0) + 1

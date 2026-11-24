@@ -267,3 +267,19 @@ def test_rescue_pickup_after_the_helicopter_lands_at_the_survivor():
     lua.execute("run_due(35)")
     events = json.loads(lua.eval("CWDC_export()"))["events"]
     assert [e["event"] for e in events if e["event"] == "CWDC_PICKUP"] == ["CWDC_PICKUP"]
+
+
+def test_fac_checks_in_marks_and_remarks_on_request():
+    cfg = config_lua("t-006", ["BLUE-Hawk1"], fac={"callsign": "Wildcat 21", "target": "RED-Armor1",
+                                                    "focus": ["BLUE-Hawk1"], "range": 27800, "offset": 400,
+                                                    "interval": 300, "menu": True})
+    lua = mission_runtime(cfg, None, pre_runtime=UNITS)          # Hawk1 sits next to RED-Armor1 (both 0,0)
+    assert lua.eval("MENU[1].name") == "Wildcat 21: request new mark"
+    lua.execute("run_due(10)")
+    msgs = [lua.eval(f"MSGS[{i}]") for i in range(1, lua.eval("#MSGS") + 1)]
+    assert any("in sight" in m for m in msgs) and any("white smoke" in m and "Cleared hot" in m for m in msgs)
+    n = lua.eval("#MSGS")
+    lua.execute("run_due(100)")
+    assert lua.eval("#MSGS") == n                                # no new mark before the interval
+    lua.execute("MENU[1].fn(MENU[1].arg)")
+    assert "New mark" in lua.eval("MSGS[#MSGS]")

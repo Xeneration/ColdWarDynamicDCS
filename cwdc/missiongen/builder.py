@@ -183,6 +183,22 @@ def _kneeboard_info(c: Campaign, player: Flight, plan: Plan, group, lines: list[
         bullseye=bull, target=c.objectives[player.target_id].pos if player.target_id else None)
 
 
+ARMED_RECON_BOX = 30_000          # m: the road-hunting box around the column
+FAC_CALLSIGN = "Wildcat 21"       # airborne forward air controller (fictional callsign)
+FAC_RANGE = 27_800                # m (15 nm): the FAC checks the flight in and marks from here
+FAC_OFFSET = 400                  # m: the smoke goes down this far from the target
+FAC_INTERVAL = 300                # s between marks (smoke lasts about 5 min)
+
+
+def _move_toward_front(c: Campaign, group, dist: float = 15_000) -> None:
+    """Send a vehicle group down the road toward the nearest point of the front."""
+    from dcs.point import PointAction
+    here = Pos(x=group.units[0].position.x, z=group.units[0].position.y)
+    front = [T.latlon_to_pos(la, lo) for la, lo in c.front_line]
+    goal = min(front, key=lambda p: p.dist(here))
+    group.add_waypoint(T.to_point(_toward(here, goal, dist)), PointAction.OnRoad, 30)
+
+
 RESCAP_ENGAGE_RADIUS = 10_000     # m around the survivor an AI RESCAP attacks ground units
 HELO_SPEED = 180                  # km/h
 HELO_START = 60_000               # m from the survivor the rescue helicopter starts (our side)
@@ -777,6 +793,8 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
             for wp in (ipwp, twp):
                 if f.task is not Task.ESCORT:
                     wp.alt_type = "RADIO"  # low level means height above ground, not sea level
+            if f is player and f.task is Task.ARMED_RECON and f.target_id in obj_groups:
+                _move_toward_front(c, obj_groups[f.target_id])   # the column is on the move
             if ai_flown and f.target_id in static_targets:
                 # structures (rail yard, depot): bomb the site
                 twp.tasks.append(dtask.Bombing(T.to_point(static_targets[f.target_id]), group_attack=True))
@@ -790,6 +808,11 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
         tracked.append(gname)
 
     rescue_cfg = _rescue_party(m, c, player, player_eta, tracked) if player.task is Task.RESCAP else None
+    fac_cfg = None
+    if player.task is Task.CAS and player.target_id in obj_groups:
+        fac_cfg = {"callsign": FAC_CALLSIGN, "target": obj_groups[player.target_id].name,
+                   "focus": [f"{player.id} {player.callsign}"], "range": FAC_RANGE,
+                   "offset": FAC_OFFSET, "interval": FAC_INTERVAL, "menu": not bot}
 
     # --- briefing
     sq = c.squadrons[player.squadron_id]
@@ -809,6 +832,13 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
                      f"{c.squadrons[raid.squadron_id].aircraft_type}) inbound"
                      + (f" to {rtgt.name}" if rtgt else "") + ". Meet it at the scramble point; "
                      "MAGIC (F10) will vector you.")
+    if player.task is Task.ARMED_RECON and player.target_id:
+        lines.append(f"ARMED RECON: hunt along the roads within {ARMED_RECON_BOX // 1000} km of "
+                     f"{c.objectives[player.target_id].name} - the column is moving up to the front. "
+                     "Anything military in the box is fair game; mind the column's flak.")
+    if fac_cfg:
+        lines.append(f"FAC: {fac_cfg['callsign']} is working the target area. Check in on the F10 menu; "
+                     "he marks the target with white smoke and talks you on.")
     if rescue_cfg:
         lat, lon = T.pos_to_latlon(player.area)
         lines.append(f"RESCAP: {rescue_cfg['who']} is down and evading at {lat:.3f}N {lon:.3f}E. "
@@ -889,7 +919,8 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
                   "range": INTERCEPT_RANGE, "hold": INTERCEPT_HOLD} if probes else None)
     inject_runtime(m, mission_id, tracked, end_when=end_when, tracked_statics=tracked_statics,
                    roe="weapons_free" if c.at_war else "weapons_tight", intercept=intercept, magic=magic,
-                   rescue=rescue_cfg and {k: rescue_cfg[k] for k in ("helo", "x", "z", "radius", "hold")})
+                   rescue=rescue_cfg and {k: rescue_cfg[k] for k in ("helo", "x", "z", "radius", "hold")},
+                   fac=fac_cfg)
     out_dir.mkdir(parents=True, exist_ok=True)
     path = out_dir / mission_filename(c, player, bot)
     with tempfile.TemporaryDirectory() as tmp:

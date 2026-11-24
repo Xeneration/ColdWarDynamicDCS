@@ -499,6 +499,52 @@ objectives:
       - {type: M 818, dx: 90}
       - {type: M 818, dx: 120}
       - {type: Vulcan, dx: 60, dz: 40}
+  # Warsaw Pact road columns from the rail depots to the front (armed recon / interdiction)
+  - id: r_column_eisenach
+    name: "Supply column south-west of Eisenach"
+    kind: convoy
+    side: red
+    country: USSR
+    latlon: [50.95, 10.30]
+    value: 2
+    threat_range_km: 2
+    supply_link: l_erf_eis
+    units:
+      - {type: Ural-375}
+      - {type: Ural-375, dx: 30}
+      - {type: Ural-375, dx: 60}
+      - {type: Ural-375, dx: 90}
+      - {type: Ural-375 ZU-23, dx: 45, dz: 40}
+  - id: r_column_meiningen
+    name: "Supply column north of Meiningen"
+    kind: convoy
+    side: red
+    country: USSR
+    latlon: [50.62, 10.38]
+    value: 2
+    threat_range_km: 2
+    supply_link: l_erf_mei
+    units:
+      - {type: Ural-375}
+      - {type: Ural-375, dx: 30}
+      - {type: Ural-375, dx: 60}
+      - {type: Ural-375, dx: 90}
+      - {type: Ural-375, dx: 120}
+      - {type: Ural-375 ZU-23, dx: 60, dz: 40}
+  - id: r_column_schleusingen
+    name: "Supply column near Schleusingen"
+    kind: convoy
+    side: red
+    country: USSR
+    latlon: [50.51, 10.75]
+    value: 2
+    threat_range_km: 2
+    supply_link: l_erf_mei
+    units:
+      - {type: Ural-375}
+      - {type: Ural-375, dx: 30}
+      - {type: Ural-375, dx: 60}
+      - {type: Ural-375 ZU-23, dx: 30, dz: 40}
 
 # Logistics network (Phase 2): rail heads produce supply, links carry it (capacity per
 # 6 h turn), sector depots feed the formations. Every link has an interdiction target

@@ -111,3 +111,23 @@ def test_rescue_outcomes_pickup_capture_and_deadline():
     c.turn += rescue.EVADE_TURNS
     rescue.rescue_turn(c, [])
     assert p.status is PilotStatus.POW                       # evaded too long: caught
+
+
+def test_armed_recon_hunts_a_moving_supply_column():
+    c, f = _find(Task.ARMED_RECON)
+    tgt = c.objectives[f.target_id]
+    assert tgt.kind.value == "convoy" and tgt.side is Side.RED and f.loadout == "CAS_ROCKEYE"
+    rec = builder.build(c, f.id, Path(tempfile.mkdtemp()), start="air")
+    _, groups = _groups(rec)
+    column = groups[f"{tgt.id} {tgt.name}"]
+    assert len(column.points) >= 2                               # on the move toward the front
+    assert any(l.startswith("ARMED RECON:") for l in rec.briefing)
+
+
+def test_cas_missions_get_a_fac():
+    c, f = _find(Task.CAS)
+    rec = builder.build(c, f.id, Path(tempfile.mkdtemp()), start="air")
+    m, _ = _groups(rec)
+    cfg = str(next(a.dict() for t in m.triggerrules.triggers for a in t.actions if "CWDC_CONFIG" in str(a.dict())))
+    assert f'callsign = "{builder.FAC_CALLSIGN}"' in cfg and "menu = true" in cfg
+    assert any(l.startswith("FAC:") for l in rec.briefing)

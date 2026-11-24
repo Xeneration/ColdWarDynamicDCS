@@ -72,7 +72,7 @@ def test_escort_reduces_strike_losses():
     for seed in range(40):
         c = new_campaign("Esc", seed=seed)
         turn.end_turn(c)
-        pkg = next((p for p in c.packages.values() if p.side is Side.BLUE and not p.description.startswith("OCA")
+        pkg = next((p for p in c.packages.values() if p.side is Side.BLUE and p.target_id
                     and any(c.flights[f].task is Task.ESCORT for f in p.flight_ids)), None)
         if pkg is None:
             continue

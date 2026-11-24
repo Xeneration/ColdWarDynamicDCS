@@ -419,6 +419,91 @@ if CWDC.config.rescue then
 end
 
 ------------------------------------------------------------------------
+-- FAC: an airborne forward air controller marks the CAS target with white
+-- smoke (FAC_OFFSET m off it) once the flight is within `range`, and talks
+-- it on; marks again every `interval` s while the target lives. Players can
+-- ask for a new mark on the F10 menu.
+--   CWDC_CONFIG.fac = { callsign, target = group, focus = {groups}, range, offset, interval, menu }
+------------------------------------------------------------------------
+CWDC.fac_state = { checked_in = false, last_mark = -1e9 }
+local DIRS = { "north", "north-east", "east", "south-east", "south", "south-west", "west", "north-west" }
+
+local function fac_target()
+  local g = Group.getByName((CWDC.config.fac or {}).target or "")
+  if not g or not g:isExist() then return nil end
+  for _, u in ipairs(g:getUnits() or {}) do
+    if u and u:isExist() then return u, #g:getUnits() end
+  end
+end
+
+function CWDC.fac_mark(forced)
+  local fc = CWDC.config.fac
+  local tgt, n = fac_target()
+  if not fc or not tgt then return false end
+  local tp = tgt:getPoint()
+  local ang = math.rad((math.floor(timer.getTime()) * 47) % 360)      -- varies mark to mark
+  local off = fc.offset or 400
+  local sp = { x = tp.x + math.cos(ang) * off, y = tp.y, z = tp.z + math.sin(ang) * off }
+  if trigger.action.smoke then
+    trigger.action.smoke(sp, (trigger.smokeColor or {}).White or 2)
+  end
+  -- direction from the smoke to the target
+  local b = math.deg(math.atan2(tp.z - sp.z, tp.x - sp.x))
+  if b < 0 then b = b + 360 end
+  local dir = DIRS[math.floor((b + 22.5) / 45) % 8 + 1]
+  CWDC.fac_state.last_mark = timer.getTime()
+  trigger.action.outText(string.format("%s: %s. Target is %d vehicle%s, %d metres %s of the smoke. "
+      .. "Cleared hot.", fc.callsign or "FAC", forced and "New mark, white smoke" or "Marking with white smoke",
+      n, n == 1 and "" or "s", off, dir), 25)
+  return true
+end
+
+function CWDC.fac_check()
+  local fc = CWDC.config.fac
+  local tgt = fac_target()
+  if not fc or not tgt then return end
+  local tp = tgt:getPoint()
+  local close = false
+  for _, gname in ipairs(fc.focus or {}) do
+    local g = Group.getByName(gname)
+    if g and g:isExist() then
+      for _, u in ipairs(g:getUnits() or {}) do
+        if u and u:isExist() then
+          local p = u:getPoint()
+          if math.sqrt((p.x - tp.x) ^ 2 + (p.z - tp.z) ^ 2) <= (fc.range or 27800) then close = true end
+        end
+      end
+    end
+  end
+  if not close then return end
+  if not CWDC.fac_state.checked_in then
+    CWDC.fac_state.checked_in = true
+    trigger.action.outText((fc.callsign or "FAC") .. ": I have you in sight. Stand by for the mark.", 15)
+  end
+  if timer.getTime() - CWDC.fac_state.last_mark >= (fc.interval or 300) then CWDC.fac_mark(false) end
+end
+
+if CWDC.config.fac then
+  local fc = CWDC.config.fac
+  if fc.menu and missionCommands then
+    for _, gname in ipairs(fc.focus or {}) do
+      local g = Group.getByName(gname)
+      local gid = g and safe(function() return g:getID() end)
+      if gid then
+        missionCommands.addCommandForGroup(gid, (fc.callsign or "FAC") .. ": request new mark", nil,
+          function() CWDC.fac_mark(true) end, nil)
+      end
+    end
+  end
+  timer.scheduleFunction(function(_, t)
+    if CWDC.ended then return nil end
+    local ok, err = pcall(CWDC.fac_check)
+    if not ok then log("fac error: " .. tostring(err)) end
+    return t + 10
+  end, nil, timer.getTime() + 10)
+end
+
+------------------------------------------------------------------------
 -- MAGIC: ground-controlled intercept over the F10 radio menu
 --   CWDC_CONFIG.magic = { callsign = "MAGIC", side = 2, groups = {player groups},
 --                         radars = {friendly EWR / SAM / fighter groups},
