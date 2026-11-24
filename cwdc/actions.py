@@ -66,14 +66,21 @@ def current_id() -> str | None:
 
 
 def create(name: str, seed: int = 1976, pilot: str = "Player", force: bool = False,
-           crisis: bool = True) -> Campaign:
-    """crisis=True (players): the campaign opens with the pre-war crisis."""
+           crisis: bool = True, setup=None) -> Campaign:
+    """crisis=True (players): the campaign opens with the pre-war crisis. `setup`
+    (engine.generate.Setup): a campaign-maker war for any year instead of the Fulda 1976 preset."""
     from cwdc.engine.factory import new_campaign, slug
     if not name.strip():
         raise ActionError("the campaign needs a name")
     if (store.campaign_dir(slug(name)) / "campaign.json").exists() and not force:
         raise ActionError(f"campaign '{slug(name)}' exists - choose overwrite to replace it")
-    c = new_campaign(name, seed=seed, player_name=pilot or "Player", crisis=crisis)
+    if setup is not None:
+        from cwdc.engine import generate
+        try:
+            generate.validate(setup)
+        except generate.SetupError as e:
+            raise ActionError(str(e)) from None
+    c = new_campaign(name, seed=seed, player_name=pilot or "Player", crisis=crisis, setup=setup)
     old = store.campaign_dir(c.id)
     if old.exists():                           # overwrite: drop the old campaign's snapshots too
         shutil.rmtree(old)

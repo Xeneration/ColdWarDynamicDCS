@@ -1,0 +1,19 @@
+# Campaign-maker presets: a saved slider position plus toggles. `fixed: true` = a hand-written
+# campaign (the original Fulda 1976 order of battle), not generated.
+presets:
+  fulda-1976:
+    name: "Fulda Gap 1976"
+    fixed: true
+    blurb: "The original campaign: USAFE F-4Es against the Group of Soviet Forces in Germany."
+  sabre-days-1957:
+    name: "Sabre Days 1957"
+    setup: {theatre: germany, year: 1957, player_airframe: F-100D}
+    blurb: "Guns, Sidewinders and Super Sabres. No SAMs yet - only flak, and lots of it."
+  phantoms-and-viggens-1975:
+    name: "Phantoms and Viggens 1975"
+    setup: {theatre: germany, year: 1975, sweden: true, player_airframe: F-4E}
+    blurb: "Sweden joins the West. Phantoms, Viggens and Starfighters against SA-6s and MiG-23s."
+  hog-country-1985:
+    name: "Hog Country 1985"
+    setup: {theatre: germany, year: 1985, player_airframe: A-10A}
+    blurb: "A-10s in the Fulda Gap against T-80s, Su-25s and the full Soviet air defence belt."

@@ -17,25 +17,50 @@ def slug(name: str) -> str:
     return re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-") or "campaign"
 
 
+def campaign_data(c: Campaign) -> tuple[dict, dict]:
+    """(theatre data, order of battle) a campaign was built from: the preset files, or for a
+    campaign-maker war the theatre re-equipped for its year and the generated OOB."""
+    if c.era:
+        from cwdc.engine import generate
+        setup = generate.Setup(**c.era)
+        return generate.adapt_theatre(setup, c.seed), generate.oob(setup, c.seed)
+    th_file, oob_file = THEATERS[c.theater]
+    return T.load_data(th_file), T.load_data(oob_file)
+
+
 def new_campaign(name: str, seed: int = 1976, theater: str = "fulda_1976",
-                 player_name: str = "Player", crisis: bool = False) -> Campaign:
+                 player_name: str = "Player", crisis: bool = False, setup=None) -> Campaign:
     """crisis=True opens with the pre-war crisis (engine.crisis); False starts on day 1 of the war
-    (tests, balance runs)."""
-    th_file, oob_file = THEATERS[theater]
-    th = T.load_data(th_file)
-    oob = T.load_data(oob_file)
+    (tests, balance runs). `setup` (engine.generate.Setup) builds a campaign-maker war for any year
+    on the theatre's geography; without it the preset's hand-written OOB is used."""
+    if setup is not None:
+        from cwdc.engine import generate
+        th = generate.adapt_theatre(setup, seed)
+        oob = generate.oob(setup, seed)
+        theater = next(k for k, v in THEATERS.items() if v[0] == generate.THEATRE_FILES[setup.theatre])
+    else:
+        th_file, oob_file = THEATERS[theater]
+        th = T.load_data(th_file)
+        oob = T.load_data(oob_file)
     names = T.load_data("names.yaml")
     terrain = T.terrain()
     r = rng(seed, 0, "factory")
 
     c = Campaign(id=slug(name), name=name, seed=seed, theater=theater,
                  time=datetime.fromisoformat(th["start"]), turn_hours=th["turn_hours"])
+    if setup is not None:
+        c.era = setup.as_dict()
     c.front_line = [tuple(p) for p in th["front_line"]]
     c.base_front_line = list(c.front_line)
     c.cap_stations = {Side(s): [T.latlon_to_pos(*ll) for ll in pts]
                       for s, pts in th["cap_stations"].items()}
 
-    for ab in th["airbases"]:
+    bases = list(th["airbases"])
+    for sq in oob["squadrons"]:                 # campaign-maker squadrons bring their airfield
+        b = sq.get("base_spec")
+        if b and all(x["id"] != b["id"] for x in bases):
+            bases.append({**b, "side": sq["side"]})
+    for ab in bases:
         ap = terrain.airports[ab["dcs_name"]]
         c.airbases[ab["id"]] = Airbase(id=ab["id"], dcs_name=ab["dcs_name"], side=Side(ab["side"]),
                                        pos=Pos(x=ap.position.x, z=ap.position.y))
@@ -54,7 +79,9 @@ def new_campaign(name: str, seed: int = 1976, theater: str = "fulda_1976",
                      aircraft_type=sq["aircraft_type"], base_id=sq["base"], callsign=sq["callsign"],
                      tasks=[Task(t) for t in sq["tasks"]],
                      player_squadron=sq.get("player_squadron", False), sorties=sq.get("sorties", 0),
-                     establishment_airframes=sq["airframes"], establishment_pilots=sq["pilots"])
+                     establishment_airframes=sq["airframes"], establishment_pilots=sq["pilots"],
+                     airframe=sq.get("airframe"), air_rating=sq.get("air_rating"),
+                     strike_rating=sq.get("strike_rating"))
         c.squadrons[s.id] = s
         tails = r.sample(range(100, 999), sq["airframes"])
         for t in sorted(tails):
@@ -82,7 +109,8 @@ def new_campaign(name: str, seed: int = 1976, theater: str = "fulda_1976",
     else:
         from cwdc.engine import news
         news.post(c, f"{c.time:%d %b %Y}: Warsaw Pact forces have crossed the inner German border. "
-                  "USAFE squadrons are committed to the defence of the Fulda Gap.", "military")
+                  f"{'NATO' if setup is not None else 'USAFE'} squadrons are committed to the defence "
+                  "of the Fulda Gap.", "military")
     weather.initial(c)
     planner.plan_turn(c)
     return c
@@ -155,8 +183,7 @@ def sync_theater(c: Campaign) -> list[str]:
 
     Existing objectives (and their damage) are never touched. Returns names added.
     """
-    th = T.load_data(THEATERS[c.theater][0])
-    oob = T.load_data(THEATERS[c.theater][1])
+    th, oob = campaign_data(c)
     added = []
     if not c.base_front_line:
         c.base_front_line = [tuple(p) for p in th["front_line"]]

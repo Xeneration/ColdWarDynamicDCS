@@ -621,3 +621,36 @@ map_labels:
     - {name: Karl-Marx-Stadt, latlon: [50.83, 12.92], rank: 1}
     - {name: Leipzig, latlon: [51.34, 12.37], rank: 1}
     - {name: Halle, latlon: [51.48, 11.97], rank: 1}
+
+# Campaign maker (era generator): where squadrons can be based and how many fly per side.
+# The Fulda 1976 preset ignores this and uses oob_fulda_1976.yaml as it always has.
+generator:
+  theatre: germany
+  title: "Central Front"
+  lead: {west: USA, east: USSR}          # takes over formations/objectives of nations not in the war
+  squadrons:                             # AI squadrons per side (the player's squadron comes on top)
+    west: {fighter: 2, strike: 2}
+    east: {fighter: 3, strike: 2}
+  bases:                                 # candidate airfields, nearest the front first per side
+    west:
+      - {id: rheinmain, dcs_name: Frankfurt, name: Rhein-Main AB, nations: [USA]}
+      - {id: wiesbaden, dcs_name: Wiesbaden, name: Wiesbaden AB, nations: [USA, France]}
+      - {id: gutersloh, dcs_name: Gutersloh, name: RAF Gütersloh, nations: [UK, Canada]}
+      - {id: wunstorf, dcs_name: Wunstorf, name: Wunstorf, nations: [West Germany, Netherlands, Norway, Denmark]}
+      - {id: pferdsfeld, dcs_name: Pferdsfeld, name: Pferdsfeld, nations: [West Germany, Italy]}
+      - {id: sembach, dcs_name: Sembach, name: Sembach AB, nations: [USA]}
+      - {id: hahn, dcs_name: Hahn, name: Hahn AB, nations: [USA]}
+      - {id: buchel, dcs_name: Buchel, name: Büchel, nations: [West Germany, Belgium]}
+      - {id: ramstein, dcs_name: Ramstein, name: Ramstein AB, nations: [USA, Sweden]}
+      - {id: norvenich, dcs_name: Norvenich, name: Nörvenich, nations: [West Germany, Belgium, Netherlands]}
+      - {id: spangdahlem, dcs_name: Spangdahlem, name: Spangdahlem AB, nations: [USA]}
+      - {id: bitburg, dcs_name: Bitburg, name: Bitburg AB, nations: [USA, Canada]}
+    east:
+      - {id: allstedt, dcs_name: Allstedt, name: Allstedt, nations: [USSR]}
+      - {id: zerbst, dcs_name: Zerbst, name: Zerbst, nations: [USSR]}
+      - {id: kothen, dcs_name: Kothen, name: Koethen, nations: [USSR]}
+      - {id: merseburg, dcs_name: Merseburg, name: Merseburg, nations: [USSR]}
+      - {id: brandis, dcs_name: Brandis, name: Brandis, nations: [USSR, Czechoslovakia]}
+      - {id: holzdorf, dcs_name: Holzdorf, name: Holzdorf, nations: [GDR, Poland]}
+      - {id: falkenberg, dcs_name: Falkenberg, name: Falkenberg, nations: [USSR, Hungary]}
+      - {id: brand, dcs_name: Brand, name: Brand, nations: [USSR]}

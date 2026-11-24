@@ -26,13 +26,17 @@ P_WEAPON = 0.45
 P_SEAD_HIT = 0.4
 P_CAPTURED = 0.5                 # crews down over enemy territory taken at once (else evading)
 FIGHTER_TASKS = (Task.CAP, Task.INTERCEPT, Task.SWEEP)   # fly an area and fight what comes
-AAA_TYPES = ("ZSU", "Vulcan", "Gepard", "Strela", "Chaparral", "ZU-23")
+AAA_TYPES = ("ZSU", "Vulcan", "Gepard", "Strela", "Chaparral", "ZU-23",
+             "bofors", "Quadmount", "KS-19", "S-60", "flak", "Osa", "Roland ADS", "rapier_fsa_launcher")   # + campaign-maker eras
 RADAR_HINTS = ("SNR", "1S91", " sr", " tr", "p-19", "pcp", "str")
 
 
 def _rating(c: Campaign, f: Flight, key: str) -> float:
-    t = c.squadrons[f.squadron_id].aircraft_type
-    return T.airframe_catalogue().get(t, {}).get(key, 0.8)
+    sq = c.squadrons[f.squadron_id]
+    own = getattr(sq, key, None)               # air_rating / strike_rating
+    if own is not None:
+        return own
+    return T.airframe_catalogue().get(sq.aircraft_type, {}).get(key, 0.8)
 
 
 class _Sim:
@@ -82,8 +86,8 @@ class _Sim:
         return out
 
     def air_combat(self, a: Flight, b: Flight, a_factor: float = 1.0) -> None:
-        ra = _rating(self.c, a, "air_rating") * a_factor * crews.performance(self.c, a)
-        rb = _rating(self.c, b, "air_rating") * crews.performance(self.c, b)
+        ra = max(0.05, _rating(self.c, a, "air_rating")) * a_factor * crews.performance(self.c, a)
+        rb = max(0.05, _rating(self.c, b, "air_rating")) * crews.performance(self.c, b)
         pa = min(0.4, max(0.03, BASE_AIR_LOSS * rb / ra))
         pb = min(0.4, max(0.03, BASE_AIR_LOSS * ra / rb))
         where = self.where(b) if b.task is Task.CAP else self.where(a)

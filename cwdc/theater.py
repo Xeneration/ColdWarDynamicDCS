@@ -86,4 +86,8 @@ def side_at_pos(front_line, pos: Pos) -> Side:
 
 @lru_cache(maxsize=1)
 def airframe_catalogue() -> dict[str, dict]:
-    return load_data("airframes.yaml")
+    """Per-DCS-type flight data: hand-written airframes.yaml over era-database defaults."""
+    from cwdc import era
+    out = era.catalogue_defaults()
+    out.update(load_data("airframes.yaml"))
+    return out

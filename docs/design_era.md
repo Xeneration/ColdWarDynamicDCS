@@ -127,3 +127,47 @@ Treat **every DCS module as available**: the user owns many more than are instal
 - **Open for Phase C:**
   - AI-only types from modules you don't own (MiG-21Bis, MiG-15bis, MiG-19P, F-86F, Mirage F1, M-2000C, AV-8B, A-6E, L-39ZA) have no payload files on this install. Planned answer: hand-written, era-filtered AI loadouts, validated against pydcs pylon data. For AI, DCS does not strip stores the way it does for the player's module.
   - Transports, tankers and AWACS need no payloads.
+
+### Phase B: the generator (2026-11-24, done)
+
+- **`cwdc/engine/generate.py`:**
+  - `Setup` holds theatre, year, side, nations, Sweden, strict, player airframe, plus the owned modules, mods and asset packs.
+  - `oob()` builds the player's squadron, then per side 2+2 (West) and 3+2 (East) AI squadrons:
+    - Fighters and strikers are drawn from the airframes in service, weighted by nation (USA and USSR heaviest). Stand-ins count half, bombers half, and a repeated airframe a quarter.
+    - Squadrons are named per nation (`data/era/units.yaml`), and West ones get DCS western callsigns.
+    - Each is based on the theatre's candidate airfields (`generator.bases`), matched to its nation, with the player nearest the front.
+    - Tasks come from the role, with SEAD only once the type's anti-radiation missile exists that year.
+  - Formations of nations not in the war pass to the lead nation.
+  - `adapt_theatre()` re-equips each objective for the year:
+    - **SAM sites:** keep their system if it is in service (35% chance of a newer one). Otherwise they get another system of the same class, falling back long → medium → short → AAA. Before 1959 every site is a flak battery. Each is re-laid out, with its range and name updated.
+    - **Vehicles:** modernised per type (70% when a successor is 8+ years newer), or replaced by role.
+    - **Dates:** the start and crisis dates move to the year.
+- **Factory:**
+  - `new_campaign(..., setup=)` builds a generated war and adds the squadrons' airfields. `Campaign.era` stores the setup.
+  - `campaign_data(c)` gives `sync_theater` the adapted theatre, so nothing from 1976 reappears.
+  - **The Fulda 1976 preset is unchanged:** its hand-written OOB and its balance numbers stay the same.
+- **Squadrons:** they carry an era airframe id and their own air/strike ratings (stand-ins share a DCS type). The resolver uses those ratings.
+- **Airframe catalogue:** era defaults (flight profile by role, crew, flyable) sit under `airframes.yaml`.
+- **Loadouts:**
+  - For a campaign-maker war, the builder uses a named loadout only if all its stores existed that year.
+  - Otherwise it uses `era.pick_payload(type, year, air|ground|sead)`, the most-shipped era-valid payload.
+  - Airfield flak is the newest AAA of the year.
+- **Simulation:** it now counts period flak (Bofors, quad .50, KS-19, S-60, ZSU-57-2, Osa, Roland, Rapier).
+- **Coalitions:** every nation in `nations.yaml`.
+- **Presets** (`data/era/presets.yaml`): fulda-1976 (fixed), sabre-days-1957, phantoms-and-viggens-1975, hog-country-1985.
+- **CLI:** `cwdc new --year Y [--aircraft ID] [--sweden] [--strict]` or `--preset ID`.
+- **Balance** (`tools.balance --year Y`, 6 seeds × 21 days):
+
+  | | NATO loss / sortie | WP loss / sortie |
+  |---|---|---|
+  | Preset | 3.4% | 5.1% |
+  | 1957 | 3.4% | 3.8% |
+  | 1966 | 4.0% | 2.4% |
+  | 1976 | 3.2% | 4.6% |
+  | 1985 | 3.2% | 5.2% |
+
+  Outcomes in every era resemble the preset: mostly stalemate or NATO holds, with an occasional Warsaw Pact victory. Per-era tuning is Phase G.
+- **Open:**
+  - The East side (player) is refused for now.
+  - AI types without shipped payloads (MiG-21, MiG-15, F-86, Mirage F1 ...) use pydcs task defaults, which are not year-filtered (Phase C).
+  - Helicopters and carrier squadrons are not generated yet (carrier types only as the player's choice).

@@ -42,9 +42,26 @@ def _next(c: Campaign, hint: str = "") -> None:
 
 def cmd_new(args) -> None:
     from cwdc import actions
+    setup = None
+    if args.preset:
+        from cwdc.engine import generate
+        from cwdc.era import modules
+        try:
+            setup = generate.preset_setup(args.preset, modules.detect())
+        except generate.SetupError as e:
+            raise SystemExit(str(e))
+        if args.name == DEFAULT_NAME:
+            args.name = generate.presets()[args.preset]["name"]
+    elif args.year is not None:
+        from cwdc.engine import generate
+        from cwdc.era import modules
+        setup = generate.setup_from_installed(modules.detect(), year=args.year, sweden=args.sweden,
+                                              strict=args.strict, player_airframe=args.aircraft)
+        if args.name == DEFAULT_NAME:
+            args.name = f"Central Front {args.year}"
     try:
         c = actions.create(args.name, seed=args.seed, pilot=args.pilot, force=args.force,
-                           crisis=not args.no_crisis)
+                           crisis=not args.no_crisis, setup=setup)
     except actions.ActionError as e:
         raise SystemExit(str(e).replace("choose overwrite to replace it", "use --force to overwrite"))
     print(f"New campaign '{c.name}' ({c.id}) created: {store.campaign_dir(c.id) / 'campaign.json'}")
@@ -280,9 +297,20 @@ def cmd_rollback(args) -> None:
     print(f"Rolled back to the start of turn {c.turn} ({c.time:%d %b %H:%M}).")
 
 
+DEFAULT_NAME = "Fulda Gap 1976"
+
+
 def register(sub) -> None:
     p = sub.add_parser("new", help="start a new campaign")
-    p.add_argument("--name", default="Fulda Gap 1976")
+    p.add_argument("--name", default=DEFAULT_NAME)
+    p.add_argument("--year", type=int, help="campaign maker: fight the war in this year (1950-1991) "
+                   "with the aircraft and weapons of the time; omit for the Fulda 1976 preset")
+    p.add_argument("--aircraft", help="campaign maker: the airframe you fly (era id, e.g. F-100D, F-4E, "
+                   "A-4E, Jaguar); default: the first module you own in service that year")
+    p.add_argument("--preset", help="campaign maker preset: fulda-1976, sabre-days-1957, "
+                   "phantoms-and-viggens-1975, hog-country-1985")
+    p.add_argument("--sweden", action="store_true", help="campaign maker: Sweden joins the West")
+    p.add_argument("--strict", action="store_true", help="campaign maker: no stand-in aircraft")
     p.add_argument("--seed", type=int, default=1976)
     p.add_argument("--pilot", default="Player", help="your pilot's name")
     p.add_argument("--force", action="store_true")

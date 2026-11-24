@@ -43,7 +43,7 @@ def begin(c: Campaign) -> None:
     rules = crisis_rules(c)
     r = rng(c.seed, 0, "crisis")
     c.phase = "crisis"
-    c.time = datetime.fromisoformat(rules["start"])
+    c.time = datetime.fromisoformat(rules["start"]).replace(year=c.time.year)   # campaign-maker year
     c.tension = rules.get("tension_start", TENSION_START)
     lo, hi = rules.get("turns", (8, 16))
     c.crisis_deadline_turn = 1 + r.randint(lo, hi)

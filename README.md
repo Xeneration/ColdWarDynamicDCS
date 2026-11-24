@@ -10,6 +10,12 @@ results back after you fly, so the war moves on.
 > Status: **Phases 1–4** done: the campaign engine, the web UI, unattended soak testing, and the
 > crisis and immersion features. Phase 5 (polish) is next. See [docs/design.md](docs/design.md)
 > for the full design and roadmap.
+>
+> **Next stage: the Cold War campaign maker (1950–1991).** Pick a year, and the war is built
+> with the aircraft, weapons, SAMs and tanks of that year, flown by every West and East nation.
+> The Fulda 1976 concept is frozen as the tag `v0.4-fulda-1976`. Phases A (era data) and B (the
+> generator) are done; the year-slider screen comes in Phase D. See
+> [docs/design_era.md](docs/design_era.md).
 
 ## The campaign in brief (Phase 4)
 - **The crisis (11 Aug 1976):** every new campaign opens 2–4 days before the war.
@@ -30,6 +36,15 @@ it if it's already running, and opens it in your browser. **ColdWarDynamic + DCS
 DCS World. **ColdWarDynamic overnight soak** runs the 8-hour, 2-instance soak test.
 The shortcuts are created with `.\.venv\Scripts\python.exe -m cwdc shortcuts`; run it again if you
 move the project folder. `cwdc start [--dcs]` does the same from a terminal.
+
+## A war in any year (campaign maker, command line for now)
+```powershell
+.\.venv\Scripts\python.exe -m cwdc new --year 1966
+```
+- **What you fly:** the first of your own modules in service that year, picked automatically. Choose one with `--aircraft F-100D` (or F-4E, A-4E, A-10A, Viggen, ...).
+- **Options:** `--sweden` brings Sweden in on the West, and `--strict` drops stand-in aircraft.
+- **Presets:** `--preset` with sabre-days-1957, phantoms-and-viggens-1975, hog-country-1985 or fulda-1976 (the original campaign).
+- **Without `--year`:** you get the Fulda 1976 campaign exactly as before.
 
 ## Missions you can fly
 Your squadron (496th TFS, F-4E) flies 4 sorties a turn. One is held back as an alert reserve for scrambles, escorts and sweeps. Each war day it also gets one "special", in rotation: an airfield attack, Iron Hand, a runway attack, then a precision strike.

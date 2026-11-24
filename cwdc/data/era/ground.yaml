@@ -5,43 +5,43 @@
 # Air defence `kind`: aaa | sam_short | sam_medium | sam_long | ewr
 air_defence:
   # ---------------------------------------------------------------- East
-  KS-19:      {side: east, kind: aaa, years: [1950, 1975], name: "KS-19 100 mm AAA", units: [KS-19]}
-  S-60:       {side: east, kind: aaa, years: [1950, 1991], name: "S-60 57 mm AAA", units: [S-60_Type59_Artillery]}
-  ZSU-57-2:   {side: east, kind: aaa, years: [1957, 1975], name: "ZSU-57-2", units: [ZSU_57_2]}
-  ZU-23:      {side: east, kind: aaa, years: [1960, 1991], name: "ZU-23-2", units: [ZU-23 Emplacement, Ural-375 ZU-23]}
-  ZSU-23-4:   {side: east, kind: aaa, years: [1965, 1991], name: "ZSU-23-4 Shilka", units: [ZSU-23-4 Shilka]}
-  SA-2:       {side: east, kind: sam_medium, years: [1959, 1991], name: "SA-2 Guideline",
+  KS-19:      {side: east, kind: aaa, years: [1950, 1975], range_km: 10, name: "KS-19 100 mm AAA", units: [KS-19]}
+  S-60:       {side: east, kind: aaa, years: [1950, 1991], range_km: 6, name: "S-60 57 mm AAA", units: [S-60_Type59_Artillery]}
+  ZSU-57-2:   {side: east, kind: aaa, years: [1957, 1975], range_km: 4, name: "ZSU-57-2", units: [ZSU_57_2]}
+  ZU-23:      {side: east, kind: aaa, years: [1960, 1991], range_km: 2.5, name: "ZU-23-2", units: [ZU-23 Emplacement, Ural-375 ZU-23]}
+  ZSU-23-4:   {side: east, kind: aaa, years: [1965, 1991], range_km: 2.5, name: "ZSU-23-4 Shilka", units: [ZSU-23-4 Shilka]}
+  SA-2:       {side: east, kind: sam_medium, years: [1959, 1991], range_km: 40, name: "SA-2 Guideline",
                units: [SNR_75V, S_75M_Volhov, S_75M_Volhov, S_75M_Volhov, RD_75]}
-  SA-3:       {side: east, kind: sam_medium, years: [1961, 1991], name: "SA-3 Goa",
+  SA-3:       {side: east, kind: sam_medium, years: [1961, 1991], range_km: 20, name: "SA-3 Goa",
                units: [snr s-125 tr, p-19 s-125 sr, 5p73 s-125 ln, 5p73 s-125 ln]}
-  SA-6:       {side: east, kind: sam_medium, years: [1970, 1991], name: "SA-6 Gainful",
+  SA-6:       {side: east, kind: sam_medium, years: [1970, 1991], range_km: 25, name: "SA-6 Gainful",
                units: [Kub 1S91 str, Kub 2P25 ln, Kub 2P25 ln, Kub 2P25 ln]}
-  SA-9:       {side: east, kind: sam_short, years: [1968, 1991], name: "SA-9 Gaskin", units: [Strela-1 9P31]}
-  SA-8:       {side: east, kind: sam_short, years: [1974, 1991], name: "SA-8 Gecko", units: [Osa 9A33 ln]}
-  SA-13:      {side: east, kind: sam_short, years: [1979, 1991], name: "SA-13 Gopher", units: [Strela-10M3]}
-  SA-11:      {side: east, kind: sam_medium, years: [1983, 1991], name: "SA-11 Gadfly", nations: [USSR],
+  SA-9:       {side: east, kind: sam_short, years: [1968, 1991], range_km: 4, name: "SA-9 Gaskin", units: [Strela-1 9P31]}
+  SA-8:       {side: east, kind: sam_short, years: [1974, 1991], range_km: 10, name: "SA-8 Gecko", units: [Osa 9A33 ln]}
+  SA-13:      {side: east, kind: sam_short, years: [1979, 1991], range_km: 5, name: "SA-13 Gopher", units: [Strela-10M3]}
+  SA-11:      {side: east, kind: sam_medium, years: [1983, 1991], range_km: 35, name: "SA-11 Gadfly", nations: [USSR],
                units: [SA-11 Buk SR 9S18M1, SA-11 Buk CC 9S470M1, SA-11 Buk LN 9A310M1, SA-11 Buk LN 9A310M1]}
-  SA-19:      {side: east, kind: sam_short, years: [1984, 1991], name: "SA-19 Tunguska", nations: [USSR], units: [2S6 Tunguska]}
-  SA-15:      {side: east, kind: sam_short, years: [1986, 1991], name: "SA-15 Gauntlet", nations: [USSR], units: [Tor 9A331]}
-  SA-10:      {side: east, kind: sam_long, years: [1982, 1991], name: "SA-10 Grumble", nations: [USSR],
+  SA-19:      {side: east, kind: sam_short, years: [1984, 1991], range_km: 8, name: "SA-19 Tunguska", nations: [USSR], units: [2S6 Tunguska]}
+  SA-15:      {side: east, kind: sam_short, years: [1986, 1991], range_km: 12, name: "SA-15 Gauntlet", nations: [USSR], units: [Tor 9A331]}
+  SA-10:      {side: east, kind: sam_long, years: [1982, 1991], range_km: 75, name: "SA-10 Grumble", nations: [USSR],
                units: [S-300PS 40B6MD sr, S-300PS 40B6M tr, S-300PS 54K6 cp, S-300PS 5P85C ln, S-300PS 5P85D ln]}
-  P-19:       {side: east, kind: ewr, years: [1962, 1991], name: "P-19 Flat Face", units: [p-19 s-125 sr]}
-  1L13:       {side: east, kind: ewr, years: [1950, 1991], name: "Early warning radar", units: [1L13 EWR]}
+  P-19:       {side: east, kind: ewr, years: [1962, 1991], range_km: 0, name: "P-19 Flat Face", units: [p-19 s-125 sr]}
+  1L13:       {side: east, kind: ewr, years: [1950, 1991], range_km: 0, name: "Early warning radar", units: [1L13 EWR, 55G6 EWR]}
   # ---------------------------------------------------------------- West
-  Bofors:     {side: west, kind: aaa, years: [1950, 1991], name: "Bofors 40 mm", units: [bofors40]}
-  Quad-50:    {side: west, kind: aaa, years: [1950, 1965], name: "M45 Quadmount", units: [M45_Quadmount]}
-  Vulcan:     {side: west, kind: aaa, years: [1968, 1991], name: "M163 Vulcan", nations: [USA], units: [Vulcan]}
-  Gepard:     {side: west, kind: aaa, years: [1976, 1991], name: "Gepard", nations: [West Germany, Netherlands, Belgium], units: [Gepard]}
-  Hawk:       {side: west, kind: sam_medium, years: [1960, 1991], name: "MIM-23 Hawk",
+  Bofors:     {side: west, kind: aaa, years: [1950, 1991], range_km: 3, name: "Bofors 40 mm", units: [bofors40]}
+  Quad-50:    {side: west, kind: aaa, years: [1950, 1965], range_km: 1.5, name: "M45 Quadmount", units: [M45_Quadmount]}
+  Vulcan:     {side: west, kind: aaa, years: [1968, 1991], range_km: 2, name: "M163 Vulcan", nations: [USA], units: [Vulcan]}
+  Gepard:     {side: west, kind: aaa, years: [1976, 1991], range_km: 3.5, name: "Gepard", nations: [West Germany, Netherlands, Belgium], units: [Gepard]}
+  Hawk:       {side: west, kind: sam_medium, years: [1960, 1991], range_km: 35, name: "MIM-23 Hawk",
                units: [Hawk sr, Hawk tr, Hawk pcp, Hawk ln, Hawk ln, Hawk ln]}
-  Chaparral:  {side: west, kind: sam_short, years: [1969, 1991], name: "M48 Chaparral", nations: [USA], units: [M48 Chaparral]}
-  Rapier:     {side: west, kind: sam_short, years: [1971, 1991], name: "Rapier", nations: [UK],
+  Chaparral:  {side: west, kind: sam_short, years: [1969, 1991], range_km: 5, name: "M48 Chaparral", nations: [USA], units: [M48 Chaparral]}
+  Rapier:     {side: west, kind: sam_short, years: [1971, 1991], range_km: 7, name: "Rapier", nations: [UK],
                units: [rapier_fsa_blindfire_radar, rapier_fsa_optical_tracker_unit, rapier_fsa_launcher]}
-  Roland:     {side: west, kind: sam_short, years: [1981, 1991], name: "Roland", nations: [West Germany, France, USA],
+  Roland:     {side: west, kind: sam_short, years: [1981, 1991], range_km: 8, name: "Roland", nations: [West Germany, France, USA],
                units: [Roland Radar, Roland ADS]}
-  Patriot:    {side: west, kind: sam_long, years: [1985, 1991], name: "MIM-104 Patriot", nations: [USA, West Germany, Netherlands],
+  Patriot:    {side: west, kind: sam_long, years: [1985, 1991], range_km: 70, name: "MIM-104 Patriot", nations: [USA, West Germany, Netherlands],
                units: [Patriot str, Patriot ECS, Patriot cp, Patriot EPP, Patriot AMG, Patriot ln, Patriot ln]}
-  FPS-117:    {side: west, kind: ewr, years: [1950, 1991], name: "Early warning radar", units: [FPS-117]}
+  FPS-117:    {side: west, kind: ewr, years: [1950, 1991], range_km: 0, name: "Early warning radar", units: [FPS-117, FPS-117 Dome]}
 
 # Ground combat units by era. `role`: tank | ifv | apc | artillery | mlrs | truck | recon
 ground:

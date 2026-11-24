@@ -134,6 +134,32 @@ def airframes_in(year: int, nations_on=None, side: str | None = None, strict: bo
     return out
 
 
+ROLE_FLIGHT = {        # cruise km/h, cruise alt m, low alt m
+    "fighter": (850, 6000, 500), "interceptor": (900, 8000, 800), "multirole": (850, 6000, 300),
+    "attack": (750, 3000, 200), "bomber": (850, 7000, 150), "helicopter": (200, 300, 50),
+    "attack_helicopter": (220, 200, 30), "awacs": (600, 9000, 9000), "tanker": (600, 8000, 8000),
+    "transport": (500, 6000, 3000)}
+TWO_SEAT = {"F-4E-45MC", "F-4E", "F-14A-135-GR", "F-14A-135-GR-Early", "F-14A-95-GR", "F-14B", "F-14A",
+            "Tornado IDS", "Su-24M", "A6E", "Tu-22M3"}
+
+
+def catalogue_defaults() -> dict[str, dict]:
+    """Airframe-catalogue entries (theater.airframe_catalogue) for every DCS type in the era
+    database: flight profile by role, crew, ratings and player-flyable. Hand-written entries in
+    airframes.yaml take precedence."""
+    out: dict[str, dict] = {}
+    flyable = {t for a in airframes().values() for t in a.player}
+    for af in airframes().values():
+        kmh, alt, low = ROLE_FLIGHT[af.role]
+        for t in af.dcs + af.player:
+            if t in out:
+                continue
+            out[t] = {"air_rating": af.air or 0.5, "strike_rating": af.strike or 0.5, "flyable": t in flyable,
+                      "crew": 2 if t in TWO_SEAT else 1, "cruise_kmh": kmh, "cruise_alt_m": alt,
+                      "low_alt_m": low, "loadouts": {}, "era_role": af.role}
+    return out
+
+
 # ---------------------------------------------------------------------------- weapons
 @lru_cache(maxsize=1)
 def _weapon_rules() -> list[tuple[re.Pattern, int, str]]:
@@ -185,6 +211,36 @@ def payloads_for(dcs_type_: str, year: int) -> list[dict]:
         if y is not None and y <= year:
             out.append({**p, "year": y})
     return out
+
+
+NOT_WEAPONS = {"fuel", "equipment", "ECM pod", "chaff/flare", "targeting pod", "recon pod"}
+ARM = {"AGM-45 Shrike", "AGM-78 Standard ARM", "AGM-88 HARM", "Kh-58", "Kh-28"}
+
+
+def _is_a2a(family: str) -> bool:
+    return family.startswith(("AIM-", "R-"))
+
+
+def pick_payload(dcs_type_: str, year: int, kind: str) -> dict | None:
+    """The most-shipped payload of `dcs_type_` that existed in `year` and suits `kind`:
+    "air" (air-to-air only), "sead" (carries an anti-radiation missile) or "ground"."""
+    best, best_score = None, -1.0
+    for p in payloads_for(dcs_type_, year):
+        fams = [weapon_info(c)[1] for c in p["pylons"].values()]
+        a2a = sum(1 for f in fams if _is_a2a(f))
+        ground = sum(1 for f in fams if f not in NOT_WEAPONS and not _is_a2a(f))
+        arm = sum(1 for f in fams if f in ARM)
+        if kind == "air":
+            ok, score = a2a > 0 and ground == 0, a2a
+        elif kind == "sead":
+            ok, score = arm > 0, arm * 2 + a2a * 0.1
+        else:
+            ok, score = ground > 0 and arm == 0, ground + a2a * 0.2
+        if ok:
+            score += min(p.get("count", 1), 50) / 100           # widely shipped = proven
+            if score > best_score:
+                best, best_score = p, score
+    return best
 
 
 def weapon_bars(dcs_type_: str) -> list[dict]:

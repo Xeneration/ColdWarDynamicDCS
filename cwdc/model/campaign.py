@@ -112,6 +112,9 @@ class Squadron(BaseModel):
     establishment_airframes: int = 0     # authorised strength, for replacements
     establishment_pilots: int = 0
     establishment_wsos: int = 0          # two-seat types: back-seaters
+    airframe: Optional[str] = None       # era airframe id (campaign maker); None = hand-written OOB
+    air_rating: Optional[float] = None   # per-squadron ratings (stand-ins share a DCS type)
+    strike_rating: Optional[float] = None
 
 
 # ----------------------------------------------------------------------------- places & things
@@ -380,6 +383,7 @@ class Campaign(BaseModel):
     turn_hours: int = 6
     player_name: str = "Player"
     instance: str = ""                 # random tag per campaign creation; keeps mission ids unique
+    era: Optional[dict] = None         # campaign-maker setup (year, nations, ...); None = fixed preset
     main_effort: Optional[str] = None  # sector of the Warsaw Pact's main thrust (rolled per campaign)
     # pre-war crisis (engine.crisis). Saves from before the crisis phase load as already at war.
     phase: str = "war"                 # "crisis" | "war"

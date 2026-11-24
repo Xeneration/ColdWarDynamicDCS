@@ -1,4 +1,4 @@
-"""Period-correct coalition setup for 1970s Central Europe."""
+"""Coalitions: NATO (and its friends) against the Warsaw Pact, for any year of the campaign maker."""
 from __future__ import annotations
 
 from dcs import countries
@@ -10,12 +10,21 @@ NATO = [countries.USA, countries.Germany, countries.UK, countries.Belgium,
 WARSAW_PACT = [countries.USSR, countries.GDR, countries.Poland]
 
 
+def _era_countries(side: str) -> list:
+    from cwdc import era
+    by_name = {c.name: c for c in countries.country_dict.values()}
+    return [by_name[s["country"]] for s in era.nations().values()
+            if s["side"] == side and s["country"] in by_name]
+
+
 def setup(mission: Mission) -> None:
     """Replace pydcs' modern default coalitions with NATO vs Warsaw Pact."""
     blue = Coalition("blue", mission.coalition["blue"].bullseye)
     red = Coalition("red", mission.coalition["red"].bullseye)
-    for c in NATO:
-        blue.add_country(c())
-    for c in WARSAW_PACT:
-        red.add_country(c())
+    for side, coal, base in (("west", blue, NATO), ("east", red, WARSAW_PACT)):
+        seen = set()
+        for c in base + _era_countries(side):
+            if c.name not in seen:
+                seen.add(c.name)
+                coal.add_country(c())
     mission.coalition = {"blue": blue, "red": red}

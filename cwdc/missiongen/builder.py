@@ -24,6 +24,7 @@ from dcs.vehicles import vehicle_map
 from cwdc import theater as T
 from cwdc.engine import rng
 from cwdc.engine.airbases import RUNWAY_LOADOUT
+from cwdc import era
 from cwdc.missiongen import coalitions, kneeboard, loadouts
 from cwdc.missiongen.runtime_inject import inject_runtime
 from cwdc.model import Campaign, Flight, MissionRecord, Objective, ObjectiveKind, Pos, Side, Task
@@ -484,10 +485,23 @@ def _unit_name(f: Flight, i: int) -> str:
     return f"{f.id}-{i + 1} {f.callsign}"
 
 
-def _apply_loadout(group, f: Flight, type_id: str, dcs_task) -> None:
+AIR_TASKS = (Task.CAP, Task.ESCORT, Task.QRA, Task.INTERCEPT, Task.SWEEP, Task.RECON)
+
+
+def _apply_loadout(group, f: Flight, type_id: str, dcs_task, year: int | None = None) -> None:
     if f.loadout and f.loadout != "default" and loadouts.loadouts(type_id):
-        loadouts.apply(group, f.loadout, type_id)
-        return
+        named_year = era.payload_year(loadouts.resolve(f.loadout, type_id))
+        if year is None or (named_year is not None and named_year <= year):
+            loadouts.apply(group, f.loadout, type_id)
+            return
+    if year is not None:                       # campaign maker: a shipped payload of the year
+        kind = "air" if f.task in AIR_TASKS else "sead" if f.task is Task.SEAD else "ground"
+        p = era.pick_payload(type_id, year, kind) or (era.pick_payload(type_id, year, "ground")
+                                                      if kind == "sead" else None)
+        if p is not None:
+            for unit in group.units:
+                unit.pylons = {n: {"CLSID": cl} for n, cl in p["pylons"].items()}
+            return
     plane = plane_map[type_id]
     for tk in (dcs_task, dtask.GroundAttack, dtask.CAS, dtask.CAP):
         if plane.loadout(tk):
@@ -693,7 +707,7 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
         groups[f.id] = g
         if f.id in plan.delay:
             _delay(g, plan.delay[f.id])
-        _apply_loadout(g, f, sq.aircraft_type, dcs_task)
+        _apply_loadout(g, f, sq.aircraft_type, dcs_task, c.time.year if c.era else None)
         _set_callsign(g, f, sq.callsign)
 
         for i, unit in enumerate(g.units):

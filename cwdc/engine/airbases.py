@@ -54,6 +54,16 @@ def _resident(c: Campaign, ab: Airbase, side: Side):
                  if s.base_id == ab.id and s.side is side), None)
 
 
+def aaa_type(c: Campaign, side: Side) -> str:
+    """Airfield flak: the fixed preset's guns, or the newest AAA of the campaign-maker year."""
+    if not c.era:
+        return AAA_TYPE[side]
+    from cwdc import era
+    guns = era.air_defence_in(c.time.year, side="west" if side is Side.BLUE else "east")
+    guns = sorted((v["years"][0], v["units"][-1]) for v in guns.values() if v["kind"] == "aaa")
+    return guns[-1][1] if guns else AAA_TYPE[side]
+
+
 def _units(c: Campaign, ab: Airbase, side: Side) -> list[ObjUnit]:
     """Parked aircraft on the outermost parking slots (well clear of the runway), AAA outside."""
     from dcs.planes import plane_map
@@ -75,7 +85,7 @@ def _units(c: Campaign, ab: Airbase, side: Side) -> list[ObjUnit]:
         dx, dz = s.position.x - ref.x, s.position.y - ref.y
         d = math.hypot(dx, dz) or 1.0
         k = (d + AAA_OUTSIDE) / d
-        units.append(ObjUnit(type=AAA_TYPE[side], dx=ref.x + dx * k - ab.pos.x,
+        units.append(ObjUnit(type=aaa_type(c, side), dx=ref.x + dx * k - ab.pos.x,
                              dz=ref.y + dz * k - ab.pos.z))
     return units
 
