@@ -512,6 +512,14 @@ What's deliberately left for later phases: the web UI (Phase 3), the crisis phas
   - Replies are sent as `trigger.action.outTextForGroup`. Recorded voice clips may come later.
   - Detection is realistic, not god's-eye: contacts come from friendly radar emitters (EWR sites, SAM search radars, AI fighters' radars) via `Controller:getDetectedTargets`, so low flyers can hide under the coverage. The theater therefore needs friendly EWR/GCI sites.
   - The callsign is configurable and defaults to **MAGIC**. In 1976 Europe the real equivalent was ground GCI/CRC; NATO E-3s arrived in 1977–82.
+- **NATO airfield raids (OCA)** (requested 2026-11-24). The step 9 balance pass showed NATO never flies OCA: its few sorties always find higher-scoring CAS and interdiction needs, so the player is never offered an airfield strike. The plan:
+  - **A NATO counter-air effort in doctrine:** a guaranteed share of strike sorties for OCA (for example one package a day) when the Warsaw Pact air threat justifies it. "Justified" means its sortie rate, its raids on NATO bases, or air superiority slipping. This replaces competing on raw need score.
+  - **Mission design for the player:**
+    - a low-level ingress, with SEAD/escort where the target is covered;
+    - a target briefing on the parked aircraft, shelters and AAA of Merseburg, Allstedt or Köthen;
+    - reasonable transit lengths: an air start or a forward recovery base, since the Warsaw Pact fields are about 250–300 km from Rhein-Main.
+  - **Likely needs a stronger NATO order of battle,** or a REFORGER air deployment, so OCA isn't paid for by the land battle.
+  - **Validate in DCS** that static parked aircraft and their destruction are detected (the exists / life ≤ 0 check from step 6).
 
 **Phase 5: Polish**
 - Balance passes, campaign presets (start date 1974–79, other squadrons), packaging into a one-click launcher, multiplayer client slots.
