@@ -146,3 +146,18 @@ def test_qra_mission_is_weapons_tight_with_intercept_watch(tmp_path):
     text = str(cfg.dict())
     assert "weapons_tight" in text and f"{probe.id} {probe.callsign}" in text and "intercept" in text
     assert any("WEAPONS TIGHT" in l for l in rec.briefing)
+
+
+def test_war_opens_with_warsaw_pact_airfield_raids():
+    c = _crisis(4)
+    crisis.raise_tension(c, 100)
+    turn.end_turn(c)
+    assert c.at_war and c.war_turn == 1
+    red_oca = [p for p in c.packages.values() if p.side is Side.RED and "OCA" in p.description]
+    assert red_oca, [p.description for p in c.packages.values() if p.side is Side.RED]
+    assert all(c.objectives[p.target_id].kind.value == "airbase" for p in red_oca)
+    blue = next((f for f in c.flights.values() if f.player_eligible), None)
+    if blue is not None:
+        import tempfile
+        rec = builder.build(c, blue.id, Path(tempfile.mkdtemp()), start="air")
+        assert any(l.startswith("WAR:") for l in rec.briefing)

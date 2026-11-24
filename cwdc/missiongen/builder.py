@@ -619,6 +619,9 @@ def build(c: Campaign, player_flight_id: str, out_dir: Path, start: str = "runwa
              f"Flight: {player.callsign} ({sq.name}), {len(player.airframe_ids)}x {sq.aircraft_type}"
              f" from {c.airbases[sq.base_id].dcs_name} ({start} start)",
              f"Tasking: {c.packages[player.package_id].description}"]
+    if c.at_war and c.war_turn == 1:
+        lines.append(f"WAR: the Warsaw Pact attacked at {c.time:%H%M} today. Expect raids on our "
+                     "airfields. ROE: WEAPONS FREE.")
     if not c.at_war:
         lines.append(f"CRISIS - tension {c.tension:.0f}/100. ROE: WEAPONS TIGHT. Identify and shadow; "
                      "do NOT fire unless fired upon. If a Warsaw Pact aircraft fires, you are cleared "

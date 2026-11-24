@@ -227,12 +227,17 @@ def plan_turn(c: Campaign) -> None:
                 pkg = _package(c, side, Task.CAP, f"Barrier CAP, station {STATION_NAMES[idx % 4]}", area=st)
                 pkg.reason = "keeps enemy aircraft away from our side of the front"
                 _flight(c, pool, sq, Task.CAP, pkg, area=st)
-        if night or not c.at_war:
+        # the Warsaw Pact's first blow after a crisis (campaigns started at war are already past it)
+        opening = side is Side.RED and c.war_turn == 1 and c.war_start_turn > 1
+        if (night and not opening) or not c.at_war:
             continue      # the F-4E/MiGs of 1976 do little at night; no strikes before the war
 
         # 2. needs, in priority order, each with its escort and SEAD
         taken: set[str] = set()
-        for need in needs(c, side):
+        side_needs = needs(c, side)
+        if opening:                                   # open the war on NATO's airfields
+            side_needs.sort(key=lambda n: n.label != "OCA")
+        for need in side_needs:
             if need.target.id in taken:
                 continue
             sq, task = pool.pick(CAN_FLY[need.task], near=need.target.pos)

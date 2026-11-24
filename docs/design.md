@@ -648,6 +648,11 @@ What's deliberately left for later phases: the web UI (Phase 3), the crisis phas
   - **Hostile act:** tension +15.
   - **Each probe in the mission:** intercepted −2, not intercepted +3.
 
+**Progress (2026-11-24): Phase 4 step 3 done: the war-start event**
+- On the first war turn after a crisis, the Warsaw Pact's needs put OCA first, so its opening blow falls on NATO's airfields. This happens even if that turn is at night.
+- Campaigns started directly at war are past that point, so they are unchanged.
+- That turn's briefing opens with "WAR: the Warsaw Pact attacked at HHMM… ROE: WEAPONS FREE", and the news posts the war's start.
+
 **Phase 5: Polish**
 - Balance passes, campaign presets (start date 1974–79, other squadrons), packaging into a one-click launcher, multiplayer client slots.
 - **Immersion lockdown, once all phases are finished** (requested 2026-11-23; kept on for now to help testing):
