@@ -171,3 +171,36 @@ Treat **every DCS module as available**: the user owns many more than are instal
   - The East side (player) is refused for now.
   - AI types without shipped payloads (MiG-21, MiG-15, F-86, Mirage F1 ...) use pydcs task defaults, which are not year-filtered (Phase C).
   - Helicopters and carrier squadrons are not generated yet (carrier types only as the player's choice).
+
+### Phase C: flying several airframes (2026-11-24, done)
+
+- **The wing:**
+  - `Squadron.player_wing` marks the rest of your wing. `generate.wing_choice` adds up to 2 squadrons flying other owned types in service with your side that year. Your nation, land-based types and real types (not stand-ins) come first.
+  - With `mixed_wing` (on by default, game-first) any nation of the side and carrier types count, e.g. the A-4E or F-14 as a land-based US Navy detachment named VF-/VA-.
+  - Wing squadrons share your home airfield and take an AI slot of their kind.
+  - `planner.player_can_fly` offers you flights from your home squadron and the wing, for types you own. `assign_player` already seats you in any eligible flight (you are cross-qualified).
+  - Example, 1966: F-100D (home), A-4E and F-5 (Norwegian F-5A stand-in).
+  - Example, 1985: F-4E, F-5E and A-10A.
+- **One payload decision per flight:** `loadouts.flight_payload(c, f)` is used by the mission builder, the briefing (new `Loadout:` line, also on the kneeboard) and the web ATO.
+  - A named loadout is used when all its stores existed that year.
+  - Otherwise the most-shipped period payload for the task (air / SEAD / ground, then guns and tanks only).
+  - A campaign-maker war never falls back to DCS task defaults, which can be decades too new.
+- **Payloads for AI types:**
+  - The harvest now also reads `CoreMods\aircraft\*\UnitPayloads`, the module authors' payloads, installed whether or not you own the module. That covers the MiG-21, MiG-15, MiG-19, F-86, Mirage F1, M-2000C, AV-8B, A-6E, L-39 and Gazelle.
+  - New store years: French Magic/R530/Super 530/SNEB/SAMP/BAP-100, Kh-66, BL-755, HOT, Mistral, Soviet and French ECM pods.
+  - Training stores (practice bombs, captive rounds, ACMI pods) are a family of their own and are never loaded.
+  - Nuclear bombs are excluded (year 2100).
+- **Trimming:** a shipped payload with stores too new for the year is kept with those pylons emptied. That is a subset of a payload DCS accepts, and it is scored down per dropped store.
+  - A 1976 F-14 flies 4x AIM-54A + 2x AIM-7F (the AIM-9Ls come in 1977).
+  - A 1966 MiG-21 flies R-3S/R-3R.
+  - A 1957 MiG-15 flies guns and tanks.
+- **Balance check** (4 seeds x 21 days):
+
+  | | NATO loss / sortie | WP loss / sortie |
+  |---|---|---|
+  | Preset | 3.3% | 4.8% |
+  | 1966 | 3.3% | 4.9% |
+  | 1985 | 4.7% | 3.4% |
+
+  In 1985 the F-5E wing squadron takes a slot an F-15/F-16 would have had. Per-era tuning is Phase G.
+- **Open:** helicopter squadrons (UH-1H missions) come with Phase E. The resolver still rates aircraft only, not their loadouts.
